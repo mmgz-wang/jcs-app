@@ -11,7 +11,7 @@
 	  			</div>
 	  			<div v-if="isTeach" class="teacherlist">
 	  				<div class="allteach">
-	  					查看跟多老师
+	  					查看更多老师
 	  				</div>
 	  				<div class="teachmsg" v-for="item in authorDataList">
 	  					<dl onclick="goauthor(324)">
