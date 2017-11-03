@@ -12,6 +12,8 @@ import RecordList from '../components/portal/recordlist'
 import RoomList from '../components/room/roomlist'
 import RoomIndex from '../components/room/roomindex'
 import Article from '../components/articledetail/articledetail'
+import MyPurchase from '../components/my/my_purchase'
+import MyCollect from '../components/my/my_collect'
 
 Vue.use(Router)
 
@@ -34,6 +36,8 @@ export default new Router({
     { path: '/live_articlelist', name: 'live_articlelist', component: Live_articlelist},
     { path: '/competition', name: 'competition', component: Competition },
     { path: '/attention', name: 'attention', component: Attention },
+    { path: '/my_purchase', name: 'my_purchase', component: MyPurchase },
+    { path: '/my_collect', name: 'my_collect', component: MyCollect },
     { path: '/my', name: 'my', component: My }
   ]
 })
