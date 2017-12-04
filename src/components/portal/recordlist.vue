@@ -1,12 +1,21 @@
 <template>
   <div id="recordlist">
     <publick-header :headerData="headerData"></publick-header>
-    <scroll class="container" :data="articleDataList">
+    <scroll class="container" 
+    :needRefresh="needRefresh"
+    :pullDownRefresh="pullDownRefresh"
+    :pullUpLoad="pullUpLoad"
+    :pullingDownFn="pullingDownFn"
+    :pullingUpFn="pullingUpFn"
+    ref="scroll" 
+    :data="articleDataList">
       <div class="scroll-wrap">
-        <article-list :topMargin="true" :articleDataList = "articleDataList"></article-list>
+        <p pulldown>{{pullDownText}}</p>
+        <article-list @goarticle="goarticle" :topMargin="false" :articleDataList = "articleDataList"></article-list>
         <div class="loading-container" v-show="!articleDataList.length">
           <loading></loading>
         </div>
+        <p pullup>{{pullUpText}}</p>
       </div>
     </scroll>
   </div>
@@ -22,12 +31,18 @@ export default {
 	data() {
     return {
       articleDataList: [],
-      types: 0,
       headerData: {
           ele: '<h1>红人榜</h1>',
           name: 'recordlist',
           isShow: false
       },
+      types: 0,
+      needRefresh: true,
+      pullDownRefresh: {threshold: 50, stop: 50},
+      pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
+      pullDownText: '下拉刷新！',
+      pullUpText: '上拉加载更多！',
+      lastArticleId: 0,
     }   
   },
 	components: {
@@ -38,26 +53,50 @@ export default {
     this.getData();
 	},
   methods: {
-    refresh (done) {
-      this.getData(this.top,done);
+    pullingDownFn(scroll){
       this.types = 0;
+      this.lastArticleId = 0;
+      this.pullDownText = '努力加载中 ...';
+      this.getData();
+      
     },
-    infinite (done) {
-      this.getData(this.bottom,done);
+    pullingUpFn(scroll){
       this.types = 1;
+      this.pullUpText = '努力加载中 ...';
+      this.getData();
+      
     },
     getData(id,done) {
       var that = this;
       this.$nextTick(function () {
         this.$http.jsonp(
          'http://www.jingcaishuo.com/article/list/subType?time=' + Math.random(),
-          { params:{language: 'M',articleId: id,type:'2'}}
+          { 
+            params:{
+              language: 'M',
+              articleId: this.lastArticleId,
+              type:'2'
+            }
+          }
         ).then(function(res) {
-          console.log(res);
-            that.articleDataList = res.data.articleList;
+          if(this.types){
+              this.articleDataList = this.articleDataList.concat(res.data.articleList);
+              this.pullUpText = '上拉加载更多！';
+            }else{
+              this.articleDataList = res.data.articleList;
+              this.pullDownText = '下拉刷新！';
+            }
+            this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id-1;
+            console.log(this.lastArticleId)
         })
       })
-    }
+    },
+    goarticle(item){
+      this.$router.push({
+        path: `/articledetail/?id=${item.id}`,
+        props: {id: item.id}
+      })
+    },
 
   }
 }
@@ -73,7 +112,25 @@ export default {
   top:0;
   bottom:0px;
   color:#fff;
-
+  p[pulldown]{
+    width:100%;
+    height:50px;
+    line-height:50px;
+    text-align:center;
+    color:@assistcolor;
+    font-size:0.12rem;
+    position:absolute;
+    top:-50px;
+    left:0;
+  }
+  p[pullup]{
+    width:100%;
+    height:40px;
+    line-height:40px;
+    text-align:center;
+    color:@assistcolor;
+    font-size:0.12rem;
+  }
   header{
     height:50px;
     line-height:50px;

@@ -1,8 +1,16 @@
 <template>
 	<div class="room-list">
 		<publick-header @menuClick="setMenu" :headerData="headerData"></publick-header>
-		<scroll class="scroll" ref="scroll" :data="roomListData">	
-			<div class="roomlist-wrap">			
+		<scroll class="scroll" 
+		:needRefresh="needRefresh"
+		:pullDownRefresh="pullDownRefresh"
+		:pullUpLoad="pullUpLoad"
+		:pullingDownFn="pullingDownFn"
+		:pullingUpFn="pullingUpFn"
+		ref="scroll" 
+		:data="roomListData">	
+			<div class="roomlist-wrap">	
+				<p pulldown>{{pullDownText}}</p>		
 				<div class="list" v-for="item in roomListData" :id="item.roomId" @click="gooRoom(item)">
 					<div class="pic">
 						<img :src="item.roomPic" alt="">
@@ -21,6 +29,7 @@
 					    
 					</div>
 				</div>
+				<p pullup>{{pullUpText}}</p>
 			</div>
 		</scroll>
 		<router-view></router-view>
@@ -39,41 +48,82 @@ export default {
 		return {
 			roomPageIndex: 0,
 			roomListData: [],
+			types: 0,
 			headerData: {
-				ele: '<h1 class="jcs-title">聊天室</h1>',
+				ele: '聊天室',
 				name: 'roomlist',
 				isShow: true
-			}
+			},
+			needRefresh: true,
+			pullDownRefresh: {threshold: 50, stop: 50},
+			pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
+			pullDownText: '下拉刷新！',
+			pullUpText: '上拉加载更多！',
+			roomPageIndex: 0,
+			pageRows: 20
 		}
 	},
 	components: {
 		PublickHeader,Scroll
 	},
 	created(){
-		this.getDta();
+		this.getData();
 	},
 	methods: {
 		setMenu: function(name){
 			var menu = document.querySelector('#menu');
 			menu.className = 'menus show';
-
+		},
+		pullingDownFn(scroll){
+		  this.types = 0;
+		  this.roomPageIndex = 0;
+		  this.pullDownText = '努力加载中 ...';
+		  this.getData();
+		  
+		},
+		pullingUpFn(scroll){
+		  this.types = 1;
+		  this.roomPageIndex += 1;
+		  this.pullUpText = '努力加载中 ...';
+		  this.getData();
+		  
 		},
 		gooRoom: function(item){
-			this.$router.push({ name: 'roomindex', params: item });
+			console.log(item)
+			if(Sharefn.isLogin()){
+				this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
+			}else{
+				//if(item.roomStatus == 2 || item.roomStatus == 1){
+					this.$router.push({ name: 'enter'});
+				/*}else{
+					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
+				}*/
+				
+			}
+			
 		},
-		getDta: function(){
+		getData: function(){
 			this.$nextTick(function(){
 				this.$http.jsonp(Common.baseUrl.roomMsgurls+'/Room/GetRoomList',
 					{ 
 						params:{
 							userId: Sharefn.getUserId(),
 				            pageIndex: this.roomPageIndex,
-				            pageRows: 20
+				            pageRows: this.pageRows
 				        }
 				    }
 				).then(function(res){
+					console.log(res.data)
+					console.log(this.types)
 					if(res.status == 200 && res.data.length > 0){
-						this.roomListData = res.data;
+						if(this.types){
+
+						  this.roomListData = this.roomListData.concat(res.data);
+						  this.pullUpText = '上拉加载更多！';
+						}else{
+						  this.roomListData = res.data;
+						  this.pullDownText = '下拉刷新！';
+						}
 					}else{
 						console.log('请求失败')
 					}
@@ -199,6 +249,25 @@ export default {
 	width:100%;
 	height:100%;
 }
+p[pulldown]{
+  width:100%;
+  height:50px;
+  line-height:50px;
+  text-align:center;
+  color:@assistcolor;
+  font-size:0.12rem;
+  position:absolute;
+  top:-50px;
+  left:0;
+}
+p[pullup]{
+  width:100%;
+  height:40px;
+  line-height:40px;
+  text-align:center;
+  color:@assistcolor;
+  font-size:0.12rem;
+}
 .roomlist-wrap{
 	float:left;
 	width:100%;
@@ -207,11 +276,11 @@ export default {
 }
 .list{
 	display:flex;
-	border-bottom:1px solid @bordercolor;
 	width:100%;
 	background:@whites;
 	padding-top:10px;
 	padding:10px 10px 10px 0;
+	.border-bottom;
 }
 .pic{
 	width:50px;
@@ -298,7 +367,11 @@ i .finish{
 	background-size:14px;
 	background-position:6px 3px;
 }
-.info{float: left;width: 100%;cursor: pointer;}
+.info{
+	float: left;
+	width: 100%;
+	cursor: pointer;
+}
 .scroll{
 	overflow:hidden;
 	width:100%;

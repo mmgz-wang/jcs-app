@@ -6,9 +6,8 @@ import router from './router'
 import vueResource from 'vue-resource'
 import vueSwiper from 'vue-awesome-swiper'
 import VueLazyLoad from 'vue-lazyload'
-//import axios from 'axios'
-//import VueAxios from 'vue-axios'
-//import Axios from './dist/config'
+ 
+
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
@@ -23,5 +22,7 @@ Vue.use(VueLazyLoad,{
 })
 Vue.use(vueResource);
 Vue.use(vueSwiper);
+//Vue.use(Weui);
+//Vue.use(io,'http://123.206.88.92:80');
 //Vue.use(axios,VueAxios);
 //Vue.prototype.$ajax = Axios;

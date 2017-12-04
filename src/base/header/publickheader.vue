@@ -8,6 +8,7 @@
     </div>
 </template>
 <script type="text/javascript">
+import shareFn from 'common/js/sharefn.js'
 export default {
 	props: {
 		headerData: {
@@ -34,7 +35,21 @@ export default {
 			this.$router.back();
 		},
 		menushow: function(){
-			this.$emit('menuClick',this.headerData.name)
+			var menu = document.querySelector('#menu');
+			menu.className = 'menus show';
+			menu.querySelector('#menupic').setAttribute('src',this.setPic())
+		},
+		getCookie(name){
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+		　　return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
+		},
+		setPic(){
+			if(shareFn.getUserPic()==undefined || shareFn.getUserPic()==''){
+				return require('../../common/img/uyse.png')
+			}else{
+				return shareFn.getUserPic();
+			}
+			
 		}
 	}
 }
@@ -42,16 +57,19 @@ export default {
 <style lang="less">
 @import "../../common/less/base.less";
 	.header{
-	  height:50px;
-	  line-height:50px;
-	  background:@reds;
-	  color:#fff;
-	  font-size:0.12rem;
-	  text-align:center;
-	  z-index:666;
-	}
-	.header div{
+		height:50px;
+		line-height:50px;
+		background:@reds;
+		color:#fff;
+		font-size:0.12rem;
+		text-align:center;
+		z-index:666;
+	div{
 		display: inline-block;
+		width:50%;
+		margin:0 auto;
+		text-align:center;
+		font-size:@titsize;
 	}
 	.back{
 	  float: left;
@@ -59,6 +77,9 @@ export default {
 	  background: url('../../common/img/back.png') no-repeat center;
 	  background-size:8px 17px;
 	  color: @transparent;
+	  position:absolute;
+	  left:0;
+	  top:0;
 	}
 	.menu{
 	  color: @transparent;
@@ -66,9 +87,13 @@ export default {
 	  padding:0 10px;
 	  background: url('../../common/img/menu.png') no-repeat center;
 	  background-size: 0.20rem auto;
+	  position:absolute;
+	  right:0;
+	  top:0;
 	}
 	h1{
 	  display:inline-block;
 	  font-size:0.18rem;
 	}
+}
 </style>

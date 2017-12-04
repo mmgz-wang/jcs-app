@@ -2,7 +2,7 @@
     <div class="art-list" :class="{artlistnomargin:topMargin}" id="art-list">
         <div class="listcon" v-for="item in articleDataList" @click="goarticle(item)">
             <div class="txtbox">
-                <dl @click="goauthor(item.author_id)" :author_id="item.author_id">
+                <dl @click.stop="goauthor(item.author_id)" :author_id="item.author_id">
                     <dt>
                         <img v-lazy="item.authorPic">
                     </dt>
@@ -11,12 +11,12 @@
                         <span class="tm">{{timeformat(item.last_modified)}}</span>
                     </dd>
                 </dl>
-                <span class="txt" v-html="item.tabView">
-                    {{item.tabView}}
-                </span>
-                <span class="txt">{{item.digest}}</span>
+                <p class="txt" v-html="tabView(item)">
+
+                </p>
+                <span class="list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">VIP</i>{{item.digest}}</span>
             </div>
-            <div class="titbox match" @click="gomatch(item.matches[0].entry_id)" v-if="item.matches.length>0">
+            <div class="titbox match" v-if="item.matches!=undefined && item.matches.length>0 && matchShow" @click.stop="gomatch(item.matches[0].entry_id)">
                 <span># {{item.matches[0].cup_name}}</span>
                 <span>{{item.matches[0].home_team}} vs {{item.matches[0].away_team}}</span>
                 <span>{{timeformat(item.matches[0].start_time)}} #</span>
@@ -26,6 +26,7 @@
     </div>
 </template>
 <script type="text/javascript">
+import shareFn from 'common/js/sharefn'
 export default{
     props:{
         articleDataList: {
@@ -35,6 +36,10 @@ export default{
         topMargin: {
             type: Boolean,
             default: false
+        },
+        matchShow: {
+            type: Boolean,
+            default: true
         }
     },
     data() {
@@ -42,38 +47,72 @@ export default{
 
         }
     },
+    created(){
+       
+    },
+    mounted(){
+        this.$nextTick(function(){
+            //console.log(this.articleDataList)
+        })
+         
+    },
     components: {
         
     },
     methods: {
-        goauthor(Id){
-            console.log(Id)
+        goauthor(Id){            
+            this.$router.push({
+                path: `/author/?id=${Id}`
+            })
         },
         goarticle(item){
-            this.$emit('goarticle',item);
+            this.$emit('goarticle',item)
+            /*this.$router.push({
+                path: `/articledetail/?id=${item.id}`,
+                props: {id: item.id}
+            })*/
         },
         gomatch(Id){
-            console.log(Id)
+            this.$router.push({
+              path: `/matchdetail/?id=${Id}`
+            })
         },
         timeformat(s){
-            var now = new Date(),
-                targetTime = new Date(s),
-                tody = now.getDate(),
-                targetDate = targetTime.getDate(),
-                thisMonth = now.getMonth()+1,
-                targetMonth = targetTime.getMonth()+1,
-                thisYear = now.getFullYear(),
-                targetYear = targetTime.getFullYear(),
-                hours = targetTime.getHours(),
-                minutes = targetTime.getMinutes();
-            if(targetYear == thisYear && targetDate == tody){
-                return "今天 "+ (hours < 9 ? '0'+hours : hours)+':'+(minutes < 9 ? '0'+minutes : minutes);
-            }else if(targetYear == thisYear && targetDate == tody-1) {
-                return "昨天 "+ (hours < 9 ? '0'+hours : hours)+':'+(minutes < 9 ? '0'+minutes : minutes);
-            }else {
-                return (targetMonth < 9 ? '0'+targetMonth : targetMonth) + '-' + targetDate +' ' + (hours < 9 ? '0'+hours : hours)+':'+(minutes < 9 ? '0' + minutes : minutes);
+            return shareFn.setTime(s);
+        },
+        tabView(item){
+            var str = '';
+            if(!item.tabView){
+                return '';
+            }    
+            if(item.chargeable) {
+                str += '<i class="vip">VIP</i>'+item.tabView;
+                if(item.singleUnlock && item.price>0){
+                    str += '<span class="list-Price">'+item.price+'精彩币</span>';
+                }else if(!item.singleUnlock){
+                    str += '<span class="list-Price">(VIP用户专享)</span>';
+                }
+                return str;
+            }else{
+                return item.tabView;
             }
-            
+        },
+        setPrice(val){
+            if(val.price == 0 && !val.chargeable && (val.authorLevels != undefined && val.authorLevels.length <= 0)){
+                return '查看观点'
+            }else if(val.chargeable && (val.authorLevels != undefined && val.authorLevels.length > 0) && (val.price == undefined || val.price == 0)){
+                return 'VIP专属'
+            }else{
+                return '￥'+val.price+'解锁'
+            }
+        }
+    },
+    watch: {
+        articleDataList: {
+            handler: function(val,oldval){
+                console.log(oldval)
+            },  
+            deep: true
         }
     }
 }
@@ -81,36 +120,87 @@ export default{
 </script>
 <style lang="less">
 @import "../../common/less/base.less";
-.art-list{margin-top:10px;}
-.artlistnomargin{margin-top:0;}
-.listcon{width:100%;overflow:hidden;margin-bottom:8px;background:@whites;padding-left:10px;}
-.topb img{width:100%}
-.txtbox{float:left;width:100%;padding:8px 10px 5px 0;overflow:hidden;}
-.txtbox dl{float:left;width:100%;padding-bottom:5px;}
-.txtbox dt{float:left;height:0.275rem;padding-right:10px;}
-.txtbox dt img{width:0.275rem;height:0.275rem;border-radius:50%;float:left;}
-.txtbox dd{width:87%;float:left;line-height:0.3rem;color:#dddddd;}
-.txtbox .name{float:left;font-size:0.15rem;color:@namecolor;}
-.txtbox .tm{float:right;font-size:0.12rem;color: @assistcolor;}
-.txtbox dd a{color:#514da5;}
-.txtbox dd i{float:left;width:16%; margin:-14px 5px 0 0;}
-.txtbox dd i img{width:100%}
-.txtbox .txt{float:left;margin-top:0px;width:100%;line-height:0.24rem;font-size:0.15rem;
-    word-break:break-all;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-    overflow:hidden;color: @maincolor;}
-.txtbox .txt i{display:inline-block;height:0.16rem;line-height:0.14rem;padding:0 5px;margin-right:8px;border-radius:2px;font-style:normal;color: @reds;border:1px @reds solid; font-size:0.12rem;-webkit-transform: translateY(-0.01rem);transform: translateY(-0.01rem);}
+.artlistnomargin{
+    margin-top:10px;
+}
+.art-list{
+    .listcon{
+        width:100%;
+        overflow:hidden;
+        margin-bottom:8px;
+        background:@whites;
+        padding-left:10px;
+    }
+    .topb img{
+        width:100%
+    }
+    .txtbox{
+        float:left;
+        width:100%;
+        padding:8px 10px 5px 0;
+        overflow:hidden;
+    }
+    .txtbox dl{float:left;width:100%;padding-bottom:5px;}
+    .txtbox dt{float:left;height:0.275rem;padding-right:10px;}
+    .txtbox dt img{width:0.275rem;height:0.275rem;border-radius:50%;float:left;}
+    .txtbox dd{width:87%;float:left;line-height:0.3rem;color:#dddddd;}
+    .txtbox .name{float:left;font-size:0.15rem;color:@namecolor;}
+    .txtbox .tm{float:right;font-size:0.12rem;color: @assistcolor;}
+    .txtbox dd a{color:#514da5;}
+    .txtbox dd i{float:left;width:16%; margin:-14px 5px 0 0;}
+    .txtbox dd i img{width:100%}
+    .list-digest{
+        margin-top:0px;
+        width:100%;
+        line-height:0.24rem;
+        font-size:0.15rem;
+        word-break:break-all;
+        display:-webkit-box;
+        -webkit-line-clamp:3;
+        -webkit-box-orient:vertical;
+        overflow:hidden;
+        color: @maincolor;
+    }
+    .txt{
+        font-size:0.12rem;
+        float:left;
+        width:100%;
+        box-sizing:content-box;
+        i{
+            display:inline-block;
+            box-sizing:content-box;
+            height:16px;
+            line-height:16px;
+            padding:0 5px;
+            margin-right:8px;
+            border-radius:3px;
+            font-style:normal;
+            color: @reds;
+            border:1px @reds solid; 
+            font-size:12px;
+            transform: translateY(-0.01rem);}
+        .vip{
+            background: @reds;
+            color:@whites;
+            border-color: @reds;
+        }
+    }
+    
 
-.txtbox .txt .vip{background: @reds;color:#404040;border-color: @reds;}
-.titbox{float:left;width:100%;font-size:0.12rem;color: @blues;padding-bottom:10px;}
-.titbox span{margin:0 10px 0 0px;}
-.titbox span:nth-child(1){margin-right: 10px;}
-.titbox span:last-child{display: inline-block;}
-/*.titbox span:last-child:after {
-    content: '';width: 0px;height: 0px;float: right;
-    border: 0.05rem solid transparent;border-left-color: #8b7a39;
-    -webkit-transform: translate3d(0.06rem,0.035rem,0);transform: translate3d(0.06rem,0.035rem,0);}*/
-.txtbox label{color: @oranges;font-size:0.12rem;padding: 0 5px;}
-.txtbox .label .gg{padding:0px;}
-.match{border-top:1px solid @bordercolor;padding-top:5px;}
-
+    .titbox{float:left;width:100%;font-size:0.12rem;color: @blues;padding-bottom:10px;}
+    .titbox span{margin:0 10px 0 0px;}
+    .titbox span:nth-child(1){margin-right: 10px;}
+    .titbox span:last-child{display: inline-block;}
+    .txtbox label{color: @oranges;font-size:0.12rem;padding: 0 5px;}
+    .txtbox .label .gg{padding:0px;}
+    .match{
+        position:relative;
+        padding-top:5px;
+        .border-top;
+    }
+    .list-Price{
+        font-size:0.12rem;
+        color:@reds;
+    }
+}
 </style>

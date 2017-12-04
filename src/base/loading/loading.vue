@@ -20,8 +20,8 @@ export default {
 	width: 100%;
 	height:100%;
 	text-align:center;
-	background:@blacks;
-	opacity:0.8;
+	background:@backcolor;
+	opacity:1;
 	.desc{
 		line-height:20px;
 		font-size:@assistsize;

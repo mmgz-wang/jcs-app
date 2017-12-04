@@ -1,15 +1,986 @@
 <template>
-  <div class="competition">
-      competition 
-  </div>
+	<div class="competition">
+		<publick-header @menuClick="setMenu" :headerData="headerData"></publick-header>	
+		<div class="tab">
+			<span class="isAll" 
+			:class="{open:isAllWrapShow && !isAll,garyopen:isAll && !isAllWrapShow,garyun:isAllWrapShow && isAll}" 
+			@click="wrapShow('isAllWrapShow')">{{isAllText}}</span>
+
+			<span class="search" 
+			:class="{garyopen:!searchWrapShow,garyun:searchWrapShow}"
+			@click="wrapShow('searchWrapShow')">选联赛</span>
+		</div>
+
+		<ul class="isAllWrap" :class="{show:isAllWrapShow}" @click="isAllChose">
+			<li id="little" class="on">推荐<span class="line"></span></li>
+			<li id="all">全部</li>
+		</ul>
+
+		<div class="searchwrap" :class="{show:searchWrapShow}">
+			<ul class="searchMain" @click="searchChose">
+				<li v-for="item in cupNameArr">
+					<span class="on" v-for="(m,i) in item" :id="i">{{i}}({{m.length}})</span>
+				</li>
+			</ul>
+			<div class="searchfoot">
+				<p class="all">
+					<span 
+						@click="setAllChoose(allChoose)" 
+						class="all-chos chos_on"
+						></span>
+					全选&nbsp;&nbsp;&nbsp;已选择 <span class="num-chos">0</span>&nbsp;场
+				</p>
+				<p class="chos-btn" @click="searchSure" id="sure">确定</p>
+			</div>
+		</div>
+		
+		<scroll
+			:needRefresh="needRefresh"
+			:pullDownRefresh="pullDownRefresh"
+			:pullUpLoad="pullUpLoad"
+			:pullingDownFn="pullingDownFn"
+			:pullingUpFn="pullingUpFn"
+			 ref="Scroll" 
+			 class="com-list-wrap" 
+			 :data="matchListData">
+			<div class="com-list-inner" style="float:left;padding-bottom:50px;">
+				<p pulldown>{{pullDownText}}</p>
+				<ul matchlist>
+					<li v-if="matchListData.length!=0" v-for="item in matchListData" :id="'s'+item.lottery_entry_id" @click="openArticle(item.lottery_entry_id)">
+						<div match-item="">
+							<p class="cup-times">
+								<span class="tim">{{item.startTime}}</span>
+								 {{item.cupName}}
+								 {{item.matchId}}
+								 <span class="art-num on-more">{{item.articleCount}}</span>
+							</p>
+							<div class="match-msg">
+								<div class="match-left on" style="color:;" v-html="setMatchStatus(item.matchScore)">
+									{{setMatchStatus(item.matchScore)}}
+								</div>
+								<div class="match-center">
+									<span>{{item.homeTeam}}</span><span>{{item.awayTeam}}</span>
+								</div>
+								<div class="match-right on" v-if="item.matchScore.homeTeamScore != undefined">
+									{{item.matchScore.homeTeamScore}} <span>({{item.matchScore.homeTeamHalfScore}})</span><br>
+									{{item.matchScore.guestTeamScore}} <span>({{item.matchScore.guestTeamHalfScore}})</span>
+								</div>
+								<i v-if="item.articleCount>0" class="open"></i>
+							</div>
+						</div>
+						<ul atrlist :id="'list-'+item.lottery_entry_id" v-if="item.articleCount>0">
+							<li v-for="artItem in item.articleList" @click.stop="goarticle(artItem)">
+								<dl>
+									<dt @click.stop="goauthor(artItem.author_id)">
+										<img :src="artItem.authorPic" :data-src="artItem.authorPic">
+									</dt>
+									<dd>
+										{{artItem.authorName}}<span v-if="artItem.authorFollowed" class="follow">已关注</span><span v-if="artItem.authorRedInfo" class="red">连红</span>
+										<p class="art-time">{{setTime(artItem.last_modified)}}</p>
+										
+										<span class="price">{{setPrice(artItem)}}</span>
+									</dd>
+								</dl>
+								<p class="digest">
+									{{artItem.digest}}
+								</p>
+							</li>
+							<li v-if="item.articleCount>3" @click.stop="gomatch(item.lotteryMatchId)" class="more-art">浏览该赛事全部分析</li>
+						</ul>
+					</li>
+					<li nomatch v-if="matchListData.length == 0">暂无最新赛事</li>
+					<p pullup>{{pullUpText}}</p>
+				</ul>
+			</div>
+		</scroll>
+		
+	</div>
 </template>
 
 <script>
+import Scroll from 'base/scroll/scroll'
+import Common from 'common/js/common'
+import shareFn from 'common/js/sharefn'
+import publickHeader from 'base/header/publickheader'
   export default {
-    name: 'competition'
+    name: 'competition',
+    data(){
+    	return{
+    		needRefresh: true,
+    		pullDownRefresh: {threshold: 50, stop: 50},
+          	pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
+          	pullDownText: '下拉加载更多历史赛事',
+          	pullUpText: '上拉加载更多赛事',
+    		headerData: {
+    		    ele: '<span class="bo on" id="foot-hd">足球</span><span class="fo" id="basket-hd">篮球</span>',
+    		    name: 'competition',
+    		    isShow: true
+    		},
+    		matchListData:[],
+    		cupList: [],
+    		cupNameArr: [],
+    		chooseArr: [],
+    		isBall: 0,
+    		isAll: false,
+    		isAllWrapShow: false,
+    		searchWrapShow: false,
+    		allChoose: true,
+    		isAllText: '推荐',
+    		D_TYPES: 0,
+    		IS_PAGEUP: '',
+    		downTime: '',
+    		upTime: '',
+    		scrollToId: '0',
+    		newScrollH: 0,
+    		oldScrollH: 0,
+    		isFirstEnter: true,
+    		loding: null
+    	}    	
+    },
+    components: {
+    	Scroll,publickHeader
+    },
+    created(){
+    	this.isFirstEnter=true;
+    	this.loding = layer.open({
+    		type: 2,
+    		content: '加载中'
+    	});
+    },
+    beforeRouteEnter(to, from, next) {
+        if(from.name=='enter'){
+            location.reload();
+        }
+        if(from.name == 'articledetail'){
+            to.meta.iskeep=true;
+        }
+        if(from.name == 'home'){
+        	to.meta.iskeep = false;
+        }
+        next();
+    },
+    activated() {
+    	if(!this.$route.meta.iskeep || this.isFirstEnter){
+            this.$refs.Scroll.refresh();
+            this.matchListData= [];
+            this.cupList= [];
+            this.cupNameArr= [];
+            this.chooseArr= [];
+            this.isBall= 0;
+            this.isAll= false;
+            this.isAllWrapShow= false;
+            this.searchWrapShow= false;
+            this.getData();
+    	}
+    	this.isFirstEnter = false;
+        this.$route.meta.iskeep=false;
+    },
+    deactivated() {
+        if(this.$route.name == 'home'){
+        	this.matchListData = [];
+            this.$refs.Scroll.scrollTo(0,0,0);
+        }
+        console.log("我是第一个页面的 deactivated 方法");
+    },
+    mounted(){
+    	//this.getData();
+    	this.isBallClick();
+    },  
+    methods: {
+    	pullingDownFn(scroll){
+    		this.IS_PAGEUP = true;
+    		this.oldScrollH = this.$refs.Scroll.scroll.scrollerHeight;
+    		this.cupNameArr = [];
+    		this.pullDownText = '释放加载 ...';
+    		this.getData();
+    	},
+    	pullingUpFn(scroll){
+    		this.IS_PAGEUP = false;
+    		this.oldScrollH = this.$refs.Scroll.scroll.scrollerHeight;
+    		this.cupNameArr = [];
+    		this.pullUpText = '努力加载中 ...';
+    		this.getData();
+    	},
+    	getData(){
+    		var that = this;
+    		var getTime = this.nowTime;
+    		if(this.IS_PAGEUP === ''){
+    		  getTime = this.nowTime();
+    		}else if(this.IS_PAGEUP === true){
+    		  getTime = this.downTime;
+    		}else if(this.IS_PAGEUP === false){
+    		  getTime = this.upTime;
+    		}
+    		this.$nextTick(function(){
+    			this.$http.jsonp(Common.baseUrl.host+'/match/listv2',
+    				{ 
+    					params:{
+							sportType: this.isBall, 
+							startTime: getTime, 
+							isAll: this.isAll,
+							isPageUp: this.IS_PAGEUP,
+							userId: shareFn.getUserId(), 
+    			        }
+    			    }
+    			).then(function(res){
+    				if(res.data.code==='0000'){
+    					if(this.IS_PAGEUP === true){
+    						this.matchListData = res.data.matchList.concat(this.matchListData);
+    						this.downTime = this.matchListData[0].startTime2;
+    						this.pullDownText = '下拉加载更多历史赛事';
+    					}else if(this.IS_PAGEUP === false){
+    						this.matchListData = this.matchListData.concat(res.data.matchList);
+    						this.upTime = this.matchListData[this.matchListData.length-1].startTime2;
+    						this.pullUpText = '上拉加载更多赛事';
+    						if(res.data.matchList == 0){
+    							this.pullUpText = '到底啦！！！';
+    						}
+    					}else if(this.IS_PAGEUP === ''){
+    						this.matchListData = res.data.matchList;
+    						if(this.matchListData.length>0){
+    							this.downTime = this.matchListData[0].startTime2;
+    							this.upTime = this.matchListData[this.matchListData.length-1].startTime2;
+    						}
+    					}
+    					this.matchListData.forEach(function(v,i){
+    						if(that.cupList.hasOwnProperty(v.cupName)){
+    						  	that.cupList[v.cupName].push(v)
+    						}else{
+    						  	that.cupList[v.cupName]=[v]
+    						}
+    					})
+    					for(var i in that.cupList){
+    						var obj = {};
+    						obj[i] = that.cupList[i];
+    						that.cupNameArr.push(obj);
+    					}
+
+    					if(this.IS_PAGEUP === true){
+							console.log(that.scrollToId);
+							console.log(document.querySelector('#s'+that.scrollToId));
+							this.$refs.Scroll.scrollToElement(that.scrollToId, 0, 0, -110)
+    					}else{
+							if(this.matchListData.length<=0){
+								//bottomTip.innerText = '没有更多赛事啦';
+							}else{
+								//bottomTip.innerText = '上拉加载更多赛事';
+							}
+    					  	this.$refs.Scroll.refresh();
+    					} 
+    					//that.scrollToId = this.matchListData[0].lottery_entry_id;
+    					//console.log('#s'+this.matchListData[0].lottery_entry_id)
+    					console.log(this.matchListData)
+    				}else{
+    					console.log('请求失败')
+    				}
+    				layer.close(this.loding);
+    				
+    			})
+    		})
+    	},
+    	nowTime: function(){
+			var	now = new Date(),
+				day = now.getDate(),
+				Month = now.getMonth()+1,
+				Year = now.getFullYear(),
+				hours = now.getHours(),
+				minutes = now.getMinutes();
+				if(hours>=2){
+					hours = hours*1-2;
+				}else{
+					day = day*1-1;
+					hours = 22
+				}
+    	    return Year + '-' + Month + '-' + day + ' ' + hours + ':' + minutes;
+    	},
+    	isBallClick(){
+    		let that = this;
+    		let football = document.querySelector('#foot-hd');
+    		let basketball = document.querySelector('#basket-hd');
+    		that.isAll = false;
+    		football.onclick = function(){    			
+    			that.matchListData = [];
+    			that.IS_PAGEUP = '';
+    			that.cupNameArr = [];
+    			that.cupList = [];
+    			that.isBall = 0;
+    			that.getData();
+    			football.className = 'fo on';
+				basketball.className = 'bo';
+				//that.$refs.scroll.scrollTo(0,0,0,0)
+    		};
+    		basketball.onclick = function(){    			
+    			that.matchListData = [];
+    			that.IS_PAGEUP = '';
+    			that.cupNameArr = [];
+    			that.cupList = [];
+    			that.isBall = 1;
+    			that.getData();
+    			football.className = 'fo';
+				basketball.className = 'bo on';
+                //that.$refs.scroll.scrollTo(0,0,0,0)
+    		};
+    	},
+		setMatchStatus(s){
+			var s_time = s.gameStartTime;
+			var statu = s.matchStatus;
+			var sarr_football ={"0":"未开赛","1":"上半场","2":"中场","3":"下半场","4":"加时","-11":"待定","-12":"腰斩",
+			"-13":"中断","-14":"推迟","-1":"完场","-10":"取消"};
+			var sarr_basketball ={"0":"未开赛","1":"一节","2":"二节","3":"三节","4":"四节","-1":"完场","-2":"待定",
+			"-3":"中断","-4":"取消","-5":"推迟","50":"中场"};
+			var str = '';
+			var oldtime = new Date(s_time).getTime();
+			var newtime = new Date().getTime();
+			var i = parseInt((newtime - oldtime)/60000);  
+			if(oldtime<newtime && statu != '-1' && statu != 0 && statu != '2' && statu != 50){
+				if (this.isBall == 0) {
+					return str += sarr_football[statu]+' '+ i+'<i>\'</i>';
+				}else{
+					return str += sarr_basketball[statu]+' '+ i+'<i>\'</i>';
+				}
+			}else{
+				if (this.isBall == 0) {
+					return sarr_football[statu];
+				}else{
+					return sarr_basketball[statu];
+				}
+			} 
+		},
+		wrapShow(s){
+			if(s=='searchWrapShow'){
+				this.searchWrapShow = true;
+				this.isAllWrapShow=false;
+				this.chooseArr=[];
+			}else{
+				this.isAllWrapShow=true;
+				this.searchWrapShow = false;
+			}
+		},
+		isAllChose(event){
+			var that = this;
+			if(event.target.id == 'little'){				
+				that.IS_PAGEUP = '';
+				that.matchListData = [];
+				that.cupNameArr = [];
+				that.cupList = [];
+				that.isAll = false;
+				that.isAllText = '推荐';
+				this.getData();
+			}else if(event.target.id == 'all'){				
+				that.IS_PAGEUP = '';
+				that.matchListData = [];
+				that.cupNameArr = [];
+				that.cupList = [];
+				that.isAll = true;
+				that.isAllText = '全部';
+				this.getData();
+			}else{
+				return ;
+			}
+			that.isAllWrapShow = false;
+		},
+		searchChose(event){
+			if(event.target.id == '' || event.target.id == undefined){
+				return ;
+			}else{
+				if(event.target.className == 'on'){
+					event.target.className = ''
+				}else{
+					event.target.className = 'on';
+				}				
+			};
+			var selectCupName = document.querySelectorAll('.searchMain li .on'),
+				selectLi = document.querySelectorAll('.searchMain li'),
+				all_chos = document.querySelector('.all-chos');
+			if(selectCupName.length == selectLi.length){
+				all_chos.className="all-chos chos_on";
+			}else{
+				all_chos.className="all-chos";
+			}
+		},
+		searchSure(){
+			var selectLi = document.querySelectorAll('.searchMain li'),
+				selectCupName = document.querySelectorAll('.searchMain li .on');
+				this.searchWrapShow = false;
+			//console.log(selectCupName)
+			//console.log(selectLi.length)
+			if(selectCupName.length == selectLi.length || selectCupName.length==0){
+				return ;
+			}else{
+				for(var k=0;k<this.cupNameArr.length;k++){
+					for(var key in this.cupNameArr[k]){
+						for(var i = 0;i<selectCupName.length;i++){
+							if(key == selectCupName[i].id){
+								for(var j = 0;j<this.cupNameArr[k][key].length;j++){
+									this.chooseArr.push(this.cupNameArr[k][key][j])
+								}
+							}
+						}
+					}
+				}
+			}
+			this.matchListData = this.chooseArr;
+		},
+		setAllChoose(s){
+			var	selectSpan = document.querySelectorAll('.searchMain li span'),
+				all_chos = document.querySelector('.all-chos');
+				
+			if(all_chos.className=="all-chos"){
+				all_chos.className="all-chos chos_on";
+				for(var i = 0;i<selectSpan.length;i++){
+					selectSpan[i].className = 'on';
+				}
+			}else{
+				for(var i = 0;i<selectSpan.length;i++){
+					selectSpan[i].className = '';
+				}
+				all_chos.className="all-chos";
+			}
+		},
+		openArticle(id){
+			var that = this;
+			var artWrap = document.querySelector('#list-'+id),
+				openBtn = document.querySelector('#s'+id).querySelector('.open'),
+				allOpenBtn = document.querySelectorAll('.open'),
+				atrlistWrap = document.querySelectorAll('ul[atrlist]');
+			for (var i = 0;i<atrlistWrap.length;i++) {
+				if(atrlistWrap[i].getAttribute('id').indexOf(id)>0){
+				  continue;
+				}
+				atrlistWrap[i].style.height = 0;
+				allOpenBtn[i].className = 'open';
+			}
+			if(openBtn.className == 'open'){
+				artWrap.style.height = 'auto';
+				openBtn.className = 'open ing';
+				console.log(that)
+				that.$refs.Scroll.scrollToElement(openBtn, 0, 0, -110);
+			}else{
+				artWrap.style.height = 0;
+				openBtn.className = 'open';
+			}
+		},
+		setTime(s){
+    		return shareFn.setTime(s);
+    	},
+    	setPrice (val){
+			if(val.price == 0 && !val.chargeable && (val.authorLevels != undefined && val.authorLevels.length <= 0)){
+				return '查看观点'
+			}else if(val.chargeable && (val.authorLevels != undefined && val.authorLevels.length > 0) && (val.price == undefined || val.price == 0)){
+				return 'VIP专属'
+			}else{
+				return '￥'+val.price+'解锁'
+			}
+    	},
+    	back: function(){
+			this.$router.back();
+		},
+		setMenu: function(name){
+    	    var menu = document.querySelector('#menu');
+    	    menu.className = 'menus show';
+    	},
+    	gomatch(Id){
+            this.$router.push({
+              path: `/matchdetail/?id=${Id}`
+            })
+        },
+        goarticle(item){
+        	this.$router.push({
+	            path: `/articledetail/?id=${item.id}`,
+	            props: {id: item.id}
+	        })
+        }
+    },
+    watch: {
+    	matchListData:{
+    		handler: function(){
+    			var that = this;
+    			/*setTimeout(function(){
+    				that.newScrollH = that.$refs.Scroll.scroll.scrollerHeight;
+    				console.log(that.$refs.Scroll.scroll.scrollerHeight)
+    			},20)*/
+    			
+    		},
+    		deep: true
+    	}
+    }
   }
 </script>
 
-<style>
-.competition{width:100%;position:absolute;left:0;top:50px;bottom:50px;color:#fff;}
+<style lang="less">
+@import "../../common/less/base.less";
+.competition{
+	width:100%;
+	position:absolute;
+	left:0;
+	top:0px;
+	bottom:0px;
+	color:@whites;
+	background:@backcolor;
+	p[pulldown]{
+		width:100%;
+		height:50px;
+		line-height:50px;
+		text-align:center;
+		color:@assistcolor;
+		font-size:0.12rem;
+		position:absolute;
+		top:-50px;
+		left:0;
+	}
+	p[pullup]{
+		width:100%;
+		height:40px;
+		line-height:40px;
+		text-align:center;
+		color:@assistcolor;
+		font-size:0.12rem;
+		float:left;
+	}
+	.header{
+		div{
+			width:50%;
+			.fo,.bo{
+				margin:0 15px;
+			    color: #f4f4f4;
+			    display: inline-block;
+			    position: relative;
+			}
+			.on{
+				color:@whites;
+				&:after {
+				    content: '';
+				    width: 0.32rem;
+				    height: 2px;
+				    background: #ffffff;
+				    border-radius: 2px;
+				    position: absolute;
+				    bottom: 8px;
+				    left: 50%;
+				    margin-left: -0.16rem;
+				}
+			}
+		}
+	}
+	.tab{
+		font-size: 0.16rem;
+		width: 100%;
+		height:44px;
+		background: @whites;
+		padding:10px 0;
+		position:relative;
+		.border-bottom;
+		span{
+			width:50%;
+			float:left;
+			font-size:0.14rem;
+			color:@reds;
+			text-align:center;
+			position:relative;
+			&:after{
+				content: '';
+				width: 0;
+				height: 0;
+				border:5px solid transparent;
+				border-top-color:@reds;
+				position:absolute;
+				top:50%;
+				margin-top:-2px;
+				margin-left:5px;
+			}
+		}
+		.search{
+			.border-left;
+		}
+		.open{
+			&:after{
+				border-bottom-color:@reds;
+				border-top-color:transparent;
+				margin-top:-6px;
+			}
+		}
+		.garyun{
+			color:@maincolor;
+			&:after{
+				border-bottom-color:@maincolor;
+				border-top-color:transparent;
+				margin-top:-6px;
+			}
+		}
+		.garyopen{
+			color:@maincolor;
+			&:after{
+				border-top-color:@maincolor;
+			}
+		}
+	}
+	.isAllWrap,.searchwrap{
+		width:100%;
+		font-size:0.15rem;
+		background:rgba(0,0,0,0.3);
+		color:@maincolor;
+		position:absolute;
+		top:94px;
+		bottom:0;
+		z-index:9;
+		height:0;
+		overflow:hidden;
+	}
+	.isAllWrap{
+		line-height:50px;
+		text-align:center;
+		z-index:9;
+		li{
+			font-size:0.14rem;
+			.line{
+				width:90%;
+				display:inline-block;
+				line-height:0;
+				font-size:0;
+				position:absolute;
+				bottom:0;
+				left:5%;
+				border-bottom:1px solid @bordercolor;
+			}
+			background:@whites;
+			position:relative;
+		}
+		.on{
+			color:@reds;
+		}
+	}
+	.searchwrap{
+		ul{
+			padding:0 15px;
+			background:@whites;
+			display:flex;
+			flex-wrap:wrap;
+			justify-content:space-around;
+			padding-bottom:25px;
+			li{
+				width:30%;
+				text-align:center;
+				line-height:31px;
+				margin-top:15px;
+				span{
+					display:inline-block;
+					width:100%;
+					height:100%;
+					color:@assistcolor;
+					border:1px solid @assistcolor;
+					border-radius:3px;
+				}
+				.on{
+					color:@reds;
+					border:1px solid @reds;
+					background:@shallowred2;
+				}
+			}			
+		}
+		.searchfoot{
+			width:100%;
+			height:50px;
+			line-height:50px;
+			background:@whites;
+			border-top:1px solid @bordercolor;
+			padding:0 15px;
+			position:relative;
+			.all{
+				float:left;	
+				font-size:0.14rem;		
+				.all-chos {
+				    width: 18px;
+				    height: 18px;
+				    border: 1px solid @bordercolor;
+				    border-radius: 888px;
+				    display: inline-block;
+				    margin-right: 10px;
+				    transform: translateY(0.02rem);
+				    position: relative;
+				    &:after{
+				    	content: "";
+				        width: 0.10rem;
+				        height: 0.05rem;
+				        display: inline-block;
+				        border: 2px solid transparent;
+				        border-left-color: @bordercolor;
+				        border-bottom-color: @bordercolor;
+				        position: absolute;
+				        left: 50%;
+				        top: 50%;
+				        margin-left: -0.07rem;
+				        margin-top: -0.06rem;
+				        transform: rotate(-45deg);
+				    }
+				}
+				.chos_on{
+					border-color:@reds;
+					background:@reds;
+					&:after{
+						content: "";
+					    width: 0.10rem;
+					    height: 0.05rem;
+					    display: inline-block;
+					    border: 2px solid transparent;
+					    border-left-color: @whites;
+					    border-bottom-color: @whites;
+					    position: absolute;
+					    left: 50%;
+					    top: 50%;
+					    margin-left: -0.07rem;
+					    margin-top: -0.06rem;
+					    transform: rotate(-45deg);
+					}
+				}
+				.num-chos {
+				    color: @reds;
+				    font-weight: 600;
+				}
+			}
+			.chos-btn{
+				position:absolute;
+				right:0;
+				top:0;
+				height:100%;
+				background:@reds;
+				color:@whites;
+				padding:0 50px;
+			}
+		}
+	}
+	.show{
+		height:auto;
+	}
+	.com-list-wrap{
+		width:100%;
+		position:absolute;
+		left:0;
+		top:94px;
+		bottom:0;
+		right:0;
+		overflow:hidden;
+	}
+	.com-list-inner{
+		min-height:100%;
+		width:100%;
+		box-sizing:content-box;
+	}
+	ul[matchlist]{
+		width:100%;
+		font-size:0.14rem;
+		float:left;
+		min-height:100%;
+		li{
+			width:100%;
+			margin-bottom:10px;
+			background:@whites;
+			color:@maincolor;
+			float:left;
+			.cup-times{
+				line-height:25px;
+				font-size:0.1rem;
+				color:#999;
+				.tim{
+					color:@assistcolor;
+				}
+			}
+			.art-num{
+				display:inline-block;
+				padding-left:15px;
+				position:relative;
+				margin-left:8px;
+				&:before{
+					width:12px;
+					height:10px;
+					content:'';
+					background:url(../../common/img/num.png) no-repeat left center;
+			  		background-size:36px 10px;
+			  		overflow:hidden;
+			  		position:absolute;
+			  		left:0px;
+			  		top:7px;
+			  	}
+			}
+			.on{
+				color:@reds;
+				&:before{
+					background-position:-12px 0;
+				}
+			}
+			.on-more{
+				color:#ff2700;
+				&:before{background-position:-24px 0;}
+			}
+
+			.match-msg{
+				width:100%;
+				color:@maincolor;
+				float:left;
+				padding:5px 0;
+				position:relative;
+				div{
+					float:left;
+				}
+				.match-left{
+					width:25%;
+					line-height:50px;
+					text-align:center;
+				}
+				.match-center{
+					text-align:left;
+					line-height:25px;
+					width:45%;
+					.border-left;
+			  		padding-left:15px;
+			  		span{
+			  			display:block;
+			  			line-height:1;
+			  			padding-bottom:10px;
+			  			&:nth-child(2){
+			  				padding-top:10px;
+			  				padding-bottom:0;
+			  			}
+			  		}
+			  	}
+				.match-right{
+					width:30%;
+					line-height:25px;
+					position:relative;
+					font-size:0.15rem;
+					span{
+						color:@shallowred;
+						font-size:0.14rem;
+					}
+				}
+				.on{
+					color:@reds;
+				}
+			}
+			.open{
+				width:100px;
+				height:40px;
+				position:absolute;
+				right:0;
+				bottom:0px;
+			  	transform:rotate(180deg);
+			  	background:url(../../common/img/open.png) no-repeat top center;
+			  	background-position:0px 6px;
+			  	background-size:20px auto;
+			}
+			.ing{
+				background:url(../../common/img/open.png) no-repeat bottom center;
+				transform:rotate(0deg);
+			  	background-position:80px 20px;
+			  	background-size:20px auto;
+			}
+
+			div[match-item]{
+				width:100%;
+				float:left;
+				padding:15px 10px;
+			}
+
+			ul[atrlist]{
+				width:100%;
+				height:0;
+				overflow:hidden;
+			  	transition:all 0.6s;
+				li{
+					margin-bottom:0;
+					background:@backcolor;
+					padding:10px 0 10px 10px;
+					position:relative;
+					.border-bottom;
+					&:last-child{
+						border:none;
+					}
+				}
+				.more-art{
+					color:@assistcolor;
+					text-align:center;
+					background:@whites;
+					font-size:0.12rem;
+				}
+				dl{
+					width:100%;
+					padding:5px 10px;
+					padding-left:0;
+					float:left;
+					dt{
+						float:left;
+						width:38px;
+						 img{
+							width:28px;
+							height:28px;
+							border-radius:50%;
+						}
+					}
+					dd{
+						font-size:0.14rem;
+						color:@namecolor;
+						line-height:1;
+						position:relative;
+					}
+					.art-time{
+						font-size:0.12rem;
+						color:#949494;
+					}
+				}
+				.price{
+					height:44px;
+					padding:0 20px;
+					line-height:42px;
+					color:@reds;
+					border:1px solid @reds;
+				  	border-radius:8px;
+				  	position:absolute;
+				  	right:0;
+				  	top:2px;
+				  	font-size:0.24rem;
+				  	transform:scale(0.5); 
+				  	transform-origin: top right;
+				}
+			}
+			.art-time{
+				padding-top:5px;
+			}
+			.digest{
+				width:100%;
+				word-break:
+				break-all;
+				display:-webkit-box;
+				-webkit-line-clamp:2;
+				-webkit-box-orient:vertical;
+			    overflow:hidden;
+			    padding-right:10px;
+			    line-height:25px;
+			    padding-top:3px;
+			}
+			.follow{
+				font-size:0.1rem;
+				color:@whites;
+				display:inline-block;
+				padding:0 5px;
+				line-height:12px;
+			  	border-radius:6px;
+			  	background:@reds;
+			  	margin-left:5px;
+			  }
+			.red{
+				background:url('../../common/img/redall.png') no-repeat left center;
+				padding-left:14px;
+				background-size:10px 12px;
+			  	margin-left:5px;
+			  	font-size:0.1rem;
+			  	color:#e83102;
+			  	line-height:12px;
+			}
+			&[nomatch]{
+				text-align:center;
+				padding:15px;
+				color:@assistcolor;
+			}
+		}
+	}
+}
 </style>

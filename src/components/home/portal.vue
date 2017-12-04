@@ -1,6 +1,6 @@
 <template>
   <div class="ent_nav" id="portals">        
-        <dl v-for="item in portals">
+        <dl v-for="item in portals" v-if="item.name!='筛价格'" @click="portalClick(item)">
             <dt><img :src="baseurl+item.img_url" alt=""></dt>
             <dd>{{item.name}}</dd>
         </dl>
@@ -16,7 +16,9 @@ export default {
         }
     },
     methods: {
-
+        portalClick(item){
+            this.$emit('portalClick', item)
+        }
     }
 }
 </script>

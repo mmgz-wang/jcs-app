@@ -18,10 +18,18 @@ module.exports = {
 	},
 	baseUrl: {
 	 	host: "http://www.jingcaishuo.com",
+	 	nativeHost: 'https:api.jingcaishuo.com',
 		jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html",
-		ioUrl: 'http://123.206.88.92:9292',
-		roomMsgurls: 'http://123.206.88.92:8080'		
+		ioUrl: 'http://123.206.88.92:80',
+		roomMsgurls: 'http://123.206.88.92:8080'
+		/*jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
+		host: "http://123.57.59.76:9095",
+		nativeHost: 'http://apm.jingcaishuo.net',
+		ioUrl: 'http://182.18.76.155:8080/',
+		roomMsgurls: 'http://182.18.76.155:8822',
+		matchListversion: '1.1.5'*/
 	}
+
 }
 	
 	

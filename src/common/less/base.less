@@ -1,16 +1,79 @@
 @reds: #e9311d;
+@shallowred:#f56859;
+@shallowred2:#fef3f2;
 @whites: #ffffff;
 @blacks: #000000;
 @oranges: #ff8209;
+@shalloworange:#ffad55;
 @blues: #3f84f9;
+@deepblues: #1e41b3;
 @backcolor: #f4f4f4;//body背景色
 @maincolor: #333333;//文字主色
 @namecolor: #666666;//名字颜色
 @assistcolor: #b1b1b1;//辅助色
 @bordercolor: #e0e0e0;
+@headercolor:#444444;
+@mainheadercolor:#f8f8f8;
 @transparent: transparent;//透明
-@titsize: 0.16rem;
+@titsize: 0.17rem;
+@garycolor:#999999;
 @mainsize: 0.15rem;
 @assistsize: 0.12rem;
+@smalsize:0.2rem;
 i{font-style:normal;}
+li{list-style:none;}
 
+.border-top () {
+	position:relative;
+	&:before{
+	    height: 1PX;
+	    content: '';
+	    width: 100%;
+	    border-top: 1PX solid @bordercolor;
+	    position: absolute;
+	    top: -1PX;
+	    right: 0;
+	    transform: scaleY(0.5);
+	    -webkit-transform: scaleY(0.5);
+	    z-index: 10;
+	}
+}
+.border-left () {
+	position:relative;
+	&:before{
+	    width: 1PX;
+	    content: '';
+	    height: 200%;
+	    border-left: 1PX solid @bordercolor;
+	    position: absolute;
+	    top: -50%;
+	    left: 0;
+	    transform: scaleY(0.5);
+	    -webkit-transform: scaleY(0.5);
+	    z-index: 10;
+	}
+}
+.border-bottom () {
+	position:relative;
+	&:after{
+	    height: 1PX;
+	    content: '';
+	    width: 100%;
+	    border-top: 1PX solid @bordercolor;
+	    position: absolute;
+	    bottom: -1PX;
+	    right: 0;
+	    transform: scaleY(0.5);
+	    -webkit-transform: scaleY(0.5);
+	    z-index: 10;
+	}
+}
+
+.border-none () {
+	&:before{
+	   border:none;
+	}
+	&:after{
+	   border:none;
+	}
+}

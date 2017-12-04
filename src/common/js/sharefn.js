@@ -1,40 +1,52 @@
-module.exports = {
-	param: {"SecurityCode":"7dd607fad7c3b282965c5b0affbf241b","UserId":"402"},
-	isEnter: false,
-	getUserToken: function () {
-		return this.param;
-		return $.parseJSON(app.checkTheLoginState());
+import _MD5 from './md5.js'
 
-	},
-	getUserId: function () {
-		return this.getUserToken().UserId;
-	},
-	getSecurityCode: function () {
-		return this.getUserToken().SecurityCode;
-	},
-	goauthor: function (id) {
-		if(id != undefined || id != ''){
-			app.openAuthor(id);
+export default {
+	param: {"SecurityCode":"4c5af59cc6c4b747b052c6df529135c5","UserId":"45237"},
+	isEnter: false,
+	jsonLog: function (){
+		if(getCookie('jsonLog') == 'null' || getCookie('jsonLog') == undefined || getCookie('jsonLog') == null){
+			return {"SecurityCode":"","UserId":"",pic:""};
 		}else{
-			return;
+			return JSON.parse(getCookie('jsonLog'));
+		}
+		function getCookie(name){ 
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+		　　 return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
 		}
 	},
+	getUserId: function () {
+		console.log(this.jsonLog())
+		return this.jsonLog().abcd;
+	},
+	getSecurityCode: function () {
+		 return _MD5(this.jsonLog().abcd+this.jsonLog().abcde)
+	},
+	getUserPic: function () {
+		console.log(this.jsonLog())
+		return this.jsonLog().pic
+	},
+
 	//验证登录
 	isLogin:function () {
+		//console.log(this.getUserId()+' : '+this.getSecurityCode())
 		if('' == this.getUserId() || '' == this.getSecurityCode() || undefined == this.getUserId() || undefined == this.getSecurityCode() || 'undefined' == this.getUserId() || 'undefined' == this.getSecurityCode()) {
-			console.log(false)
 			return false;
 		} else {
-			isEnter = true;
+			this.isEnter = true;
 			return true;
 		}
 	},
-
 	setTime: function (s){
+		var stim = '';
 		if(arguments.length>0){
-			var stim = s.split('+')[0].replace(/-/g,'/');
-		}	
-		var now = new Date();
+			if(s.indexOf('+')>0){
+				stim = s.split('+')[0].replace(/-/g,'/');
+			}else{
+				stim = s.replace(/-/g,'/');
+			}
+		}
+		stim = stim.split('.')[0];
+		var now = new Date(),
 		    nowYear = now.getFullYear(),
 			nowMonth = addStr((now.getMonth()+1)),
 			nowDate = addStr(now.getDate()),
@@ -49,7 +61,7 @@ module.exports = {
 			function addStr(str){
 				return str <= 9 ? '0' + str : str;
 			}
-		if(arguments.length>0){
+		if(arguments.length>0 && arguments[0] != 'send'){
 			if(oldDate == nowDate){
 				return '今天 '+oldHours+':'+oldMinutes;
 			}else if(oldDate+1 == nowDate){
@@ -57,15 +69,16 @@ module.exports = {
 			}else{
 				return oldMonth+'-'+oldDate+' '+oldHours+':'+oldMinutes;
 			}
+		}else if(arguments[0] == 'send'){
+			return nowYear+'/'+nowMonth+'/'+nowDate+' '+nowHours+':'+nowMinutes;
 		}else{
 			return '今天 '+nowHours+':'+nowMinutes;
 		}
 		
 	},
-
 	setParms: function (s) {
 		var url = location.search;
-		console.log(location.href)
+		console.log(location.search)
 		if(url.indexOf('amp;')>-1){
 			url = url.replace(/amp;/g,'');
 		}
@@ -82,37 +95,6 @@ module.exports = {
 			}		
 		})
 		return decodeURI(decodeURI(parms[s]));
-	},
-
-	customAjax: function (opt){
-	    var defaults = {
-	        url: "/match/detail",
-	        data: {
-	            language: 'M',
-	            userId: ""
-	        },
-	        sucFn:function (data){
-	            console.log(data)
-	        },
-	        errFn: function(e){
-	            console.log(e);
-	        }
-	    };
-	    var settings = $.extend({},defaults,opt);
-	    $.ajax({
-	        url: settings.url,
-	        type: "get",
-	        dataType: "jsonp",
-	        jsonp: "callback",
-	        async: true,
-	        data: settings.data,
-	        success: function(data) {
-	            settings.sucFn(data);
-	        },
-	        error: function(data) {
-	            settings.errFn(data);
-	        }
-	    });
 	},
 	showMeaage: function (msg) {
 		layer.open({

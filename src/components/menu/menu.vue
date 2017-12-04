@@ -1,23 +1,24 @@
 <template>
-	<div @menuClick="setMenu()" class="menus" id="menu">
+	<div @click="setMenu()" class="menus" id="menu">
 		<div class="right">
 			<dl id="user">
-				<dt><img src="../../common/img/pic.jpg"></dt>
-				<dd>132*****593</dd>
+				<dt><img id="menupic" :src="setPic()"></dt>
+				<dd id="menutel">{{getCookie('telephone')}}</dd>
 			</dl>
 			<ul>
-				<router-link to="/home"><li @click="menuHide" id="home">首页</li></router-link>
+				<router-link to="/home"><li id="home">首页</li></router-link>
 				<router-link to="/roomlist"><li id="roomlist">直播</li></router-link>
 				<router-link to="/competition"><li id="competition">赛事</li></router-link>
 				<router-link to="/attention"><li id="attention">关注</li></router-link>
-				<router-link to="/vip"><li id="vip">VIP文章</li></router-link>
-				<router-link to="/letter"><li id="letter">私信</li></router-link>
+				<router-link to="/vip"><li id="menu_vip">VIP文章</li></router-link>
+				<router-link to="/letterlist"><li id="letterlist">私信</li></router-link>
 			</ul>
 		</div>
 	</div>
 </template>
 
 <script type="text/javascript">
+import shareFn from 'common/js/sharefn'
 export default {
 	name: 'menu',
 	created(){
@@ -25,11 +26,21 @@ export default {
 	},
 	methods: {
 		setMenu: function(name){
-			console.log(name)
+			var menu = document.querySelector('#menu');
+			menu.className = 'menus';
 		},
-		menuHide: function(){
+		getCookie(name){
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+		　　return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
+		},
+		setPic(){
+			console.log(shareFn.getUserPic())
+			if(shareFn.getUserPic()==undefined || shareFn.getUserPic()==''){
+				return require('../../common/img/uyse.png')
+			}else{
+				return shareFn.getUserPic();
+			}
 			
-
 		}
 	},
 	watch:{
@@ -56,32 +67,39 @@ export default {
 	ul{
 		text-align:center;
 		list-style:none;
-		line-height:30px;
-		padding:8px 0;
+		line-height:60px;
 		a{
 			text-decoration:none;
 		}
 		li{
-			font-size:0.14rem;
+			font-size:@mainsize;
 			color:@maincolor;
 		}
 		.router-link-active li{
 			color:@reds;
 		}
 	}
+	@media (device-height:480px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone4/4s */
+		ul{line-height:45px;}
+	} 
+
+	@media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
+		ul{line-height:45px;}
+	}
 	.right{
-		width: 145px;
+		width: 127px;
 		height:100%;
 		background:@whites;
 		float:right;
 		dl{
-			width: 145px;
-			height:145px;
+			width: 127px;
+			height:127px;
 			background:@backcolor;
 			text-align:center;
 			font-size:0;
-			padding:28px 0;
+			padding-top:25px;
 			dt{
+				margin-bottom:10px;
 				img{
 					height:55px;
 					border-radius:50%;
@@ -89,9 +107,7 @@ export default {
 			}
 			dd{
 				color:@maincolor;
-				line-height:30px;
-				font-size:0.14rem;
-				margin-top:4px;
+				font-size:0.12rem;
 			}
 		}
 	}

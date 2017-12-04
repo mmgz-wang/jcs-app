@@ -24,12 +24,38 @@
       click: {
         type: Boolean,
         default: true
+      },
+      pullDownRefresh:{
+        type: null,
+        default: false
+      },
+      pullUpLoad: {
+        type: null,
+        default: false
+      },
+      pullingDownFn: {
+        type: Function,
+        default: null
+      },
+      pullingUpFn: {
+        type: Function,
+        default: null
+      },
+      needRefresh: {
+        type: Boolean,
+        default: false
+      }
+    },
+    data(){
+      return {
+        isPullingDown: false
       }
     },
     mounted() {
-      setTimeout(() => {
-        this.initScroll()
-      }, 20)
+      this.initScroll();
+      if(this.needRefresh){
+        this.pullingDown();
+      }
     },
     methods: {
       initScroll() {
@@ -43,8 +69,9 @@
         let options = {
           probeType: this.probeType,
           click: this.click,
+          pullDownRefresh: this.pullDownRefresh,
+          pullUpLoad: this.pullUpLoad
         }
-        //console.log(options)
         this.scroll = new BScroll(this.$refs.wrapper, options);
         
       },
@@ -62,14 +89,35 @@
       },
       scrollToElement() {
         this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
+      },
+      pullingDown(){
+        var that = this;
+        this.scroll.on('pullingDown',function(){
+          this.isPullingDown = true;
+          if(this.isPullingDown){            
+            console.log('fish')
+            that.isPullingDown = false;
+            that.pullingDownFn(that);
+          }     
+        })
+        this.scroll.on('pullingUp',function(){
+          that.pullingUpFn(that);
+        })
       }
+      
     },
     watch: {
-      data() {
-        setTimeout(() => {
-          this.refresh();
-          console.log(this.data)
-        }, 20)
+      data: {
+        handler: function(){
+          var that = this;
+          setTimeout(() => {
+            that.refresh();
+            that.scroll.finishPullDown();
+            that.scroll.finishPullUp();
+          }, 20)
+        },
+        deep: true
+       
       }
     }
   }
