@@ -51,22 +51,29 @@
                     </section>
                 </div>
             </div>
-            
             <div class="room-foot">
-                <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+                <p>
+                    <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+                </p>
+                
                 <button type="button" id="send" @click="sendMsg()">发送</button>
             </div>
-            <jcs-Dialog v-if="dialogShow" :openRoomWay="openRoomWay" :data="dialogData" @callbackFn="callbackFn"></jcs-Dialog>
+            <pay-dialog 
+            v-show="dialogShow"
+            :btns="dialogData.btns"
+            :tit="dialogData.tit"
+            :yesFn="dialogData.yesFn"
+            :noFn="dialogData.noFn"></pay-dialog> 
         </div>
     </transition>
 </template>
 
 <script type="text/javascript">
 import ShareFn from 'common/js/sharefn'
-import Scroll from 'base/scroll/scroll'
 import mainHeader from 'base/header/mainheader'
 import Common from 'common/js/common'
 import DialogZ from 'common/js/jcs_dialoga.js'
+import payDialog from 'base/paydialog/paydialog'
 import 'common/js/jcs_dialoga.css'
 export default {
 	name: 'roomindex',
@@ -78,6 +85,10 @@ export default {
                 ele: '聊天室',
                 r_ele: '订阅推荐消息'
             },
+            dialogData: {
+                tit: '',
+                btns: ['确认购买','返回列表']
+            },          
             msgData: [],
             IO: null,
             roomUsers: 0,
@@ -89,6 +100,8 @@ export default {
             roomId: this.$router.currentRoute.query.roomId,
             roomName: this.$router.currentRoute.query.roomName,
             roomPrice: this.$router.currentRoute.query.roomPrice,
+            lecturerName: this.$router.currentRoute.query.lecturerName,
+            ackData: {},
             toData: { 
                 limit: 30, 
                 userId: ShareFn.getUserId(),
@@ -101,33 +114,45 @@ export default {
                 isTeach: false,
                 isOwn: false
             },
-            dialogData: '<li>您确定吗？</li><li class="btn">确定</li>',
             dialogShow: false,
-            openRoomWay: null
+            openRoomWay: null,
+            isPullDown: false,
+            messageIds: 0
         }
     },
 	created(){
-        //this.$refs.msgInput.disabled = true;
+        
 	},
     activated() {
-        console.log(this.$route.meta.iskeep)
         if(!this.$route.meta.iskeep){
             this.msgData = [];
             if(this.isLogin){
                 this.IO = io.connect(Common.baseUrl.ioUrl);
-                //this.IO = io.connect('http://182.18.76.155:8080/');
-                this.roomId = this.$router.currentRoute.query.roomId,
-                this.roomName = this.$router.currentRoute.query.roomName,
-                this.roomPrice = this.$router.currentRoute.query.roomPrice,
+                this.roomId = this.$router.currentRoute.query.roomId;
+                this.roomName = this.$router.currentRoute.query.roomName;
+                this.roomPrice = this.$router.currentRoute.query.roomPrice;
+                this.isPullDown = false;
+                this.dialogShow = false;
+                this.messageIds = 0;
+                this.headerData = {
+                    name: 'roomindex',
+                    ele: this.roomName,
+                    r_ele: '订阅推荐消息'
+                }
+                this.toData = { 
+                    limit: 30, 
+                    userId: ShareFn.getUserId(),
+                    range: 0,
+                    token: ShareFn.getSecurityCode()
+                };
                 this.roomScoket();
             }else{
                 this.$router.push({name:'enter'})
             }
         }
-
     },
     mounted(){
-        
+        this.loadMsg();
     },
     computed: {
         
@@ -147,7 +172,7 @@ export default {
                 that.IO.emit('login', jsonObject);
             });
             this.IO.on('ack', function (data) {
-                console.log(data);
+                that.ackData = data;
                 that.roomUsers = data.roomUsers;
                 that.roomPrice = data.roomPrice;
                 that.teacherId = data.userId;
@@ -156,8 +181,14 @@ export default {
                     var userMoney = data.userMoney;
                     var roomLecturer = data.roomLecturer;
                     var roomPrice = data.roomPrice;
-                    console.log(DialogZ)
-                    that.payForRoom(data);                    
+                    that.dialogShow = true;
+                    that.dialogData = {
+                        tit: `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`,
+                        btns: ['确认购买','返回列表'],
+                        yesFn: that.firstYesFn,
+                        noFn: that.firstNoFn
+                    }
+                    //that.payForRoom(data);                   
                 } else if (data.code == 888) {
                     that.$refs.msgInput.placeholder = '直播未开始';
                     that.$refs.msgInput.disabled = 'disabled';
@@ -215,17 +246,11 @@ export default {
                     that.msgData.push(data);
                 }
                 
-
-                //setTimeout(function(){
-                    //that.scrollTo(that.$refs.scrollWraper.scroll.maxScrollY);
-                //},30)
                 if(data.payable){
                     that.GetRoomMsg();
                 }
             });
             this.IO.on('rescindevent', function (data) {
-                //console.log(data)
-                //DialogZ.remoDom();
                 that.GetRoomMsg();
             });
             this.IO.on('roomstatusevent', function (data) {
@@ -273,7 +298,7 @@ export default {
                 userId: that.userId,
                 content: that.$refs.msgInput.value
             };
-            
+            console.log(jsonObject)
             this.IO.emit('chatevent', jsonObject);
             that.$refs.msgInput.value = '';
             that.scrollTo();
@@ -381,7 +406,9 @@ export default {
             }
         },
         GetRoomMsg(){
-            var that = this;
+            console.log(this.messageIds+' '+this.isPullDown)
+            var that = this,
+                wrapEle = document.querySelector('.msg-list');
             this.$nextTick(function(){
                 this.$http.jsonp(
                     Common.baseUrl.roomMsgurls+'/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
@@ -389,15 +416,30 @@ export default {
                         params: that.toData
                     }
                 ).then(function(res){
-                    console.log(that.toData)
                     if(res.status == 200){
-                        this.msgData = res.data.messages;
+                        if(this.isPullDown){
+                            this.msgData = res.data.messages.concat(this.msgData);
+                            console.log(this.msgData)
+                            setTimeout(function(){
+                                var hei = document.querySelector('section').offsetHeight;
+                                wrapEle.scrollTop = res.data.messages.length*hei;
+                                console.log(res.data.messages.length*hei)
+                            },20)
+                        }else{
+                            console.log(777+'this.isPullDown:' +this.isPullDown)
+                            this.msgData = res.data.messages;
+                            that.scrollTo();
+                        }
                         res.data.isMsgDescriber?that.headerData.r_ele = '已订阅推荐消息':that.headerData.r_ele = '订阅推荐消息';
-                       that.scrollTo();
                     }else{
                         console.log('请求失败')
                     }
-                    
+                    this.messageIds = this.msgData[0].messageId;
+                    var downDom = document.querySelector('.custmor-pullDown');
+                    if(downDom != null){
+                        wrapEle.removeChild(downDom);
+                        this.isPullDown = false;
+                    }
                 })
             })
         },
@@ -471,47 +513,10 @@ export default {
             })
         },
         callbackFn(s){
-            console.log(this.dialogData);
+            //console.log(this.dialogData);
         },
         payForRoom: function(data) {
-            this.openRoomWay = data;
-            var that = this;
-            var roomData = data;
-            var ele = '';
-            var btnArr = ['确认购买','返回列表'];
-            var authorLevelList = [];
-            if(data.authorLevelList != undefined){
-                authorLevelList = data.authorLevelList.sort(compare("termmonths"));
-            }
-            console.log(authorLevelList)
-            function compare(property){
-                return function(obj1,obj2){
-                    var value1 = obj1[property];
-                    var value2 = obj2[property];
-                    return value1 - value2;     // 升序
-                }
-           }
-            if(authorLevelList.length>0){
-                that.teachId = authorLevelList[0].authorId;
-                for(var i = authorLevelList.length-1;i>=0;i--){
-                    if(authorLevelList[i].termmonths == 0){
-                        continue;
-                    }
-                    ele += '<p class="payList" onclick="payForPackage('+authorLevelList[i].id+','+authorLevelList[i].price+')" id="'+authorLevelList[i].packageid+'">';
-                    if(authorLevelList[i].termmonths==1){                    
-                        ele += '包月畅聊，仅'+authorLevelList[i].price+'精彩币</p>';
-                    }else if(authorLevelList[i].termmonths > 1){
-                        ele += '包'+authorLevelList[i].termmonths+'月畅聊，仅'+authorLevelList[i].price+'精彩币</p>';
-                    }else if(authorLevelList[i].termmonths == 0){
-                        ele += '包'+authorLevelList[i].termdays+'天畅聊，仅'+authorLevelList[i].price+'精彩币</p>';
-                    }
-                };
-                if(data.roomPrice>0){
-                    ele += '<p class="jcs_decision_true payList">购买门票'+data.roomPrice+'精彩币</p>';
-                }
-                btnArr = ['返回列表'];
-            }
-            
+
             var payListData = {
                 msg: '门票售价' + data.roomPrice + '精彩币！',
                 Dom: ele,
@@ -604,16 +609,125 @@ export default {
                 }
             }
         },
+        firstYesFn(){
+            var that = this;           
+            if(this.ackData.userMoney < this.ackData.roomPrice){
+                this.dialogData = {
+                    tit: '您的精彩币余额不足！',
+                    btns: ['去充值', '返回列表'],
+                    yesFn: function(){
+                        that.$router.push('recharge');
+                        that.dialogShow = false;
+                    },
+                    noFn: function(){
+                        that.back();
+                        that.dialogShow = false;
+                    }
+                }
+            }else{                    
+                this.dialogData = {
+                    tit: `<p>您确定要支付<span class="pay-dialog-price">${that.ackData.roomPrice}</span>精彩币购买门票吗？</p>`,
+                    btns: ['确定', '取消'],
+                    yesFn: function(){
+                        console.log('jiesuan')
+                        that.$nextTick(function(){
+                            that.$http.jsonp(
+                                Common.baseUrl.host+'/Purchase/PurchaseChatRoom',
+                                {
+                                    params: {
+                                        UserId: that.userId,
+                                        Language: 'M',
+                                        RoomId: that.roomId,
+                                        SecurityCode: ShareFn.getSecurityCode()
+                                    }
+                                }
+                            ).then(function(res){
+                                var texts = "购买成功！"
+                                if (res.data.Code == '3006') {
+                                    texts = "余额不足请充值！";
+                                    layer.open({
+                                        content: texts,
+                                        skin: 'msg',
+                                        time: 2
+                                    });
+                                    return;
+                                } else if (res.data.Code == '0000') {
+                                    that.roomConnect();
+                                    that.isOver = false;
+                                    that.GetRoomMsg();
+                                }
+                            })
+                        })
+                        that.dialogShow = false;
+                    },
+                    noFn: function(){
+                        that.back();
+                        that.dialogShow = false;
+                    }
+                }     
+            }
+        },
+        firstNoFn(){
+            this.back();
+            that.dialogShow = false;
+        },
+        loadMsg: function(){
+            var that = this;
+            var idx = 0, startx, starty, movex, movey,eleH;
+            var wrapEle = document.querySelector('.msg-list');
+            wrapEle.addEventListener('touchstart', function (e) {
+                starty = e.touches[0].pageY;
+            })
+            wrapEle.addEventListener('touchmove', function (e) {
+                var e = event || window.event;
+                event.stopPropagation();
+                eleH = document.querySelectorAll('section')[0].getBoundingClientRect().top;
+                movey = e.touches[0].pageY - starty;
+                var mainH = that.$refs.scrollWraper.offsetHeight;
+                var innerH = that.$refs.roomMain.offsetHeight;
+                var scrollH = innerH - mainH;
+                if (scrollH == wrapEle.scrollTop && movey <= 0) {
+                    e.preventDefault();
+                }
+            })
+            wrapEle.addEventListener('touchend', function (e) {
+                //var e = event || window.event;
+                var downDom = document.querySelector('.custmor-pullDown');
+                if(downDom == null){
+                    downDom = document.createElement('div');
+                    downDom.className = 'custmor-pullDown';
+                    downDom.innerHTML = `<img class="rotate" src="${require('../../common/img/load.png')}" alt="" />`
+                }
+               
+                if (eleH >= 99 && movey > 50) {
+                    wrapEle.insertBefore(downDom,document.querySelector('.room-main'));//();
+                    that.isPullDown = true;
+                    that.toData = {
+                        limit: 20,
+                        messageId: that.messageIds,
+                        userId: that.userId,
+                        range: that.range,
+                        token: ShareFn.getSecurityCode()
+                    }
+                    that.GetRoomMsg();
+                    movey = 0;
+                    console.log(that.messageIds-20)
+                }
+            })
+        },
         back(){
             this.$router.back();
         },
         scrollTo(){
             var that = this;
             setTimeout(function(){
-                //console.log(that.$refs.scrollWraper.offsetHeight)
+                if(that.isPullDown){
+                    return ;
+                }
+                console.log(that.isPullDown)
+                console.log(666);
                 var mainH = that.$refs.scrollWraper.offsetHeight;
                 var innerH = that.$refs.roomMain.offsetHeight;
-                //console.log(mainH+':'+innerH)
                 var scrollH = innerH - mainH;
                 that.$refs.scrollWraper.scrollTop = scrollH;
             },50)
@@ -633,7 +747,7 @@ export default {
         msgData:{
             handler: function(){
                 var that = this;
-                this.scrollTo(that.$refs.scrollWraper.scroll.maxScrollY);
+                //this.scrollTo(that.$refs.scrollWraper.scroll.maxScrollY);
             },
             deep:true
         },
@@ -645,7 +759,7 @@ export default {
         }
     },
     components:{
-        Scroll,mainHeader
+        mainHeader,payDialog
     }
 }
 </script>
@@ -662,6 +776,23 @@ export default {
     right:0;
     z-index:90;
     font-size:0.14rem;
+    .main-header{
+        .r_ele{
+            font-size:0.12rem;
+            color:#444444;
+        }
+        p{
+            width:60%;
+            margin-left:50px;
+            height:100%;
+            word-break:break-all;
+            display:-webkit-box;
+            -webkit-line-clamp:1;
+            -webkit-box-orient:vertical;
+            overflow:hidden;
+            padding-left:10px;
+        }
+    } 
     .room-main{
         float:left;
         width:100%;
@@ -674,7 +805,7 @@ export default {
         .selector{
             width: 100%;
             line-height: 40px;
-            font-size: 0.14rem;
+            font-size: 0.13rem;
             height:40px;
             overflow: hidden;
             user-select:none;
@@ -707,18 +838,22 @@ export default {
             width: 21px;
             height: 18px;
             background: url("../../common/img/pp.png") no-repeat left center;
-            background-size: auto 100%;
+            background-size: 18px 14px;
             padding-left: 25px;
         }
+
      }
     .msg-list{
         width:100%;
         position:absolute;
         left:0;
-        top:90px;
+        top:84px;
         right:0;
         bottom:50px;
-        overflow-y:scroll;
+        padding:0 15px;
+        overflow:scroll;
+        -webkit-overflow-scrolling:touch;
+        overflow-scrolling:touch;
         padding-bottom:3px;
         section{
             width:100%;
@@ -737,7 +872,7 @@ export default {
                 }
             }
             .tim{
-                color:#999;
+                color:#b1b1b1;
                 font-size:0.13rem;
                 margin-bottom:5px;
             }
@@ -755,6 +890,7 @@ export default {
                 word-wrap:break-word;
                 word-break:break-all; 
                 white-space:pre-wrap;
+                margin-left:10px;
                 .lock-pic {
                     position: absolute;
                     right: 0;
@@ -795,6 +931,7 @@ export default {
                         border-left-color:@shalloworange;
                     }
                     p {
+                        line-height:30px;
                         display: inline-block;
                         color: #fff;
                         font-size: 0.15rem;
@@ -807,7 +944,8 @@ export default {
             .dialog:before{
                 content:"";
                 position:absolute;
-                left:-9px;top:5px;
+                left:-5px;
+                top:0px;
                 width:0;
                 height:0;
                 border:10px solid transparent;
@@ -847,12 +985,13 @@ export default {
                 word-wrap:break-word;
                 word-break:break-all; 
                 white-space:pre-wrap;
+                margin-right:10px;
             }
             .rdialog:before{
                 content:"";
                 position:absolute;
-                right:-9px;
-                top:5px;
+                right:-5px;
+                top:0px;
                 width:0;
                 height:0;
                 border:10px solid transparent;
@@ -874,15 +1013,23 @@ export default {
         position:absolute;
         left:0;
         bottom:0;
-        input{
+        p{
             width:85%;
-            height:100%;
-            outline:none;
-            border-radius:15px;
+            height:38px;
+            border-radius: 19px;
             border:1px solid @bordercolor;
-            padding-left:8px;
-            font-size:0.14rem;
-        }
+            overflow:hidden;
+            input{
+                float:left;          
+                outline:none;
+                border:none;
+                width:100%;
+                height:38px;
+                padding-left:8px;
+                font-size:0.14rem;
+                line-height:38px;
+            }
+        }       
         button{
             height:100%;
             border:none;
@@ -898,5 +1045,22 @@ export default {
 }
 .slide-enter,.slide-leave-to{
     transform:translate3d(100%,0,0);
+}
+.custmor-pullDown{
+    width:100%;
+    background:@backcolor;
+    text-align:center;
+    height:45px;
+    line-height:30px;
+}
+.rotate{
+    animation:1s rotate linear infinite;
+    width:20px;
+    opacity:0.7;
+    margin-top:8px;
+}
+@-webkit-keyframes rotate{
+    from{-webkit-transform:rotate(0deg);transform:rotate(0deg);}
+    to{-webkit-transform:rotate(360deg);transform:rotate(360deg);}
 }
 </style>

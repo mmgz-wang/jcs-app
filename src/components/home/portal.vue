@@ -25,10 +25,26 @@ export default {
 
 <style lang="less">
 @import "../../common/less/base.less";
-.ent_nav{color: @blacks;background: @whites;height:0.95rem;display:-webkit-flex;display:flex;
-    -webkit-justify-content:space-around;justify-content:space-around;}
-.ent_nav dl{float: left;text-align: center;margin-top:0.15rem;font-size: 0.14rem;}
-.ent_nav dl dt{margin-bottom: 5px;}
-.ent_nav dl img{width: 0.45rem;}
-
+.ent_nav{
+    color: @blacks;
+    background: @whites;
+    display:flex;
+    padding:0.15rem 0;
+    justify-content:space-around;
+    dl{
+        float: left;
+        text-align: center;
+        font-size: 0.13rem;
+        dt{
+            font-size:0;
+            img{
+                width: 0.45rem;
+            }
+        }
+        dd{
+            padding-top:9px;
+            line-height:1;
+        }
+    }
+}
 </style>

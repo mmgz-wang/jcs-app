@@ -1,6 +1,6 @@
 @reds: #e9311d;
 @shallowred:#f56859;
-@shallowred2:#fef3f2;
+@shallowred2:#fdeae8;
 @whites: #ffffff;
 @blacks: #000000;
 @oranges: #ff8209;
@@ -13,7 +13,7 @@
 @assistcolor: #b1b1b1;//辅助色
 @bordercolor: #e0e0e0;
 @headercolor:#444444;
-@mainheadercolor:#f8f8f8;
+@mainheadercolor:#fbfbfb;
 @transparent: transparent;//透明
 @titsize: 0.17rem;
 @garycolor:#999999;
@@ -26,12 +26,12 @@ li{list-style:none;}
 .border-top () {
 	position:relative;
 	&:before{
-	    height: 1PX;
+	    height: 1px;
 	    content: '';
 	    width: 100%;
-	    border-top: 1PX solid @bordercolor;
+	    border-top: 1px solid @bordercolor;
 	    position: absolute;
-	    top: -1PX;
+	    top: 0px;
 	    right: 0;
 	    transform: scaleY(0.5);
 	    -webkit-transform: scaleY(0.5);
@@ -41,10 +41,10 @@ li{list-style:none;}
 .border-left () {
 	position:relative;
 	&:before{
-	    width: 1PX;
+	    width: 1px;
 	    content: '';
 	    height: 200%;
-	    border-left: 1PX solid @bordercolor;
+	    border-left: 1px solid @bordercolor;
 	    position: absolute;
 	    top: -50%;
 	    left: 0;
@@ -56,12 +56,12 @@ li{list-style:none;}
 .border-bottom () {
 	position:relative;
 	&:after{
-	    height: 1PX;
+	    height: 1px;
 	    content: '';
 	    width: 100%;
-	    border-top: 1PX solid @bordercolor;
+	    border-top: 1px solid @bordercolor;
 	    position: absolute;
-	    bottom: -1PX;
+	    bottom: -1px;
 	    right: 0;
 	    transform: scaleY(0.5);
 	    -webkit-transform: scaleY(0.5);

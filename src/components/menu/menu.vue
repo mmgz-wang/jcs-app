@@ -54,9 +54,9 @@ export default {
 <style lang="less">
 @import '../../common/less/base.less';
 .menus{
-	width:100%;
+	width:0;
 	position:absolute;
-	top:50px;
+	top:44px;
 	bottom:0;
 	left:100%;
 	background:rgba(0,0,0,0.6);
@@ -114,6 +114,7 @@ export default {
 }
 .show{
 	//display:block;
+	width:100%;
 	left:0;
 }
 </style>

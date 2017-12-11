@@ -34,9 +34,6 @@ html,body{
   width:100%;
   height:100%;
   background:@backcolor;
-  overflow:hidden;
-  -webkit-overflow-scrolling:touch;
-  overflow-scrolling:touch;
   list-style:none;
 }
 #app {

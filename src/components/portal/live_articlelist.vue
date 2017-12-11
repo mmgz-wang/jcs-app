@@ -141,14 +141,6 @@ export default {
     color:@assistcolor;
     font-size:0.12rem;
   }
-  header{
-    height:50px;
-    line-height:50px;
-    background:@reds;
-    color:#fff;
-    font-size:0.12rem;
-    text-align:center;
-  }
   .live_articlelist{
     float: left;
     padding:0 10px 0 0.25rem;
@@ -191,7 +183,7 @@ export default {
   .container{
     width:100%;
     position:absolute;
-    top:50px;
+    top:44px;
     bottom:0;
     overflow-y:hidden;
   }

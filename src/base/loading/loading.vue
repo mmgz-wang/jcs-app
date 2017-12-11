@@ -22,16 +22,21 @@ export default {
 	text-align:center;
 	background:@backcolor;
 	opacity:1;
+	position:absolute;
+	left:0;
+	top:0;
 	.desc{
 		line-height:20px;
 		font-size:@assistsize;
 		color:@assistcolor;
+		margin-top:10px;
 	}
 }
 .onload{
 	-webkit- animation: rotates 1.5s linear infinite;
 	animation: rotates 1.5s linear infinite;
 	opacity:0.6;
+	margin-top:20%;
 }
 @keyframes rotates {
 	from{

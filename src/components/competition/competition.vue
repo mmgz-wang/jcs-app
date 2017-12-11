@@ -10,11 +10,13 @@
 			:class="{garyopen:!searchWrapShow,garyun:searchWrapShow}"
 			@click="wrapShow('searchWrapShow')">选联赛</span>
 		</div>
-
-		<ul class="isAllWrap" :class="{show:isAllWrapShow}" @click="isAllChose">
-			<li id="little" class="on">推荐<span class="line"></span></li>
-			<li id="all">全部</li>
-		</ul>
+		<div class="isAllWrap" :class="{show:isAllWrapShow}">
+			<ul @click="isAllChose">
+				<li id="little" class="on">推荐<span class="line"></span></li>
+				<li id="all">全部</li>
+			</ul>
+		</div>
+		
 
 		<div class="searchwrap" :class="{show:searchWrapShow}">
 			<ul class="searchMain" @click="searchChose">
@@ -52,10 +54,13 @@
 								<span class="tim">{{item.startTime}}</span>
 								 {{item.cupName}}
 								 {{item.matchId}}
-								 <span class="art-num on-more">{{item.articleCount}}</span>
+								<span class="art-count"
+								:class="{artnum:item.articleCount==0,on:item.articleCount>0&&item.articleCount<=3,onmore:item.articleCount>3}">{{item.articleCount}}</span>
 							</p>
 							<div class="match-msg">
-								<div class="match-left on" style="color:;" v-html="setMatchStatus(item.matchScore)">
+								<div class="match-left" 
+								:class="{on:item.matchScore.matchStatus>0,over:item.matchScore.matchStatus==-1,savage:item.matchScore.matchStatus==0}"
+								v-html="setMatchStatus(item.matchScore)">
 									{{setMatchStatus(item.matchScore)}}
 								</div>
 								<div class="match-center">
@@ -72,16 +77,16 @@
 							<li v-for="artItem in item.articleList" @click.stop="goarticle(artItem)">
 								<dl>
 									<dt @click.stop="goauthor(artItem.author_id)">
-										<img :src="artItem.authorPic" :data-src="artItem.authorPic">
+										<img :src="artItem.authorPic">
 									</dt>
 									<dd>
-										{{artItem.authorName}}<span v-if="artItem.authorFollowed" class="follow">已关注</span><span v-if="artItem.authorRedInfo" class="red">连红</span>
-										<p class="art-time">{{setTime(artItem.last_modified)}}</p>
+										{{artItem.authorName}}<span v-if="artItem.authorFollowed" class="match-follow"></span><span v-if="artItem.authorRedInfo" class="red">连红</span>
+										<p class="match-time">{{setTime(artItem.last_modified)}}</p>
 										
 										<span class="price">{{setPrice(artItem)}}</span>
 									</dd>
 								</dl>
-								<p class="digest">
+								<p class="match-digest">
 									{{artItem.digest}}
 								</p>
 							</li>
@@ -93,7 +98,6 @@
 				</ul>
 			</div>
 		</scroll>
-		
 	</div>
 </template>
 
@@ -142,16 +146,13 @@ import publickHeader from 'base/header/publickheader'
     },
     created(){
     	this.isFirstEnter=true;
-    	this.loding = layer.open({
-    		type: 2,
-    		content: '加载中'
-    	});
+    	this.lodingDom();
     },
     beforeRouteEnter(to, from, next) {
         if(from.name=='enter'){
             location.reload();
         }
-        if(from.name == 'articledetail'){
+        if(from.name == 'articledetail' || from.name == 'matchdetail'){
             to.meta.iskeep=true;
         }
         if(from.name == 'home'){
@@ -160,7 +161,9 @@ import publickHeader from 'base/header/publickheader'
         next();
     },
     activated() {
+    	
     	if(!this.$route.meta.iskeep || this.isFirstEnter){
+    		console.log('activated')
             this.$refs.Scroll.refresh();
             this.matchListData= [];
             this.cupList= [];
@@ -170,6 +173,7 @@ import publickHeader from 'base/header/publickheader'
             this.isAll= false;
             this.isAllWrapShow= false;
             this.searchWrapShow= false;
+            this.IS_PAGEUP = '';
             this.getData();
     	}
     	this.isFirstEnter = false;
@@ -180,7 +184,6 @@ import publickHeader from 'base/header/publickheader'
         	this.matchListData = [];
             this.$refs.Scroll.scrollTo(0,0,0);
         }
-        console.log("我是第一个页面的 deactivated 方法");
     },
     mounted(){
     	//this.getData();
@@ -188,8 +191,9 @@ import publickHeader from 'base/header/publickheader'
     },  
     methods: {
     	pullingDownFn(scroll){
+    		console.log('pulldown:'+this.$refs.Scroll.scroll.maxScrollY)
     		this.IS_PAGEUP = true;
-    		this.oldScrollH = this.$refs.Scroll.scroll.scrollerHeight;
+    		this.oldScrollH = this.$refs.Scroll.scroll.maxScrollY;
     		this.cupNameArr = [];
     		this.pullDownText = '释放加载 ...';
     		this.getData();
@@ -203,7 +207,8 @@ import publickHeader from 'base/header/publickheader'
     	},
     	getData(){
     		var that = this;
-    		var getTime = this.nowTime;
+    		console.log(this.nowTime())
+    		var getTime = this.nowTime();
     		if(this.IS_PAGEUP === ''){
     		  getTime = this.nowTime();
     		}else if(this.IS_PAGEUP === true){
@@ -254,11 +259,17 @@ import publickHeader from 'base/header/publickheader'
     						obj[i] = that.cupList[i];
     						that.cupNameArr.push(obj);
     					}
-
     					if(this.IS_PAGEUP === true){
-							console.log(that.scrollToId);
-							console.log(document.querySelector('#s'+that.scrollToId));
-							this.$refs.Scroll.scrollToElement(that.scrollToId, 0, 0, -110)
+							console.log('scrollToId');
+							//this.$refs.Scroll.refresh();
+							this.$nextTick(function(){
+								setTimeout(function(){
+									console.log('setTimeout:' + (that.$refs.Scroll.scroll.maxScrollY-that.oldScrollH))
+									console.log(that.$refs.Scroll.scroll.maxScrollY+'-'+that.oldScrollH);
+									that.$refs.Scroll.scrollTo(0,that.$refs.Scroll.scroll.maxScrollY-that.oldScrollH,200)
+								},10)
+							})
+							
     					}else{
 							if(this.matchListData.length<=0){
 								//bottomTip.innerText = '没有更多赛事啦';
@@ -266,15 +277,14 @@ import publickHeader from 'base/header/publickheader'
 								//bottomTip.innerText = '上拉加载更多赛事';
 							}
     					  	this.$refs.Scroll.refresh();
-    					} 
+    					}
     					//that.scrollToId = this.matchListData[0].lottery_entry_id;
     					//console.log('#s'+this.matchListData[0].lottery_entry_id)
     					console.log(this.matchListData)
     				}else{
-    					console.log('请求失败')
+    					console.log('请求失败');
     				}
     				layer.close(this.loding);
-    				
     			})
     		})
     	},
@@ -294,11 +304,14 @@ import publickHeader from 'base/header/publickheader'
     	    return Year + '-' + Month + '-' + day + ' ' + hours + ':' + minutes;
     	},
     	isBallClick(){
-    		let that = this;
+    		var that = this;
     		let football = document.querySelector('#foot-hd');
     		let basketball = document.querySelector('#basket-hd');
     		that.isAll = false;
-    		football.onclick = function(){    			
+    		football.onclick = function(){
+    			that.lodingDom();
+    			that.searchWrapShow = false;
+				that.isAllWrapShow=false;
     			that.matchListData = [];
     			that.IS_PAGEUP = '';
     			that.cupNameArr = [];
@@ -307,9 +320,14 @@ import publickHeader from 'base/header/publickheader'
     			that.getData();
     			football.className = 'fo on';
 				basketball.className = 'bo';
-				//that.$refs.scroll.scrollTo(0,0,0,0)
+				that.$nextTick(function(){
+					that.$refs.scroll.scrollTo(0,0,0,0)
+				})				
     		};
-    		basketball.onclick = function(){    			
+    		basketball.onclick = function(){
+    			that.lodingDom();
+    			that.searchWrapShow = false;
+				that.isAllWrapShow=false;
     			that.matchListData = [];
     			that.IS_PAGEUP = '';
     			that.cupNameArr = [];
@@ -318,7 +336,10 @@ import publickHeader from 'base/header/publickheader'
     			that.getData();
     			football.className = 'fo';
 				basketball.className = 'bo on';
-                //that.$refs.scroll.scrollTo(0,0,0,0)
+				that.$nextTick(function(){
+					that.$refs.scroll.scrollTo(0,0,0,0)
+				})
+                
     		};
     	},
 		setMatchStatus(s){
@@ -479,6 +500,12 @@ import publickHeader from 'base/header/publickheader'
     	    var menu = document.querySelector('#menu');
     	    menu.className = 'menus show';
     	},
+    	lodingDom(){
+    		this.loding = layer.open({
+	    		type: 2,
+	    		content: '加载中'
+	    	});
+    	},
     	gomatch(Id){
             this.$router.push({
               path: `/matchdetail/?id=${Id}`
@@ -622,32 +649,26 @@ import publickHeader from 'base/header/publickheader'
 		position:absolute;
 		top:94px;
 		bottom:0;
-		z-index:9;
+		z-index:999999;
 		height:0;
 		overflow:hidden;
 	}
 	.isAllWrap{
-		line-height:50px;
-		text-align:center;
-		z-index:9;
-		li{
-			font-size:0.14rem;
-			.line{
-				width:90%;
-				display:inline-block;
-				line-height:0;
-				font-size:0;
-				position:absolute;
-				bottom:0;
-				left:5%;
-				border-bottom:1px solid @bordercolor;
-			}
+		ul{
+			line-height:50px;
+			text-align:center;
+			z-index:9;
 			background:@whites;
-			position:relative;
-		}
-		.on{
-			color:@reds;
-		}
+			padding:0 15px;
+			li{
+				.border-bottom;
+				background:@whites;
+				position:relative;
+			}
+			.on{
+				color:@reds;
+			}
+		}		
 	}
 	.searchwrap{
 		ul{
@@ -655,19 +676,19 @@ import publickHeader from 'base/header/publickheader'
 			background:@whites;
 			display:flex;
 			flex-wrap:wrap;
-			justify-content:space-around;
+			justify-content:space-around flex-start;
 			padding-bottom:25px;
 			li{
 				width:30%;
 				text-align:center;
-				line-height:31px;
-				margin-top:15px;
+				line-height:32px;
+				margin-top:20px;
 				span{
 					display:inline-block;
 					width:100%;
 					height:100%;
-					color:@assistcolor;
-					border:1px solid @assistcolor;
+					color:#999999;
+					border:1px solid #b8b8b8;
 					border-radius:3px;
 				}
 				.on{
@@ -738,13 +759,14 @@ import publickHeader from 'base/header/publickheader'
 				}
 			}
 			.chos-btn{
+				width:120px;
+				text-align:center;
 				position:absolute;
 				right:0;
 				top:0;
 				height:100%;
 				background:@reds;
 				color:@whites;
-				padding:0 50px;
 			}
 		}
 	}
@@ -778,40 +800,49 @@ import publickHeader from 'base/header/publickheader'
 			float:left;
 			.cup-times{
 				line-height:25px;
-				font-size:0.1rem;
-				color:#999;
+				font-size:0.11rem;
+				color:@namecolor;
 				.tim{
-					color:@assistcolor;
+					color:@maincolor;
+					padding-right:13px;
+				}
+				
+				.art-count{
+					display:inline-block;
+					padding-left:15px;
+					position:relative;
+					margin-left:8px;
+					font-size:0.1rem;
+					&:before{
+						width:12px;
+						height:10px;
+						content:'';
+						background:url(../../common/img/num.png) no-repeat left center;
+				  		background-size:36px 10px;
+				  		overflow:hidden;
+				  		background-position:0px 0;
+				  		position:absolute;
+				  		left:0px;
+				  		top:7px;
+				  	}
+				}
+				.artnum{
+					color:#999999;
+					&:before{
+				  		background-position:0px 0;
+				  	}
+				}
+				.on{
+					color:#ff8209;
+					&:before{						  		
+						background-position:-12px 0;					
+					}
+				}
+				.onmore{
+					color:@reds;
+					&:before{background-position:-24px 0;}
 				}
 			}
-			.art-num{
-				display:inline-block;
-				padding-left:15px;
-				position:relative;
-				margin-left:8px;
-				&:before{
-					width:12px;
-					height:10px;
-					content:'';
-					background:url(../../common/img/num.png) no-repeat left center;
-			  		background-size:36px 10px;
-			  		overflow:hidden;
-			  		position:absolute;
-			  		left:0px;
-			  		top:7px;
-			  	}
-			}
-			.on{
-				color:@reds;
-				&:before{
-					background-position:-12px 0;
-				}
-			}
-			.on-more{
-				color:#ff2700;
-				&:before{background-position:-24px 0;}
-			}
-
 			.match-msg{
 				width:100%;
 				color:@maincolor;
@@ -855,6 +886,12 @@ import publickHeader from 'base/header/publickheader'
 				.on{
 					color:@reds;
 				}
+				.over{
+					color:#999999;
+				}
+				.savage{
+					color:@oranges;
+				}
 			}
 			.open{
 				width:100px;
@@ -863,15 +900,17 @@ import publickHeader from 'base/header/publickheader'
 				right:0;
 				bottom:0px;
 			  	transform:rotate(180deg);
+			  	transform-origin:center center;
 			  	background:url(../../common/img/open.png) no-repeat top center;
 			  	background-position:0px 6px;
-			  	background-size:20px auto;
+			  	background-size:15px 6px;
 			}
 			.ing{
 				background:url(../../common/img/open.png) no-repeat bottom center;
 				transform:rotate(0deg);
-			  	background-position:80px 20px;
-			  	background-size:20px auto;
+				transform-origin:center center;
+			  	background-position:84px 25px;
+			  	background-size:15px 6px;
 			}
 
 			div[match-item]{
@@ -887,23 +926,30 @@ import publickHeader from 'base/header/publickheader'
 			  	transition:all 0.6s;
 				li{
 					margin-bottom:0;
-					background:@backcolor;
-					padding:10px 0 10px 10px;
+					background:#fbfbfb;
+					padding:20px 0 20px 10px;
 					position:relative;
 					.border-bottom;
 					&:last-child{
-						border:none;
+						.border-none;
+					}
+					&:nth-child(3){
+						.border-none;
 					}
 				}
 				.more-art{
-					color:@assistcolor;
+					color:@garycolor;
+					height:40px;
+					line-height:40px;
 					text-align:center;
 					background:@whites;
 					font-size:0.12rem;
+					.border-none;
+					padding:0;
 				}
 				dl{
 					width:100%;
-					padding:5px 10px;
+					padding:0px 10px;
 					padding-left:0;
 					float:left;
 					dt{
@@ -916,23 +962,24 @@ import publickHeader from 'base/header/publickheader'
 						}
 					}
 					dd{
-						font-size:0.14rem;
+						font-size:0.12rem;
 						color:@namecolor;
 						line-height:1;
 						position:relative;
 					}
-					.art-time{
-						font-size:0.12rem;
+					.match-time{
+						font-size:0.09rem;
 						color:#949494;
+						padding-top:5px;
 					}
 				}
 				.price{
-					height:44px;
+					height:46px;
 					padding:0 20px;
-					line-height:42px;
+					line-height:46px;
 					color:@reds;
 					border:1px solid @reds;
-				  	border-radius:8px;
+				  	border-radius:4px;
 				  	position:absolute;
 				  	right:0;
 				  	top:2px;
@@ -944,28 +991,27 @@ import publickHeader from 'base/header/publickheader'
 			.art-time{
 				padding-top:5px;
 			}
-			.digest{
+			.match-digest{
 				width:100%;
-				word-break:
-				break-all;
+				word-break:	break-all;
+				font-size:0.14rem;
 				display:-webkit-box;
 				-webkit-line-clamp:2;
 				-webkit-box-orient:vertical;
 			    overflow:hidden;
 			    padding-right:10px;
 			    line-height:25px;
-			    padding-top:3px;
+			    padding-top:10px;
 			}
-			.follow{
-				font-size:0.1rem;
-				color:@whites;
+			.match-follow{
+				width:39px;
+				height:13px;
 				display:inline-block;
-				padding:0 5px;
-				line-height:12px;
-			  	border-radius:6px;
-			  	background:@reds;
 			  	margin-left:5px;
-			  }
+			  	background:url('../../common/img/match-follow.png') no-repeat center;
+			  	background-size:100%;
+			  	transform:translateY(2px);
+			}
 			.red{
 				background:url('../../common/img/redall.png') no-repeat left center;
 				padding-left:14px;

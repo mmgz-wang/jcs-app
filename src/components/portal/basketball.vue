@@ -165,7 +165,7 @@ export default {
   .basketball-list-wrap{
     width:100%;
     position:absolute;
-    top:50px;
+    top:44px;
     bottom:0;
     overflow:hidden;
   }

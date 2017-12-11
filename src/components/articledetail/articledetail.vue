@@ -3,7 +3,7 @@
     	<header class="art-header">
     		<span class="back" @click="art_back()">返回</span>
     		<h1>详情</h1>
-    		<span class="service">联系客服</span>
+    		<span @click="goService()" class="art-service">联系客服</span>
     	</header>
     	<div class="art-wrap-outer">
 			<div class="hd">
@@ -30,6 +30,10 @@
 				</div>
 				<div class="article-main" v-if="articleData.chargeable && !articleData.articlePurchased">
 					<div class="match-items">
+						<span class="lock-pic"></span>
+						<div class="item" v-if="articleData.matches.length<=0">
+							<p class="nonematch">购买后可查看全文</p>
+						</div>	
 						<div class="item" v-for="item in articleData.matches">
 							<p cupname>
 								<span class="home_team">{{item.home_team}}</span>
@@ -42,13 +46,25 @@
 								<span class="com">{{item.cup_name}}</span>
 								<span class="day">{{setTime(item.start_time)}}</span>
 							</p>
-						</div>
-						<div class="lock">
-							<p class="main-num">{{productExplain(articleData)}}</p>
-							<span></span>
-						</div>
-					</div>				
+						</div>						
+					</div>
+					<div class="package-wrap">
+						<p class="main-num">{{productExplain(articleData)}}</p>
+						<div class="memberPackage" 
+						v-html="payForWaystr"
+						v-if="articleData.chargeable && !articleData.articlePurchased" id="aaa" @click="PayForPackage">
+							<div class="package-item">
+								<p>
+									<span>单篇购买 <i>￥18</i></span>
+									<span class="open-explain">仅解锁当前文章</span>
+								</p>
+								<button class="open-btn">解锁</button>
+							</div>
+						</div>	
+					</div>							
 				</div>
+
+				
 				<div class="unlock" v-if="!articleData.chargeable || articleData.articlePurchased" v-html="articleData.text">
 				</div>
 				<p class="hoge" v-if="articleData.matches.length>0">温馨提醒：本平台所有赛事皆为主队在前，客队在后。</p>
@@ -57,38 +73,29 @@
 
 				<p class="price1" v-if="articleData.chargeable && !articleData.singleUnlock && articleData.articlePurchased">(VIP用户专享)</p>
 
-				<div class="memberPackage" v-if="articleData.chargeable && !articleData.articlePurchased" id="aaa" v-html="payForWaystr" @click="PayForPackage">
-					<button>解锁<span>58精彩币</span></button>
-					<button class="gary">使用赠送机会<span>90精彩币以下</span></button>
-					<button>包月解锁<span>5400精彩币</span></button>
-					<button>包年解锁<span>38880精彩币</span></button>
-					<button>包年解锁<span>38880精彩币</span></button>
-				</div>
+				
 	    	</div>
 	    	<div v-if="recommendData.length" class="recommendList" style="">
-				<p class="r-tit"><span>精彩推荐</span></p>
+				<div class="tit-wrap">
+					<span class="r-tit">精彩推荐</span>
+				</div>
 				<div class="r-list">
-					<div class="listcon" v-for="item in recommendData" onclick="recommendGoarticle(538590)">
-						<div class="titbox" v-if="item.matches.length>0">
-							<span>{{item.matches[0].cup_name}}</span>
-							<span>{{item.matches[0].home_team}} vs {{item.matches[0].away_team}}</span>
-							<span>{{  setTime(item.last_modified)}}</span>
-						</div>
-						<span class="digest">
-							<i class="r-vip" v-if="item.chargeable">VIP</i>{{ item.digest}}
-						</span>
+					<div class="listcon" v-for="item in recommendData" @click="goarticle(item)">
 						<div class="bott">
+							<i class="r-vip" v-if="item.chargeable">VIP</i>
 							<span class="txt" v-if="item.tabView" v-html="item.tabView">
 								<i>足球</i><i>初盘大小球</i>
 							</span>
-							<dl author_id="905">
-								<dt>
-									<img :src="item.authorPic">
-								</dt>
-								<dd class="h38">
-									<span class="name">{{item.authorName}}</span>
-								</dd>
-							</dl>
+							
+						</div>
+						<span class="digest">
+							{{item.authorName}}: {{ item.digest}}
+						</span>
+						
+						<div class="art-match" v-if="item.matches.length>0">
+							<span>{{item.matches[0].cup_name}}</span>
+							<span>{{item.matches[0].home_team}} vs {{item.matches[0].away_team}}</span>
+							<span>{{  setTime(item.last_modified)}}</span>
 						</div>
 					</div>
 				</div>
@@ -113,13 +120,18 @@
 			</div>
 		</div>
 		<router-view></router-view>
+		<pay-dialog v-show="dialogShow"
+		:btns="dialogData.btns"
+        :tit="dialogData.tit"
+        :yesFn="dialogData.yesFn"
+        :noFn="dialogData.noFn"></pay-dialog>
     </div>
     
 </template>
 <script type="text/javascript">
 import shareFn from 'common/js/sharefn'
 import Common from 'common/js/common'
-import BUS from 'common/js/bus'
+import payDialog from 'base/paydialog/paydialog'
 export default {
 	name: 'articleDetail',
 	props:{
@@ -135,20 +147,30 @@ export default {
 			payForWaystr: '',
 			authorFollowed: true,
 			authorId: '',
-			followStr: '加关注',
+			followStr: '关注',
 			authorName: '',
 			price: '',
 			isCollect: false,
-			isLike: false
+			isLike: false,
+			dialogShow: false,
+			cardId: 0,
+			dialogData: {
+				btns: ['确定','取消'],
+				tit: '您确认要是用赠送机会解锁此文章吗？',
+				yesFn: null,
+				noFn: null
+			}
+			
 		}
 	},
 	created(){
-		
+		console.log('created')
 	},
 	mounted(){
-		//this.getData();
+		console.log('mounted')
 	},
 	activated() {
+		console.log('activated')
 		this.articleData = [];
 		this.getData();
 	},
@@ -156,7 +178,7 @@ export default {
 		//console.log("我是第一个页面的 deactivated 方法");
 	},
 	components: {
-		
+		payDialog
 	},
 	methods: {
 		getData(){
@@ -179,10 +201,11 @@ export default {
 						this.recommendData = res.data.recommendList;
 						this.authorFollowed = this.articleData.authorFollowed;
 						this.authorId = this.articleData.author_id;
-						this.authorFollowed?this.followStr = '已关注':this.followStr = '加关注';
+						this.authorFollowed?this.followStr = '已关注':this.followStr = '关注';
 						this.authorName = this.articleData.authorName;
 						this.isCollect = this.articleData.articleCollected;
 						this.isLike = this.articleData.articlePraised;
+						this.cardId = this.articleData.omnCardId;
 						this.payForWay(res.data);
 					}else if(res.data.code == '0003'){
 						layer.open({
@@ -317,10 +340,14 @@ export default {
 			var articles = data.Articles,authorLevelList = data.Articles.authorLevelList, authorLevels = data.Articles.authorLevels;
 			var payForWaystr = '';
 			if(articles.chargeable && !articles.articlePurchased && articles.singleUnlock) {
-				payForWaystr += '<button types="money">解锁<span>'+ articles.price +'精彩币</span></button>';
+				payForWaystr += `<div class="package-item"><p><span>单篇购买 <i>￥${articles.price}</i></span><span class="open-explain">
+				仅解锁当前文章</span></p><button class="open-btn" types="money">解锁</button></div>`
+
 			}
 			if('' != articles.omnCardId &&'' != articles.omnCardValue && articles.omnCardId != 0 && articles.omnCardValue != 0&&undefined!=articles.omnCardId&&undefined!=articles.omnCardValue&& articles.singleUnlock) {
-				payForWaystr += '<button types="card">赠送机会<span>'+articles.omnCardValue+'精彩币以下</span></button>';
+
+				payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${articles.omnCardValue}精彩币以下</i></span><span class="open-explain">
+				仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`
 			}
 
 			if(authorLevelList != undefined && authorLevels != undefined){
@@ -345,18 +372,30 @@ export default {
 				})
 				function returnPackage(v){
 					var packageArr = {'0':'天','1':'月','3':'季','6':'半年','12':'年'};
+					var packageExplain = {
+						'0':'看老师一整天产品',
+						'1':'包月更优惠，看老师正月产品',
+						'3':'看老师一季度产品',
+						'6':'看老师半年产品',
+						'12':'看老师全年产品'
+					}
 					if(arguments.length>1){
-						return '<button types="packages" months="'+arguments[1].termmonths+'" id="'+arguments[1].id+'" price='+arguments[1].price+'>'+
-							'包周解锁<span>'+arguments[1].price+'精彩币</span></button>';
+						return `<div class="package-item"><p><span>包周产品 <i>￥${arguments[1].price}
+						</i></span><span class="open-explain">看老师一星期产品</span></p><button months="${arguments[1].termmonths}" id="${arguments[1].id}" price="${arguments[1].price}" class="open-btn" types="packages">解锁</button></div>`
 					}else{
-						return '<button types="packages" months="'+v.termmonths+'" id="'+v.id+'" price='+v.price+'>'+
-							'包'+packageArr[v.termmonths]+'解锁<span>'+v.price+'精彩币</span></button>';
+						return `<div class="package-item"><p><span>包${packageArr[v.termmonths]}产品 
+						<i>￥${v.price}</i></span><span class="open-explain">
+						${packageExplain[v.termmonths]}</span></p><button types="packages" class="open-btn" 
+						months="${v.termmonths}" id="${v.id}" price="${v.price}">
+						解锁</button></div>`
+						console.log(v)
 					}
 				}
 			}
 			this.payForWaystr = payForWaystr;	
 		},
 		PayForPackage(){
+			var that = this;
 			if(!shareFn.isLogin()){
 				this.$router.push({ name: 'enter'});
 				return false;
@@ -372,7 +411,14 @@ export default {
 				})
 				console.log(types)
 			}else if(types == 'card'){
-				
+				this.dialogShow = true;
+				this.dialogData.yesFn = function(){
+					that.cardPay();
+					that.dialogShow = false;
+				};
+				this.dialogData.noFn = function(){
+					that.dialogShow = false;
+				};
 			}else if(types == 'packages'){
 				this.$router.push({
 					name: 'payfor',
@@ -421,7 +467,7 @@ export default {
 					that.followStr = '已关注';
 					showMeaage('关注成功');
 				} else {
-					that.followStr = '加关注';
+					that.followStr = '关注';
 					showMeaage('取消成功');
 				}
 			}
@@ -430,9 +476,6 @@ export default {
 		},
 		art_back(){
 			this.$router.back();
-			this.$nextTick(function(){
-				BUS.$emit('reload',true);
-			})
 		},
 		bunceIn(s){
 			layer.open({
@@ -457,6 +500,27 @@ export default {
 			}
 			this.custmorAjax(opt);
 		},
+		cardPay(){
+			this.$nextTick(function(){
+				this.$http.jsonp(
+					Common.baseUrl.host + "/Purchase/PurchaseArticleByOmnCard",
+					{
+						params: {
+							Language: "M",
+							Type: 6,
+							ArticleId: this.$router.currentRoute.query.id,
+							AuthorId: this.authorId,
+							Id: this.cardId,
+							UserId: shareFn.getUserId(),
+							SecurityCode: shareFn.getSecurityCode()
+						}
+					}).then(function(res){
+						if(res.data.Code == '0000'){
+							this.getData();
+						}
+					})
+			})
+		},
 		custmorAjax(opt){
             var data = null;
             console.log(opt)
@@ -472,7 +536,17 @@ export default {
             },function(){
                 this.bunceIn('请求失败请检查网络')
             })
-        }
+        },
+        goService(){
+        	this.$router.push({path: '/service?id=234'})
+        },
+        goarticle(item){
+        	console.log(item)
+            this.$router.push({
+                path: `/articledetail/?id=${item.id}`
+            })
+            location.reload();
+        },
 	},
 	watch: {
 		articleData: function(){
@@ -506,7 +580,8 @@ export default {
 		position:fixed;
 		background:@backcolor;
 		top:0;
-		z-index:10;
+		z-index:9999999;
+		padding:0 15px;
 		h1{
 			font-size:0.18rem;
 			font-weight:400;
@@ -519,15 +594,17 @@ export default {
 			left:0;
 			background:url('../../common/img/deepback.png') no-repeat center;
 			color:transparent;
-			background-size:11px auto;
+			background-size:8px 17px;
 		}
-		.service{
-			display:none;
+		.art-service{
+			display:inline-block;
 			height:100%;
 			position:absolute;
-			right:0;
+			right:15px;
 			top:0;
-			padding:0 15px;
+			background:url('../../common/img/art-service.png') no-repeat right center;
+			background-size:21px 19px;
+			color:transparent;
 		}
 	}
 	.hd{
@@ -538,19 +615,19 @@ export default {
 		width:100%;
 		position: relative;
 		padding:0 15px;
-		img{
-			width:0.27rem;
-			height:0.27rem;
-			border-radius:50%;
-		}
 		dl{
 			float:left;
 			height:100%;
 			display:flex;
 			align-items:center;
 			dt{
-				height:0.27rem;
-				width:0.27rem;
+				height:0.34rem;
+				width:0.34rem;
+				img{
+					width:0.34rem;
+					height:0.34rem;
+					border-radius:50%;
+				}
 			}
 			dd{
 				padding-left:10px;
@@ -558,80 +635,80 @@ export default {
 				color:#999;
 				span{
 					padding:0 10px 0 5px;
+					line-height:1;
+					color:@garycolor;
 				}
 				#authod_name{
 					padding:0;
-					font-size:0.15rem;
+					font-size:0.13rem;
+					color:@namecolor;
 				}
 			}
 		}
 		.follow{
 			position:absolute;
-			right:20px;
-			bottom:0.1rem;
+			right:15px;
+			top:50%;
+			transform:translateY(-50%);
 			font-size:0.1rem;
-			color:#888888;
+			color:#b1b1b1;
 			text-align:center;
+			height:25px;
+			border:1px solid @bordercolor;
+			line-height:25px;
+			border-radius:4px;
+			padding:0 10px;
 		}
 		.follow_on{
 			color:@reds;
-		}
-		.follow:before{
-			content:"";
-			width:0.21rem;
-			height:0.21rem;
-			background:url('../../common/img/w.png') no-repeat;
-			background-size:contain;
-			position:absolute;
-			top:-0.21rem;
-			left:50%;
-			margin-left:-0.105rem;
-		}
-		.follow_on:before{
-			content:"";
-			background:url('../../common/img/w_on.png') no-repeat;
-			background-size:contain;
+			text-align:center;
+			border:1px solid @reds;
+			background:url('../../common/img/add.png') no-repeat left center;
+			background-size:10px 10px;
+			background-position:10px;
+			padding:0 10px 0 25px;
 		}
 	}
 	.article-wrap{
 		width:100%;
 		background:@whites;
 		margin-top:10px;
-		padding:10px 15px;
+		padding:15px;
 		.free_txt{
 			width:100%;
-			padding-bottom:10px;
+			padding-bottom:15px;
 			.show_tim{
 				font-size:0.1rem;
 				color:@assistcolor;
 				clear:both;
-				line-height:0.2rem;
+				line-height:0.1rem;
 			}
 			.digest{
 				width:100%;
 				font-size:@mainsize;
 				color:@maincolor;
+				line-height:0.25rem;
 			}		
 			.label{
 				padding-bottom:5px;
 			}
 			.txt{
 				width:100%;
-				height:28px;
-				line-height:28px;
+				height:45px;
+				line-height:45px;
 				display:flex;
 				justify-content:flex-start;
 				box-sizing:content-box;
 				align-items:center;
 				i{
-					height:16px;
-					line-height:16px;
+					height:15px;
+					line-height:15px;
 					padding:0 5px;
 					border-radius:3px;
 					font-style:normal;
 					color:@reds;
 					border:1px @reds solid;
-					font-size:@assistsize;
+					font-size:0.1rem;
 					margin-right:8px;
 				}
 				.vip{
@@ -649,21 +726,19 @@ export default {
 		}
 		.article-main{
 			width:100%;
-			border:1px solid @bordercolor;
-			background:#fbfbfb;
 			font-size:@mainsize;
 			color:@maincolor;
 			.match-items{
 				width:100%;
+				position:relative;
+				border:1px solid @bordercolor;
+				background:#fbfbfb;
 				.item{
 					width:90%;
 					margin-left:5%;
 					text-align:center;
-					padding:12px 0 8px 0;
+					padding:15px 0;
 					border-bottom:1px dotted @bordercolor;
-					&:last-child{
-						border:none;
-					}
 					p[cupname]{
 						text-align:center;
 						width:100%;
@@ -673,17 +748,34 @@ export default {
 						i{
 							color:@oranges;
 							padding:0 5px;
-						}
-						
+						}						
 					}
 					.tim{
-						font-size:@assistsize;
-						color:@assistcolor;
-						padding-top:5px;
+						font-size:0.1rem;
+						color:@garycolor;
+						padding-top:8px;
 						span{
 							padding:0 3px;
 						}
 					}
+					&:last-child{
+						border:none;
+					}
+					.nonematch{
+						color:@garycolor;
+						font-size:0.12rem;
+						padding:10px 0 15px 0;
+					}
+				}
+				.lock-pic{
+					width:0.25rem;
+					height:0.25rem;
+					background:url('../../common/img/lock.png') no-repeat center;
+					background-size:25px 25px;	
+					position:absolute;
+					left:50%;
+					bottom:-0.16rem;
+					margin-left:-17px;
 				}
 				.lock{
 					width:100%;
@@ -693,18 +785,7 @@ export default {
 					color:@shallowred;
 					position:relative;
 					line-height:40px;
-					span{
-						width:0.4rem;
-						height:0.4rem;
-						background:#fbfbfb url('../../common/img/lock.png') no-repeat center;
-						background-size:19px auto;	
-						position:absolute;
-						left:50%;
-						bottom:-0.19rem;
-						margin-left:-20px;
-						border:1px solid @bordercolor;
-						border-radius:50%;
-					}
+					
 				}
 			}
 		}
@@ -785,60 +866,57 @@ export default {
 				}
 			}
 		}
-		.memberPackage{
+		.package-wrap{
 			width:100%;
-			padding:10px;
-			font-size:0.15rem;
-			color:#ffd842;
-			display:flex;
-			flex-flow:row wrap;
-			justify-content:space-around;
-			margin-top:5px;
-			button{
-				flex:1;
-				min-width:31%;
-				max-width:45%;
-				outline:none;
-				border:1px solid @reds;
-				background:@shallowred2;
-				color:@reds;
-				display:inline-block;
-				font-size:0.15rem;
-				border-radius:2px;
-				margin-right:3%;
-				margin-top:20px;
-				padding:10px 0;
-				&:nth-child(3n){
-					margin:0;
-					margin-top:20px;
-				}
-				span{
-					display:block;
-					font-size:@assistsize;
-					padding-top:5px;
-				}
+			border:1px solid @bordercolor;
+			border-top:none;
+			.main-num{
+				font-size:0.1rem;
+				color:#f7867a;
+				text-align:center;
+				padding-top:37px;
 			}
-			.gary{
-				flex:1;
-				min-width:31%;
-				max-width:45%;
-				outline:none;
-				border:1px solid @bordercolor;
-				background:@whites;
-				color:@assistcolor;
-				display:inline-block;
-				font-size:0.15rem;
-				border-radius:2px;
-				margin-right:3%;
-				margin-top:20px;
-				padding:10px 0;
-				span{
-					display:block;
-					font-size:@assistsize;
-					padding-top:5px;
+			.memberPackage{
+				width:100%;
+				padding:17px 15px 0 15px;
+				.package-item{
+					width:100%;
+					border-bottom:1px dotted @bordercolor;
+					padding:13px 0;
+					position:relative;
+					font-size:0.13rem;
+					color:@maincolor;
+					span{
+						display:block;
+						&:nth-child(2){
+							color:@garycolor;
+							font-size:0.1rem;
+						}
+					}
+					button{
+						outline:none;
+						border:none;
+						background:@reds;
+						color:@whites;
+						height:25px;
+						width:60px;
+						line-height:25px;
+						text-align:center;
+						border-radius:4px;
+						position:absolute;
+						right:0;
+						top:50%;
+						margin-top:-12px;
+						font-size:0.12rem;
+					}
+					&:last-child{
+						border:none;
+					}
 				}
+
 			}
 		}
+		
 	}
 	.recommendList{
 		width:100%;
@@ -846,38 +924,53 @@ export default {
 		margin:10px 0;
 		background:@whites;
 		color:@maincolor;
-		.r-tit{
-			width:100px;
-			height:20px;
-			border-bottom:1px solid #434343;
-			text-align:center;
-			line-height:20px;
-			font-size:0;
-			margin:0 auto;
-			margin-top:20px;
-			span{
-				font-size:0.16rem;
+		float:left;
+		.tit-wrap{
+			width:100%;
+			height:55px;
+			padding:20px 0;
+			position:relative;
+			.r-tit{
+				font-size:0.15rem;
 				color:@maincolor;
 				padding:0 5px;
-				transform:translateY(9px);
-				display:inline-block;
-				background:@whites;
+				text-align:center;
+				position:absolute;
+				left:50%;
+				top:50%;
+				transform:translate3d(-50%,-50%,0);
+				&:before{
+					content:"";
+					width:16px;
+					height:0.015rem;
+					background:@maincolor;
+					position:absolute;
+					left:-18px;
+					top:50%;
+					margin-top:-1px;
+				}
+				&:after{
+					content:"";
+					width:16px;
+					height:0.015rem;
+					background:@maincolor;
+					position:absolute;
+					right:-18px;
+					top:50%;
+					margin-top:-1px;
+				}
 			}
-		}
+		}		
 		.r-list{
 			width:100%;
-			margin-top:25px;
+			float:left;
 		}
 		.listcon{
 			width:94%;
-			overflow:hidden;
-			padding-bottom:8px;
+			float:left;
+			padding-top:15px;
 			margin-left:3%;
-			margin-top:5px;
-			border-bottom:1px solid @bordercolor;
-		}
-		.listcon:last-child{
-			border:none;
+			.border-top;
 		}
 		.topb img{
 			width:100%;
@@ -895,69 +988,55 @@ export default {
             color:@maincolor;
 		}
 		.bott{
-			width:100%;
-			font-size:0.12rem;
-			color:#8b7a39;
-			height:25px;
-			line-height:25px;
-			float: left;
-			margin-top:5px;
-		}
-		.bott .txt{
-			float:left;
-		}
-		.bott .txt i{
-			display:inline-block;
-			height:0.16rem;
-			line-height:0.14rem;
-			padding:0 5px;
-			margin-right:8px;
-			border-radius:2px;
-			font-style:normal;
-			color:@reds;
-			border:1px @reds solid;
-			font-size:0.12rem;
-			transform: translateY(-0.01rem);
-		}
-		.r-vip{
-			background:@reds;
-			color:@whites;
-			border-color:@reds;
-			border-radius:3px;
-			height:15px;
-			line-height:16px;
-			font-size:12px;
-			display:inline-block;
-			padding:0 5px;
-		}
-		.bott dl{
-			float:right;
-			height:25px;
-			img{
-				width:15px;
-				border-radius:50%;
-				margin-right:5px;
-				margin-top:5px;
-			}
-			dt{
+				box-sizing:content-box;
+				width:100%;
+				font-size:0.1rem;
+				color:#8b7a39;
+				float: left;
+				padding-bottom:12px;
+			.txt{
 				float:left;
-			}
-			dd{
-				float:right;
-				color:#999;
-				.name{
-					color:@namecolor;
+				i{
+					display:inline-block;
+					height:0.15rem;
+					line-height:0.15rem;
+					padding:0 5px;
+					margin-right:8px;
+					border-radius:2px;
+					font-style:normal;
+					color:@reds;
+					border:1px @reds solid;
+					font-size:0.1rem;
+					transform: translateY(-0.01rem);
+				}
+				label{
+					color:@oranges;
+				}
+				.label{
+					color:@oranges;
 				}
 			}
+			.r-vip{
+				float:left;
+				background:@reds;
+				color:@whites;
+				border-color:@reds;
+				border-radius:3px;
+				height:15px;
+				line-height:15px;
+				font-size:0.1rem;
+				display:inline-block;
+				padding:0 5px;
+				margin-right:8px;
+			}
 		}
-		.txtbox{float:left;overflow:hidden;padding:0 15px;}
-		.txtbox .label{padding-bottom:5px;}
-		.txtbox .txt{float:left;width:100%;line-height:0.24rem;font-size:0.17rem;word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#dddddd}
-		.txtbox .txt i{display:inline-block;height:0.16rem;line-height:0.16rem;padding:0 5px;margin-right:5px;border-radius:2px;font-style:normal;color:#ffd842;border:1px #8b7a39 solid; font-size:.688em;}
-		.txtbox .txt .vip{background:#ffd842;color:#404040}
-		.titbox{float:left;width:100%;height:0.26rem;line-height:0.26rem;font-size:0.12rem;color:#8b7a39}
-		.txtbox .txt label{color:#8b7a39;font-size:0.12rem;padding: 0 5px;}
-		.txtbox .txt .gg{padding:0px;}
+		.art-match{
+			float:left;
+			width:100%;
+			line-height:45px;
+			font-size:0.1rem;
+			color:@blues;
+		}
 	}
 	.art-hint{
 		font-size:@assistsize;
@@ -978,9 +1057,10 @@ export default {
 	.hoge{
 		font-size:0.12rem;
 		color:@reds;
-		margin: 10px 0;
-		margin-top:50px;
+		padding-top:15px;
+		width:100%;
 		text-align:center;
+		color:@assistcolor;
 	}
 	.price1{
 		font-size:0.12rem;
@@ -1040,6 +1120,8 @@ export default {
 		top:44px;
 		bottom:48px;
 		overflow:scroll;
+		-webkit-overflow-scrolling:touch;
+		overflow-scrolling:touch;
 	}
 }
 

@@ -2,7 +2,7 @@
   <div class="home">
     <header>
         <router-link to="/vip"><span class="hd-vip">文章</span></router-link>
-        <h1 class="jcs-title">精彩说</h1>
+        <img src="../../common/img/jcs.png">
         <span class="letter" @click="goLetter()">私信</span>
     </header>
     <nav class="tab">
@@ -233,21 +233,25 @@ export default {
     font-size:0.12rem;
   }
   header{
-    height:50px;
-    line-height:50px;
+    height:44px;
+    line-height:44px;
     background:@reds;
     color:#fff;
     font-size:0.12rem;
     text-align:center;
+    overflow:hidden;
+    position:relative;
     a{
       color:@whites;
     }
     .hd-vip{
       float: left;
+      line-height:44px;
       padding:0 10px 0 0.25rem;
       margin-left:10px;
       background: url('../../common/img/vip.png') no-repeat left center;
       background-size:0.20rem auto;
+      background-position:left 11px;
     }
     .letter{
       color:transparent;
@@ -256,13 +260,14 @@ export default {
       background: url('../../common/img/letter.png') no-repeat center;
       background-size: 0.20rem auto;
     }
-    h1{
-      display:inline-block;
-      font-size:0.18rem;
+    img{
+      width:67px;
       position:absolute;
+      top:50%;
       left:50%;
-      transform:translateX(-50%);
+      transform:translate3d(-50%,-50%,0);
     }
+    
   }
   .tab{
     width:100%;
@@ -287,7 +292,7 @@ export default {
   .container{
     width:100%;
     position:absolute;
-    top:94px;
+    top:88px;
     bottom:0;
     overflow-y:hidden;
   }

@@ -34,10 +34,11 @@ import Article from '../components/articledetail/articledetail'
 
 import PayFor from '../components/consume/payfor'
 import Recharge from '../components/consume/recharge'
+import ConsumeRecord from '../components/consume/consumerecord'
 import Register from '../components/register/register'
 import EnterIn from '../components/register/enter'
 import Forget from '../components/register/Forget'
-
+import Service from '../components/service/service'
 
 Vue.use(Router)
 
@@ -72,8 +73,18 @@ export default new Router({
             } 
         },
     //赛事
-    { path: '/competition', name: 'competition', component: Competition },
-    { path: '/matchdetail', name: 'matchdetail', component: MatchDetail }, 
+    { path: '/competition', name: 'competition', component: Competition,
+        meta: {
+            iskeep: true,
+            isback: false
+        }
+    },
+    { path: '/matchdetail', name: 'matchdetail', component: MatchDetail,
+        meta: {
+            iskeep: false,
+            isback: true
+        }
+    }, 
 
     //关注
     { path: '/attention', name: 'attention', component: Attention,
@@ -103,15 +114,16 @@ export default new Router({
     //我的
     { path: '/my', name: 'my', component: My,
         children: [
-            { path: '/mypresent', name: 'mypresent', component: MyPresent },
-            { path: '/myCollect', name: 'myCollect', component: MyCollect },
-            { path: '/myBuy', name: 'my_buy', component: MyBuy },
-            { path: '/help', name:'help', component: Help },
-            { path: '/setting', name:'setting', component: Setting,
+            { path: 'mypresent', name: 'mypresent', component: MyPresent },
+            { path: 'myCollect', name: 'myCollect', component: MyCollect },
+            { path: 'myBuy', name: 'my_buy', component: MyBuy },
+            { path: 'help', name:'help', component: Help },
+            { path: 'service', name:'service', component: Service },
+            { path: 'setting', name:'setting', component: Setting,
                 children: [
-                    { path: '/modifi', name: 'modifi', component: Modification },                    
-                    { path: '/change', name: 'change', component: Change },
-                    { path: '/our', name: 'our', component: Our }
+                    { path: 'modifi', name: 'modifi', component: Modification },                    
+                    { path: 'change', name: 'change', component: Change },
+                    { path: 'our', name: 'our', component: Our }
                 ]
             }
         ],
@@ -120,6 +132,9 @@ export default new Router({
             iskeep: false
         } 
     },
+
+    //在线客服
+    { path: '/service', name:'service', component: Service},
      
     //公用文章详情
     { path: '/articledetail', name: 'articledetail', component: Article,
@@ -130,6 +145,9 @@ export default new Router({
     },
     { path: '/payfor', name: 'payfor', component: PayFor },
     { path: '/recharge', name: 'recharge', component: Recharge,
+        children: [
+            {path: 'consumerecord', name: 'consumerecord' ,component: ConsumeRecord}
+        ],
         meta: {
             iskeep: false,
             isback: false

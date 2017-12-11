@@ -11,12 +11,12 @@
                         <span class="tm">{{timeformat(item.last_modified)}}</span>
                     </dd>
                 </dl>
-                <p class="txt" v-html="tabView(item)">
+                <p class="txt" v-if="item.tabView" v-html="tabView(item)">
 
                 </p>
                 <span class="list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">VIP</i>{{item.digest}}</span>
             </div>
-            <div class="titbox match" v-if="item.matches!=undefined && item.matches.length>0 && matchShow" @click.stop="gomatch(item.matches[0].entry_id)">
+            <div class="artlist-match" v-if="item.matches!=undefined && item.matches.length>0 && matchShow" @click.stop="gomatch(item.matches[0].entry_id)">
                 <span># {{item.matches[0].cup_name}}</span>
                 <span>{{item.matches[0].home_team}} vs {{item.matches[0].away_team}}</span>
                 <span>{{timeformat(item.matches[0].start_time)}} #</span>
@@ -129,7 +129,7 @@ export default{
         overflow:hidden;
         margin-bottom:8px;
         background:@whites;
-        padding-left:10px;
+        padding-left:15px;
     }
     .topb img{
         width:100%
@@ -137,21 +137,55 @@ export default{
     .txtbox{
         float:left;
         width:100%;
-        padding:8px 10px 5px 0;
+        padding:20px 15px 20px 0;
         overflow:hidden;
+        dl{
+            float:left;
+            width:100%;
+            display:flex;
+            justify-content:space-between;   
+            dt{
+                height:25px;
+                padding-right:8px;
+               img{
+                    width:25px;
+                    height:25px;
+                    border-radius:50%;
+                    float:left;
+                }
+            }
+            dd{
+                line-height:25px;
+                color:#dddddd;
+                flex-grow:1;
+            }
+        }
+        .name{
+            float:left;
+            font-size:0.15rem;
+            color:@namecolor;
+        }
+        .tm{
+            float:right;
+            font-size:0.12rem;
+            color: @assistcolor;
+        }
+        dd a{
+            color:#514da5;
+        }
+        dd i{
+            float:left;
+            width:16%; 
+            margin:-14px 5px 0 0;
+            img{
+                width:100%
+            }
+        }
     }
-    .txtbox dl{float:left;width:100%;padding-bottom:5px;}
-    .txtbox dt{float:left;height:0.275rem;padding-right:10px;}
-    .txtbox dt img{width:0.275rem;height:0.275rem;border-radius:50%;float:left;}
-    .txtbox dd{width:87%;float:left;line-height:0.3rem;color:#dddddd;}
-    .txtbox .name{float:left;font-size:0.15rem;color:@namecolor;}
-    .txtbox .tm{float:right;font-size:0.12rem;color: @assistcolor;}
-    .txtbox dd a{color:#514da5;}
-    .txtbox dd i{float:left;width:16%; margin:-14px 5px 0 0;}
-    .txtbox dd i img{width:100%}
     .list-digest{
         margin-top:0px;
         width:100%;
+        padding-top:15px;
         line-height:0.24rem;
         font-size:0.15rem;
         word-break:break-all;
@@ -165,41 +199,52 @@ export default{
         font-size:0.12rem;
         float:left;
         width:100%;
+        padding-top:17px;
         box-sizing:content-box;
         i{
-            display:inline-block;
             box-sizing:content-box;
-            height:16px;
-            line-height:16px;
+            height:15px;
+            line-height:15px;
             padding:0 5px;
-            margin-right:8px;
+            margin-right:10px;
             border-radius:3px;
             font-style:normal;
             color: @reds;
             border:1px @reds solid; 
-            font-size:12px;
-            transform: translateY(-0.01rem);}
+            font-size:0.1rem;
+        }
         .vip{
             background: @reds;
             color:@whites;
             border-color: @reds;
         }
+        label{
+            color: @oranges;
+            font-size:0.1rem;
+            padding-right:5px;
+        }
     }
     
-
-    .titbox{float:left;width:100%;font-size:0.12rem;color: @blues;padding-bottom:10px;}
-    .titbox span{margin:0 10px 0 0px;}
-    .titbox span:nth-child(1){margin-right: 10px;}
-    .titbox span:last-child{display: inline-block;}
-    .txtbox label{color: @oranges;font-size:0.12rem;padding: 0 5px;}
-    .txtbox .label .gg{padding:0px;}
-    .match{
+    .artlist-match{
+        float:left;
+        width:100%;
+        height:40px;
+        line-height:40px;
         position:relative;
-        padding-top:5px;
+        color:@blues;
         .border-top;
+        font-size:0.13rem;
+        span{
+            float:left;
+            margin:0 10px 0 0px;
+            &:nth-child(1){
+                margin-right: 10px;
+            }
+        }
+        
     }
     .list-Price{
-        font-size:0.12rem;
+        font-size:0.1rem;
         color:@reds;
     }
 }

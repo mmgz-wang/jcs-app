@@ -302,7 +302,7 @@ import lackPage from 'base/lackpage/lackpage'
     }
     .header div span{
     	margin-right: 35px;
-    	color: @backcolor;
+    	color: rgba(255,255,255,0.5);
     	display: inline-block;
     	position: relative;
     	&.on{
@@ -327,53 +327,105 @@ import lackPage from 'base/lackpage/lackpage'
     .scroll{
     	width: 100%;
     	position: absolute;
-    	top: 50px;
+    	top: 44px;
     	bottom: 0;
     	overflow: hidden;
     }
     .listcon:htn-child(1){
     	margin-top:0;
     }
-    .teachmsg{width:100%;float:left;background: @whites;font-size:0.15rem;color: @namecolor;padding-left:10px;}
-    .teachmsg dl {width:100%;}
-    .teachmsg dl,.teachmsg dl dt{float:left;}
-    .teachmsg dl dt{padding-left:5px;}
-    .teachmsg dl dt p{width:40px;height:40px;border-radius:50%;margin:20px 0 20px 10px;
-        position:relative;}
-    .teachmsg dl dt p span{border-radius:50%;background:#f43531;width:16px;height:16px;
-        line-height:16px;text-align:center;color:#ffffff;position:absolute;right:-6px;
-        top:-6px;font-size:10px;}
-    .teachmsg dl dt p img{width:40px;height:40px;border-radius:50%}
-    .teachmsg dl dd{width:80%;padding:10px 0;border-bottom:1px solid @bordercolor;float:right;
-        padding-right:10px;}
-    .teachmsg dl dd p{font-size:0.17rem;position: relative;}
-    .teachmsg dl dd p .tm{color:@assistcolor;font-size:@assistsize;}
-    .isfans{
-    	height: 25px;
-    	line-height: 25px;
-    	color: @assistcolor;
-    	font-size: @assistsize;
-    	font-style: normal;
-    	position: absolute;
-    	right: 10px;
-    	border: 1px solid @bordercolor;
-    	border-radius: 3px;
-    	top: 50%;
-    	margin-top:-17px;
-    	padding:0 15px;
+    .teachmsg{
+        width:100%;
+        float:left;
+        background: @whites;
+        font-size:0.15rem;
+        color: @namecolor;
+        padding-left:15px;
+        &:last-child{
+            dl dd{
+                .border-none;
+            }
+        }
+        dl {
+            width:100%;
+            display:flex;
+            dt{
+                padding-right:10px;
+                padding-top:17px;
+                p{
+                    border-radius:50%;
+                    position:relative;
+                    span{
+                        border-radius:50%;
+                        background:#f43531;
+                        width:16px;height:16px;
+                        line-height:16px;
+                        text-align:center;
+                        color:#ffffff;
+                        position:absolute;
+                        right:-6px;
+                        top:-6px;
+                        font-size:10px;
+                    }
+                    img{
+                        width:40px;
+                        height:40px;
+                        border-radius:50%
+                    }
+                }
+            }
+            dd{
+                .border-bottom;
+                flex-grow:1;
+                padding:19px 15px 17px 0;
+                p{
+                    font-size:@mainsize;
+                    position: relative;
+                }
+                .tm{
+                    color:@garycolor;
+                    font-size:0.1rem;
+                    background:url('../../common/img/tim.png') no-repeat left center;
+                    background-size:10px;
+                    padding-left:15px;
+                }
+                .isfans{
+                    height: 25px;
+                    line-height: 25px;
+                    color: @assistcolor;
+                    font-size: @assistsize;
+                    font-style: normal;
+                    position: absolute;
+                    right: 0px;
+                    border: 1px solid @bordercolor;
+                    border-radius: 4px;
+                    top: 50%;
+                    margin-top:-17px;
+                    padding:0 13px;
+                }
+                .newTxt{
+                    color: @namecolor;
+                    font-size:0.13rem;
+                    display:-webkit-box;
+                    padding-top:15px;
+                    -webkit-line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+            }
+        }
     }
-    .teachmsg dl dd .newTxt{color: @namecolor;font-size:0.15rem;display:-webkit-box;padding-top:3px;
-        -webkit-line-clamp: 1;-webkit-box-orient: vertical;overflow: hidden;}
     .allteach{
     	height: 45px;
     	line-height: 45px;
     	color: @maincolor;
     	font-size: @mainsize;
     	padding:0 10px;
-    	background:@whites url('../../common/img/more.png') no-repeat right center;
+    	background:@whites url('../../common/img/r_ico.png') no-repeat right center;
     	background-position: 97% center;
+        background-size:5px 10px;
     	padding-right: 20px;
-    	margin-bottom: 10px;
+    	margin-bottom: 8px;
     }
     .teacherlist{
     	float:left;

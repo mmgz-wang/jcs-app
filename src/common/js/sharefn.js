@@ -9,20 +9,19 @@ export default {
 		}else{
 			return JSON.parse(getCookie('jsonLog'));
 		}
-		function getCookie(name){ 
+		function getCookie(name){
 		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
 		　　 return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
 		}
 	},
 	getUserId: function () {
-		console.log(this.jsonLog())
 		return this.jsonLog().abcd;
 	},
 	getSecurityCode: function () {
 		 return _MD5(this.jsonLog().abcd+this.jsonLog().abcde)
 	},
 	getUserPic: function () {
-		console.log(this.jsonLog())
+		//console.log(this.jsonLog())
 		return this.jsonLog().pic
 	},
 

@@ -1,7 +1,7 @@
 <template>
 	<div class="room-list">
 		<publick-header @menuClick="setMenu" :headerData="headerData"></publick-header>
-		<scroll class="scroll" 
+		<scroll class="room-list-scroll" 
 		:needRefresh="needRefresh"
 		:pullDownRefresh="pullDownRefresh"
 		:pullUpLoad="pullUpLoad"
@@ -12,15 +12,17 @@
 			<div class="roomlist-wrap">	
 				<p pulldown>{{pullDownText}}</p>		
 				<div class="list" v-for="item in roomListData" :id="item.roomId" @click="gooRoom(item)">
-					<div class="pic">
+					<div class="room-pic">
 						<img :src="item.roomPic" alt="">
 					</div>
-					<div class="info">
-						<div class="msg">
-							<p class="master">主播: {{item.lecturerName}}</p>
-							<p class="roompic">门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span></p>
-							<p class="time">直播时间:&nbsp;&nbsp; {{formatTime(item.startTime)}} ——  {{formatTime(item.startTime, item.endTime)}}</p>
-					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :class="{gary:!item.isRoomDscriber}">开启通知</span>
+					<div class="room-list-info">
+						<div class="room-list-msg">
+							<p class="master roompic">
+								主播: {{item.lecturerName}}<span class="null"></span>门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span>
+							</p>
+							<!-- <p class="roompic">门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span></p> -->
+							<p class="time">直播时间:&nbsp;&nbsp; {{formatTime(item.startTime)}} —  {{formatTime(item.startTime, item.endTime)}}</p>
+					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :class="{roomlistgary:!item.isRoomDscriber}">开启通知</span>
 						</div>
 						<div class="explain">
 							<h4>{{item.roomName}}<i v-html="setRoomStatus(item.roomStatus)"></i></h4>
@@ -203,8 +205,8 @@ export default {
 		    if (Sharefn.isLogin()) {
 		        var roomId = setmsgBtn.attributes['roomId'].nodeValue;
 		        console.log(roomId)
-		        if (setmsgBtn.className.indexOf('gary')<0) {
-		            setmsgBtn.className='setmsg gary';
+		        if (setmsgBtn.className.indexOf('roomlistgary')<0) {
+		            setmsgBtn.className='setmsg roomlistgary';
 		            this.$http.jsonp("https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
 		            	{ 
 		            		params:{
@@ -248,135 +250,145 @@ export default {
 .room-list{
 	width:100%;
 	height:100%;
-}
-p[pulldown]{
-  width:100%;
-  height:50px;
-  line-height:50px;
-  text-align:center;
-  color:@assistcolor;
-  font-size:0.12rem;
-  position:absolute;
-  top:-50px;
-  left:0;
-}
-p[pullup]{
-  width:100%;
-  height:40px;
-  line-height:40px;
-  text-align:center;
-  color:@assistcolor;
-  font-size:0.12rem;
-}
-.roomlist-wrap{
-	float:left;
-	width:100%;
-	padding-left:15px;
-	background:@whites;
-}
-.list{
-	display:flex;
-	width:100%;
-	background:@whites;
-	padding-top:10px;
-	padding:10px 10px 10px 0;
-	.border-bottom;
-}
-.pic{
-	width:50px;
-	text-align:center;
-	font-size:0;
-	padding-right:10px;
-}
-.pic img{
-	width:40px;
-	height:40px;
-	border-radius:50%;
-	text-align:left;
-}
-.msg{
-	position:relative;
-	width:100%;
-	color:@assistcolor;
-	line-height:24px;
-}
-.msg p{
-	font-size:0.12rem;
-}
-.roompic .on{
-	color:@reds;
-}
-h4{
-	color:@maincolor;
-	font-weight:normal;
-	font-size:0.15rem;
-}
-.on-tit{
-	color:#ffd842;
-}
-i span{
-	font-size:0.1rem;
-	height:16px;
-	padding:0 3px;
-	line-height:14px;
-	display:inline-block;
-	line-height:16px;
-	margin-left:10px;
-	color:@oranges;
-	background:#fff2e6;
-}
-i .ing{
-	color:@whites;
-	background:@reds;
-}
-i .finish{
-	color:@whites;
-	background:#cecece;
-}
-.master{
-	padding:0px 0;
-}
-.explain{
-	padding-top:5px;
-	font-size:0.12rem;
-}
-.explain p{
-	line-height:0.24rem;
-}
-.setmsg{
-	height:22px;
-	text-align:right;
-	color:@reds;
-	line-height: 22px;
-	font-size:0.12rem;
-	padding-right:10px;
-	border:1px solid @reds;
-	border-radius:10px;
-	background:url(../../common/img/timeon.png) no-repeat left center;
-	background-size:14px;
-	padding-left:25px;
-	background-position:6px 3px;
-	position:absolute;
-	right:0px;
-	top:0px;
-}
-.gary{
-	color:#cecece;
-	border-color:#cecece;
-	background:url(../../common/img/timegary.png) no-repeat left center;
-	background-size:14px;
-	background-position:6px 3px;
-}
-.info{
-	float: left;
-	width: 100%;
-	cursor: pointer;
-}
-.scroll{
-	overflow:hidden;
-	width:100%;
-	position:absolute;
-	top:50px;
-	bottom:0;
+	p[pulldown]{
+	  width:100%;
+	  height:50px;
+	  line-height:50px;
+	  text-align:center;
+	  color:@assistcolor;
+	  font-size:0.12rem;
+	  position:absolute;
+	  top:-50px;
+	  left:0;
+	}
+	p[pullup]{
+	  width:100%;
+	  height:40px;
+	  line-height:40px;
+	  text-align:center;
+	  color:@assistcolor;
+	  font-size:0.12rem;
+	}
+	.roomlist-wrap{
+		float:left;
+		width:100%;
+		background:@whites;
+	}
+	.list{
+		display:flex;
+		width:100%;
+		background:@whites;
+		padding:20px 0 0px 15px;
+	}
+	.room-pic{
+		width:50px;
+		text-align:center;
+		font-size:0;
+		padding-right:10px;
+		img{
+			width:40px;
+			height:40px;
+			border-radius:50%;
+			text-align:left;
+		}
+	}
+	.room-list-msg{
+		position:relative;
+		width:100%;
+		color:#999999;
+		line-height:24px;
+		p{
+			font-size:0.11rem;
+			line-height:21px;
+		}
+		.time{
+			padding-bottom:10px;
+		}
+	}
+	.roompic .on{
+		color:@reds;
+	}
+	h4{
+		color:@maincolor;
+		font-weight:normal;
+		font-size:0.15rem;
+		.on-tit{
+			color:#ffd842;
+		}
+		i span{
+			font-size:0.09rem;
+			height:14px;
+			line-height:14px;
+			display:inline-block;
+			line-height:14px;
+			margin-left:10px;
+			color:@oranges;
+			background:#fff2e6;
+			transform:translateY(-2px);
+			padding:0 3px;
+		}
+		i .ing{
+			color:@whites;
+			background:@reds;
+		}
+		i .finish{
+			color:@whites;
+			background:#cecece;
+		}
+	}
+	.master{
+		padding:0px 0;
+	}
+	.explain{
+		font-size:0.12rem;
+		p{
+			line-height:22px;
+			padding-top:4px;
+		}
+	}
+	.setmsg{
+		height:20px;
+		text-align:right;
+		color:@reds;
+		line-height: 20px;
+		font-size:0.12rem;
+		padding-right:10px;
+		border:1px solid @reds;
+		border-radius:10px;
+		background:url(../../common/img/timeon.png) no-repeat left center;
+		background-size:13px;
+		padding-left:25px;
+		background-position:10px 3px;
+		position:absolute;
+		right:0px;
+		top:0px;
+	}
+	.roomlistgary{
+		color:#cecece;
+		border-color:#cecece;
+		background:url(../../common/img/timegary.png) no-repeat left center;
+		background-size:13px;
+		background-position:10px 3px;
+	}
+	.room-list-info{
+		float: left;
+		width: 100%;
+		cursor: pointer;
+		padding-right:15px;
+		padding-bottom:20px;
+		.border-bottom;
+	}
+	.room-list-scroll{
+		overflow:hidden;
+		width:100%;
+		position:absolute;
+		top:44px;
+		bottom:0;
+	}
+	.null{
+		width:10px;
+		height:10px;
+		display:inline-block;
+	}
 }
 </style>

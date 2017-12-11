@@ -57,8 +57,8 @@ export default {
 <style lang="less">
 @import "../../common/less/base.less";
 	.header{
-		height:50px;
-		line-height:50px;
+		height:44px;
+		line-height:44px;
 		background:@reds;
 		color:#fff;
 		font-size:0.12rem;

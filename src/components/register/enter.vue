@@ -1,0 +1,214 @@
+<template>
+	<div class="enter-in">
+		<main-header :headerData="headerData"></main-header>
+		<ul class="enter-main">
+			<li>
+				<input type="number" placeholder="请填写手机号码" name="tel" v-model="tel">
+			</li>
+			<li>
+				<input type="PassWord" placeholder="请输入密码" name="pwd" v-model="pwd">
+			</li>
+			<li>
+				<button type="button" 
+				:class="{btn_gary:tel.length==0||pwd.length==0}"
+				@click="signIn()">登录</button>
+			</li>
+			<li class="go-to">
+				<router-link to="/register"><span class="new-reg">注册新账号</span></router-link>
+				<router-link to="/forget"><span class="forget-pwd">忘记密码？</span></router-link>
+			</li>
+		</ul>
+		
+	</div>
+</template>
+<script type="text/javascript">
+import mainHeader from 'base/header/mainheader'
+import Common from 'common/js/common'
+	export default{
+		data(){
+			return{
+				tel: '',
+				pwd: '',
+				headerData:{
+					name: 'enter-in',
+					ele: '登录精彩说'
+				}
+			}
+		},
+		created(){
+			//console.log(unescape(document.cookie))
+		},
+		methods:{
+			signIn(){
+				if(this.tel.length!=11){
+					layer.open({
+						content: '电话号码格式有误，请重试！',
+						skin: 'msg',
+						time: 2
+					})
+					return ;
+				}else if(this.pwd.length<6){
+					layer.open({
+						content: '密码长度不符，请重试！',
+						skin: 'msg',
+						time: 2
+					})
+					return ;
+				}
+				this.sendLogin();
+			},
+			sendLogin(){
+				this.$nextTick(function(){
+					this.$http.jsonp(Common.baseUrl.host + '/user/login',
+						{ 
+							params:{
+								language: 'M',
+					            PhoneNumber: this.tel,
+					            PassWord: this.pwd,
+					            loginfrom:'H5'
+					        }
+					    }
+					).then(function(res){
+						console.log(res.data)
+						if(res.data.Code === '0000'){
+							console.log(res.data)
+							this.$router.back();
+							var jsonLog='{"abc":"'+escape(this.tel)+'","abcd":"'+res.data.UserId+'","abcde":"'+res.data.SecurityKey+'","pic":"'+res.data.PicPath+'"}';
+
+							setCookie('jsonLog',jsonLog,1);
+							function setCookie(c_name,value,expiredays){
+								var exdate=new Date();
+								exdate.setDate(exdate.getDate()+expiredays);
+								document.cookie=c_name+ "=" +escape(value)+
+								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
+							}
+							//location.reload();
+						}else if(res.data.Code === '2000'){
+							layer.open({
+								content: '您输入的密码有误，请重试！',
+								skin: 'msg',
+								time: 2
+							})
+						}
+					})
+				})
+			}
+		},
+		components: {
+			mainHeader
+		}
+	}
+</script>
+<style lang="less" type="text/css">
+@import "../../common/less/base.less";
+	.enter-in{
+		width:100%;
+		hetght:100%;
+		background:@backcolor;
+		.enter-main{
+			position:absolute;
+			left:0;
+			top:44px;
+			bottom:0;
+			right:0;
+			background:@whites;
+			font-size:0;
+			padding:52px 10%;
+			li{
+				height:50px;
+				line-height:50px;
+				vertical-align: baseline;
+				.border-bottom;
+				&:nth-child(1):before{
+					margin-top:18px;
+					content: '';
+					float:left;
+					width:21px;
+					height:21px;
+					background:url('../../common/img/phone.png') no-repeat center;
+					background-size:21px;
+					margin:18px 5px 0 5px;
+				}
+				&:nth-child(2){
+					margin-top:15px;
+				}
+				&:nth-child(2):before{
+					margin-top:18px;
+					content: '';
+					float:left;
+					width:21px;
+					height:21px;		
+					background:url('../../common/img/pwd.png') no-repeat center;
+					background-size:21px;
+					margin:18px 5px 0 5px;
+				}
+				&:nth-child(3){
+					.border-none;
+					margin-top:30px;
+				}
+				button{
+					width:100%;
+					height:39px;
+					outline:none;
+					border:none;
+					color:@whites;
+					font-size:0.16rem;
+					background:@reds;
+					border-radius:2px;
+					line-height:39px;
+				}
+				.btn_gary{
+					opacity:0.4;
+				}
+				input{
+					margin-top:10px;
+					outline:none;
+					border:none;
+					font-size:0.14rem;
+					padding-left:8px;
+					height:39px;
+					line-height:39px;
+				}
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
+				    -webkit-text-fill-color: #ededed !important;  
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
+				    background-color:transparent;  
+				    background-image: none;  
+				     transition: background-color 50000s ease-in-out 0s;
+				} 
+				:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+				     color: #b1b1b1;
+				    font-size:@mainsize;
+				}
+
+				::-moz-placeholder { /* Mozilla Firefox 19+ */
+				     color: #b1b1b1;
+				    font-size:@mainsize;
+				}
+
+				input:-ms-input-placeholder{
+				     color: #b1b1b1;
+				    font-size:@mainsize;
+				} 
+				input::-webkit-input-placeholder{
+				    color: #b1b1b1;
+				    font-size:@mainsize;
+				}
+			}
+			.go-to{
+				width:100%;
+				font-size:0.14rem;
+				.border-none;
+				.new-reg{
+					float:left;
+					color:@reds;
+				}
+				.forget-pwd{
+					float:right;
+					color:@namecolor;
+				}
+			}
+		}
+
+	}
+</style>

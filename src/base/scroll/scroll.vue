@@ -65,7 +65,7 @@
         if (this.$refs.list && (this.pullDownRefresh || this.pullUpLoad)) {
           this.$refs.list.style.minHeight = getRect(this.$refs.wrapper).height + 'px'
         }
-
+        console.log(this.pullUpLoad)
         let options = {
           probeType: this.probeType,
           click: this.click,
@@ -73,7 +73,6 @@
           pullUpLoad: this.pullUpLoad
         }
         this.scroll = new BScroll(this.$refs.wrapper, options);
-        
       },
       disable() {
         this.scroll && this.scroll.disable()
