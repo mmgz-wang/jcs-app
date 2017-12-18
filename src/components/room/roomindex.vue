@@ -1004,8 +1004,8 @@ export default {
         height:50px;
         width:100%;
         border-top:1px solid @bordercolor;
-        line-height:49px;
-        padding:8px 10px;
+        line-height:50px;
+        padding:10px 15px;
         display:flex;
         align-items:center;
         background:#f8f8f8;
@@ -1015,8 +1015,8 @@ export default {
         bottom:0;
         p{
             width:85%;
-            height:38px;
-            border-radius: 19px;
+            height:100%;
+            border-radius: 17px;
             border:1px solid @bordercolor;
             overflow:hidden;
             input{
@@ -1024,10 +1024,26 @@ export default {
                 outline:none;
                 border:none;
                 width:100%;
-                height:38px;
+                height:100%;
                 padding-left:8px;
                 font-size:0.14rem;
                 line-height:38px;
+            }
+            ::-webkit-input-placeholder { /* WebKit browsers */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            :-ms-input-placeholder { /* Internet Explorer 10+ */ 
+                font-size:14px;
+                color:#999999;
             }
         }       
         button{

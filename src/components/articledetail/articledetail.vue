@@ -17,13 +17,12 @@
 				<span class="follow" 
 				:class="{follow_on:!authorFollowed}"
 				@click="goFollow(authorFollowed)"
-				 id="is_follow">{{followStr}}</span>
+				 id="is_follow" v-html="followStr">{{followStr}}</span>
 			</div>
 			<div class="article-wrap">
 				<div class="free_txt">
 					<p class="show_tim">发布于：<span class="day" id="publish_day">{{setTime(articleData.last_modified)}}</span></p>		
-					<span v-if="articleData.tabView" class="txt" id="zhaiyao" v-html="articleData.tabView">
-					</span>
+					<p v-if="articleData.tabView" class="text" id="zhaiyao" v-html="articleData.tabView"></p>
 					<div class="digest">
 						{{articleData.digest}}
 					</div>
@@ -125,12 +124,16 @@
         :tit="dialogData.tit"
         :yesFn="dialogData.yesFn"
         :noFn="dialogData.noFn"></pay-dialog>
+        <div class="loading-container" v-show="articleData==null">
+            <loading></loading>
+        </div>
     </div>
     
 </template>
 <script type="text/javascript">
 import shareFn from 'common/js/sharefn'
 import Common from 'common/js/common'
+import loading from 'base/loading/loading'
 import payDialog from 'base/paydialog/paydialog'
 export default {
 	name: 'articleDetail',
@@ -142,12 +145,12 @@ export default {
 	},
 	data(){
 		return {
-			articleData: [],
+			articleData: null,
 			recommendData: [],
 			payForWaystr: '',
 			authorFollowed: true,
 			authorId: '',
-			followStr: '关注',
+			followStr: '<i>＋</i>关注',
 			authorName: '',
 			price: '',
 			isCollect: false,
@@ -171,14 +174,14 @@ export default {
 	},
 	activated() {
 		console.log('activated')
-		this.articleData = [];
+		this.articleData = null;
 		this.getData();
 	},
 	deactivated() {
 		//console.log("我是第一个页面的 deactivated 方法");
 	},
 	components: {
-		payDialog
+		payDialog,loading
 	},
 	methods: {
 		getData(){
@@ -201,11 +204,12 @@ export default {
 						this.recommendData = res.data.recommendList;
 						this.authorFollowed = this.articleData.authorFollowed;
 						this.authorId = this.articleData.author_id;
-						this.authorFollowed?this.followStr = '已关注':this.followStr = '关注';
+						this.authorFollowed?this.followStr = '已关注':this.followStr = '<i>＋</i>关注';
 						this.authorName = this.articleData.authorName;
 						this.isCollect = this.articleData.articleCollected;
 						this.isLike = this.articleData.articlePraised;
 						this.cardId = this.articleData.omnCardId;
+						console.log(this.articleData)
 						this.payForWay(res.data);
 					}else if(res.data.code == '0003'){
 						layer.open({
@@ -378,7 +382,7 @@ export default {
 						'3':'看老师一季度产品',
 						'6':'看老师半年产品',
 						'12':'看老师全年产品'
-					}
+					};
 					if(arguments.length>1){
 						return `<div class="package-item"><p><span>包周产品 <i>￥${arguments[1].price}
 						</i></span><span class="open-explain">看老师一星期产品</span></p><button months="${arguments[1].termmonths}" id="${arguments[1].id}" price="${arguments[1].price}" class="open-btn" types="packages">解锁</button></div>`
@@ -387,8 +391,7 @@ export default {
 						<i>￥${v.price}</i></span><span class="open-explain">
 						${packageExplain[v.termmonths]}</span></p><button types="packages" class="open-btn" 
 						months="${v.termmonths}" id="${v.id}" price="${v.price}">
-						解锁</button></div>`
-						console.log(v)
+						解锁</button></div>`;
 					}
 				}
 			}
@@ -467,7 +470,7 @@ export default {
 					that.followStr = '已关注';
 					showMeaage('关注成功');
 				} else {
-					that.followStr = '关注';
+					that.followStr = '<i>＋</i>关注';
 					showMeaage('取消成功');
 				}
 			}
@@ -646,27 +649,30 @@ export default {
 			}
 		}
 		.follow{
+			box-sizing:content-box;
 			position:absolute;
 			right:15px;
 			top:50%;
 			transform:translateY(-50%);
-			font-size:0.1rem;
+			font-size:12px;
 			color:#b1b1b1;
-			text-align:center;
-			height:25px;
+			height:23px;
+			width:60px;
 			border:1px solid @bordercolor;
-			line-height:25px;
 			border-radius:4px;
-			padding:0 10px;
+			display:flex;
+			align-items:center;
+			line-height:23px;
+			justify-content:center;
+			i{
+				line-height:23px;
+				font-size:0.14rem;
+			}
+			
 		}
 		.follow_on{
 			color:@reds;
-			text-align:center;
-			border:1px solid @reds;
-			background:url('../../common/img/add.png') no-repeat left center;
-			background-size:10px 10px;
-			background-position:10px;
-			padding:0 10px 0 25px;
+			border-color:@reds;
 		}
 	}
 	.article-wrap{
@@ -681,7 +687,7 @@ export default {
 				font-size:0.1rem;
 				color:@assistcolor;
 				clear:both;
-				line-height:0.1rem;
+				line-height:1;
 			}
 			.digest{
 				width:100%;
@@ -692,24 +698,22 @@ export default {
 			.label{
 				padding-bottom:5px;
 			}
-			.txt{
+			.text{
 				width:100%;
 				height:45px;
 				line-height:45px;
-				display:flex;
-				justify-content:flex-start;
-				box-sizing:content-box;
-				align-items:center;
 				i{
-					height:15px;
-					line-height:15px;
-					padding:0 5px;
-					border-radius:3px;
-					font-style:normal;
-					color:@reds;
-					border:1px @reds solid;
-					font-size:0.1rem;
-					margin-right:8px;
+					float:left;
+					box-sizing:content-box;
+		            height:15px;
+		            line-height:15px;
+		            padding:0 5px;
+		            margin-right:10px;
+		            border-radius:3px;
+		            color: @reds;
+		            border:1px @reds solid; 
+		            font-size:10px;
+		            margin-top:14px;
 				}
 				.vip{
 					background:#ffd842;
@@ -717,7 +721,8 @@ export default {
 				}
 				label{
 					color:@oranges;
-					font-size:@assistsize;
+					font-size:10px;
+					float:left;
 				}
 				.gg{
 					padding:0px 3px;
@@ -997,17 +1002,16 @@ export default {
 			.txt{
 				float:left;
 				i{
-					display:inline-block;
-					height:0.15rem;
-					line-height:0.15rem;
-					padding:0 5px;
-					margin-right:8px;
-					border-radius:2px;
-					font-style:normal;
-					color:@reds;
-					border:1px @reds solid;
-					font-size:0.1rem;
-					transform: translateY(-0.01rem);
+					float:left;
+					box-sizing:content-box;
+		            height:15px;
+		            line-height:15px;
+		            padding:0 5px;
+		            margin-right:10px;
+		            border-radius:3px;
+		            color: @reds;
+		            border:1px @reds solid; 
+		            font-size:10px;
 				}
 				label{
 					color:@oranges;

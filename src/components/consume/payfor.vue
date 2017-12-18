@@ -13,27 +13,24 @@
                             <li @click="TrueClick('jcs')" id="jcbplay" class="li1">
                                 <img src="../../common/img/log.png" alt="" class="img">
                                 <span class="txt" id="countmoney">账户余额</span>
-                                <span class="rico">
-                                    <a><img src="../../common/img/r_ico.png"></a>
-                                </span>
+                                <span class="rico"></span>
                                 <span v-if="msgData.Price>msgData.Money" class="balance gary_pay">
                                     余额不足
                                     <i></i>
                                 </span>
                                 <span v-else-if="msgData.Price<=msgData.Money" class="balance">
-                                    账户余额
                                     <i>{{msgData.Money}}</i>精彩币
                                 </span>
                             </li>
                             <li @click="TrueClick('we')" id="weixinpay" style="">
                                 <img src="../../common/img/wei.png" alt="" class="img">
                                 <span class="txt">微信支付</span>
-                                <span class="rico"><a href="#"><img src="../../common/img/r_ico.png"></a></span>
+                                <span class="rico"></span>
                             </li>
                             <li @click="TrueClick('ali')" id="aliplay" style="display:none">
                                 <img src="../../common/img/zhi.png" alt="" class="img">
                                 <span class="txt">支付宝支付</span>
-                                <span class="rico"><a href="#"><img src="../../common/img/r_ico.png"></a></span>
+                                <span class="rico"></span>
                             </li> 
                             <li id="card">
                                 <img src="../../common/img/card.png" alt="" class="img">
@@ -270,7 +267,7 @@ export default {
         width:92%;
         margin-left:4%;
         background:@whites;
-        border-radius:20px 20px 0 0;
+        border-radius:10px 10px 0 0;
         overflow:hidden;
         margin-top:20px;
     }
@@ -305,20 +302,73 @@ export default {
     .regbox{float:left;height:24px;line-height:24px;padding:0 5px;margin:15px 0 0 15px;font-size:.875em;color:#ff8200;border:1px #ff8200 solid; border-radius:4px; overflow:hidden}
     .regbox a{color:#ff8200}
     .loginbox{float:left;width:50%;}
-    .loginbox ul li{float:left;width:100%;line-height:16px;margin:6px 0 0 10px;font-size:.875em;color:#fff}
-    .loginbox .num{color:#ffdf1b}
-    .recharge{float:right;height:22px;line-height:22px;padding:0 10px;margin-top:15px;background:#ffdf1b;border-radius:4px; font-size:.813em;}
-    .recharge a{display:block;color:#371910}
-    .menulist{float:left;width:100%; background:@whites;}
-    .menu{float:left;width:100%;padding-left:15px;}
-    .menu ul li{float:left;width:100%; height:50px; line-height:50px;border-bottom:1px @bordercolor solid;font-size: 15px;}
-    .menu ul li:last-child{border:none;}
+    .loginbox ul li{
+        float:left;
+        width:100%;
+        line-height:16px;
+        margin:6px 0 0 10px;
+        font-size:.875em;
+        color:#fff
+    }
+    .loginbox .num{
+        color:#ffdf1b;
+    }
+    .recharge{
+        float:right;
+        height:22px;
+        line-height:22px;
+        padding:0 10px;
+        margin-top:15px;
+        background:#ffdf1b;
+        border-radius:4px; 
+        font-size:.813em;
+    }
+    .recharge a{
+        display:block;
+        color:#371910
+    }
+    .menulist{
+        float:left;
+        width:100%; 
+        background:@whites;
+    }
+    .menu{
+        float:left;
+        width:100%;
+        padding-left:15px;
+    }
+    .menu ul li{
+        float:left;
+        width:100%; 
+        height:50px; 
+        line-height:50px;
+        font-size: 15px;
+        .border-bottom;
+        &:last-child{
+            .border-none;
+            .txt{
+                line-height:53px;
+            }
+        }
+    }
+    .menu ul li:last-child{
+        border:none;
+    }
     .th{position: absolute;right:0;top:-7px;width:60px;height:17px;}
     .li1{position: relative;}
     .p{color: #c6c6c6;background: #282828;float:left;width:96%; height:50px; line-height:50px;font-size: 1em;padding-left: 3%;}
-    .menu .txt{float:left;font-size:15px;color:@maincolor;}
-    .menu .rico{float:right;width:5%;}
-    .menu .rico img{width:42%}
+    .menu .txt{
+        float:left;
+        font-size:15px;
+        color:@maincolor;
+    }
+    .menu .rico{
+        float:right;
+        width:5%;
+        height:100%;
+        background:url('../../common/img/r_ico.png') no-repeat center;
+        background-size:5px 10px;
+    }
     .img{width:22px;height:22px;float:left;margin-top:14px;margin-right:10px;}
     .balance{color:@reds;font-size: 12px;padding-left:0.5em;float:right;padding-right: 20px}
     .balance i{font-size:@assistsize;}
@@ -369,6 +419,7 @@ export default {
         background: rgba(0,0,0,0.3);
         color:@maincolor;
         font-size:0.15rem;
+        z-index:10px;
         .dialog-wx{
             width:80%;
             position:absolute;

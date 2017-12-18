@@ -25,7 +25,9 @@
 					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :class="{roomlistgary:!item.isRoomDscriber}">开启通知</span>
 						</div>
 						<div class="explain">
-							<h4>{{item.roomName}}<i v-html="setRoomStatus(item.roomStatus)"></i></h4>
+							<h4>{{item.roomName}}
+								<i class="room-status" 
+								:class="{early:item.roomStatus==1,rooming:item.roomStatus==2,roomover:item.roomStatus==3}"></i></h4>
 							<p> {{item.roomMemo}}</p>
 						</div>
 					    
@@ -315,25 +317,20 @@ export default {
 		.on-tit{
 			color:#ffd842;
 		}
-		i span{
-			font-size:0.09rem;
+		i{
+			width:37px;
 			height:14px;
-			line-height:14px;
 			display:inline-block;
-			line-height:14px;
-			margin-left:10px;
-			color:@oranges;
-			background:#fff2e6;
-			transform:translateY(-2px);
-			padding:0 3px;
+			overflow:hidden;
+			background:url('../../common/img/roomstatus.png') no-repeat top center;
+			background-size:34px 42px;
+			transform:translateY(2px);
 		}
-		i .ing{
-			color:@whites;
-			background:@reds;
+		.rooming{
+			background-position:0 -14px;
 		}
-		i .finish{
-			color:@whites;
-			background:#cecece;
+		.roomover{
+			background-position:0 -28px;
 		}
 	}
 	.master{
@@ -344,6 +341,7 @@ export default {
 		p{
 			line-height:22px;
 			padding-top:4px;
+			color:@namecolor;
 		}
 	}
 	.setmsg{

@@ -390,6 +390,7 @@ import lackPage from 'base/lackpage/lackpage'
                     padding-left:15px;
                 }
                 .isfans{
+                    box-sizing:content-box;
                     height: 25px;
                     line-height: 25px;
                     color: @assistcolor;

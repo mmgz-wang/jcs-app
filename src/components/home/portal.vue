@@ -1,6 +1,6 @@
 <template>
   <div class="ent_nav" id="portals">        
-        <dl v-for="item in portals" v-if="item.name!='筛价格'" @click="portalClick(item)">
+        <dl v-for="item in portals" v-if="item.name!='筛价格' && item.name!='选低价'" @click="portalClick(item)">
             <dt><img :src="baseurl+item.img_url" alt=""></dt>
             <dd>{{item.name}}</dd>
         </dl>

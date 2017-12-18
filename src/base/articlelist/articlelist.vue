@@ -74,7 +74,7 @@ export default{
         },
         gomatch(Id){
             this.$router.push({
-              path: `/matchdetail/?id=${Id}`
+              path: `/matchdetail/?entryId=${Id}`
             })
         },
         timeformat(s){
@@ -137,7 +137,7 @@ export default{
     .txtbox{
         float:left;
         width:100%;
-        padding:20px 15px 20px 0;
+        padding:15px 15px 15px 0;
         overflow:hidden;
         dl{
             float:left;
@@ -199,9 +199,9 @@ export default{
         font-size:0.12rem;
         float:left;
         width:100%;
-        padding-top:17px;
-        box-sizing:content-box;
+        padding-top:15px;
         i{
+            float:left;
             box-sizing:content-box;
             height:15px;
             line-height:15px;
@@ -211,7 +211,7 @@ export default{
             font-style:normal;
             color: @reds;
             border:1px @reds solid; 
-            font-size:0.1rem;
+            font-size:10px;
         }
         .vip{
             background: @reds;

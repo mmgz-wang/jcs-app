@@ -18,7 +18,10 @@
         </div>
         
         <div class="room-foot">
-            <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+            <p>
+                <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+            </p>
+            
             <button type="button" id="send" @click="sendMsg()">发送</button>
         </div>
     </div>    
@@ -128,8 +131,8 @@ export default {
                 url: Common.baseUrl.nativeHost,
                 data: {
                     "SecurityCode" : shareFn.getSecurityCode(),
-                    "UserId" : shareFn.getUserId(),
-                    "AuthorId" : that.$router.currentRoute.query.id,
+                    "UserId" : shareFn.getUserId()*1,
+                    "AuthorId" : that.$router.currentRoute.query.id*1,
                     "LetterId" : ""
                 },
                 headers:{"X-Target":"TrentService.GetLetteresBetweenAuthors"},
@@ -231,6 +234,7 @@ export default {
         bottom:50px;
         overflow-y:scroll;
         padding-bottom:3px;
+        padding:0 15px;
         section{
             width:100%;
             float:left;
@@ -376,7 +380,7 @@ export default {
         height:50px;
         width:100%;
         border-top:1px solid @bordercolor;
-        line-height:49px;
+        line-height:50px;
         padding:8px 10px;
         display:flex;
         align-items:center;
@@ -385,14 +389,41 @@ export default {
         position:absolute;
         left:0;
         bottom:0;
-        input{
+        p{
             width:85%;
             height:100%;
-            outline:none;
-            border-radius:15px;
+            border-radius:17px;
+            overflow:hidden;
             border:1px solid @bordercolor;
-            padding-left:8px;
-            font-size:0.14rem;
+            input{
+                width:100%;
+                height:100%;
+                outline:none;
+                border:none;                
+                padding-left:8px;
+                font-size:0.14rem;
+                float:left;
+            }
+            ::-webkit-input-placeholder { /* WebKit browsers */ 
+                font-size:14px;
+                color:#999999;
+                line-height:34px;
+            } 
+            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+                font-size:14px;
+                color:#999999;
+                line-height:34px;
+            } 
+            ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+                font-size:14px;
+                color:#999999;
+                line-height:34px;
+            } 
+            :-ms-input-placeholder { /* Internet Explorer 10+ */ 
+                font-size:14px;
+                color:#999999;
+                line-height:34px;
+            }
         }
         button{
             height:100%;

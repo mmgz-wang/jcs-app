@@ -197,11 +197,12 @@ export default {
             display:flex;
             flex-wrap:wrap;
             justify-content:space-between;
+            position:relative;
             div {
                 min-height: 60px;
                 width: 30%;
                 text-align: center;
-                border: 1px solid @reds;
+                border: 0.005rem solid @reds;
                 border-radius: 3px;
                 position: relative;
                 overflow: hidden;
@@ -228,6 +229,7 @@ export default {
                 .present{
                     color:@reds;                    
                 }
+
             }
             .div{
                 background:@shallowred2;
@@ -282,40 +284,19 @@ export default {
                 }
                 .rico{
                     float:right;
-                    width:18px;
-                    height:18px; 
-                    border-radius:50%;
-                    margin:18px 16px 0 0;
-                    border:1px solid @assistcolor;
-                }
-                .rico:before{
-                    content:'';
-                    width:11px;
-                    height:6px;
-                    border-left:1px solid @assistcolor;
-                    transform:rotate(-45deg);
-                    border-bottom:1px solid @assistcolor;
-                    float:left;
-                    margin:3px 0 0 2px;
+                    width:17px;
+                    height:17px; 
+                    margin:17px 16px 0 0;
+                    background:url('../../common/img/unselect.png') no-repeat center;
+                    background-size:17px;
                 }
                 .rico-on{
                     float:right;
-                    width:18px;
-                    height:18px; 
-                    border-radius:50%;
-                    margin:18px 16px 0 0;
-                    border:1px solid @reds;
-                    background: @reds;
-                }
-                .rico-on:before{
-                    content:'';
-                    width:11px;
-                    height:6px;
-                    border-left:1px solid @whites;
-                    transform:rotate(-45deg);
-                    border-bottom:1px solid @whites;
-                    float:left;
-                    margin:3px 0 0 2px;
+                    width:17px;
+                    height:17px; 
+                    margin:17px 16px 0 0;
+                    background:url('../../common/img/selected.png') no-repeat center;
+                    background-size:17px;
                 }
                  .img{
                     width:31px;
@@ -343,18 +324,16 @@ export default {
         font-size: 0.15rem;
         line-height: 45px;
         text-align: center;
-        border-radius: 5px;
+        border-radius: 3px;
         margin: 30px 0 0 5%;
         float: left;
     }
     .p{
-        color: @assistcolor;
+        color: @garycolor;
         float:left;
-        width:100%; 
-        height:50px; 
-        line-height:50px;
-        font-size: @mainsize;
-        padding-left: 3%;
+        width:100%;
+        padding:15px 0 8px 3%;
+        font-size: 0.13rem;
     }
     .sm{
         height:3em;

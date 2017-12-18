@@ -1,27 +1,21 @@
 <template>
 	<div class="competition">
-		<publick-header @menuClick="setMenu" :headerData="headerData"></publick-header>	
+		<publick-header :headerData="headerData"></publick-header>	
 		<div class="tab">
-			<span class="isAll" 
-			:class="{open:isAllWrapShow && !isAll,garyopen:isAll && !isAllWrapShow,garyun:isAllWrapShow && isAll}" 
-			@click="wrapShow('isAllWrapShow')">{{isAllText}}</span>
-
-			<span class="search" 
-			:class="{garyopen:!searchWrapShow,garyun:searchWrapShow}"
-			@click="wrapShow('searchWrapShow')">选联赛</span>
+			<span :class="{matchliston:!isAll}" @click="wrapShow('little')">推荐</span>
+			<span class="search" :class="{matchliston:isAll}" @click="wrapShow('all')">全部</span>
 		</div>
-		<div class="isAllWrap" :class="{show:isAllWrapShow}">
+		<!-- <div class="isAllWrap" :class="{matchSelectShow:isAllWrapShow}">
 			<ul @click="isAllChose">
 				<li id="little" class="on">推荐<span class="line"></span></li>
 				<li id="all">全部</li>
 			</ul>
 		</div>
 		
-
-		<div class="searchwrap" :class="{show:searchWrapShow}">
+		<div class="searchwrap" :class="{matchSelectShow:searchWrapShow}">
 			<ul class="searchMain" @click="searchChose">
 				<li v-for="item in cupNameArr">
-					<span class="on" v-for="(m,i) in item" :id="i">{{i}}({{m.length}})</span>
+					<span class="on" v-for="(m,i) in item" :id="i">{{i}}(<i>{{m.length}}</i>)</span>
 				</li>
 			</ul>
 			<div class="searchfoot">
@@ -30,11 +24,11 @@
 						@click="setAllChoose(allChoose)" 
 						class="all-chos chos_on"
 						></span>
-					全选&nbsp;&nbsp;&nbsp;已选择 <span class="num-chos">0</span>&nbsp;场
+					全选&nbsp;&nbsp;&nbsp;已选择 <span class="num-chos">{{count}}</span>&nbsp;场
 				</p>
 				<p class="chos-btn" @click="searchSure" id="sure">确定</p>
 			</div>
-		</div>
+		</div> -->
 		
 		<scroll
 			:needRefresh="needRefresh"
@@ -43,7 +37,7 @@
 			:pullingDownFn="pullingDownFn"
 			:pullingUpFn="pullingUpFn"
 			 ref="Scroll" 
-			 class="com-list-wrap" 
+			 class="com-list-wrap"
 			 :data="matchListData">
 			<div class="com-list-inner" style="float:left;padding-bottom:50px;">
 				<p pulldown>{{pullDownText}}</p>
@@ -138,8 +132,10 @@ import publickHeader from 'base/header/publickheader'
     		newScrollH: 0,
     		oldScrollH: 0,
     		isFirstEnter: true,
-    		loding: null
-    	}    	
+    		loding: null,
+    		isOpen: false,
+    		count: 0
+    	}
     },
     components: {
     	Scroll,publickHeader
@@ -161,9 +157,8 @@ import publickHeader from 'base/header/publickheader'
         next();
     },
     activated() {
-    	
     	if(!this.$route.meta.iskeep || this.isFirstEnter){
-    		console.log('activated')
+    		this.lodingDom();
             this.$refs.Scroll.refresh();
             this.matchListData= [];
             this.cupList= [];
@@ -188,10 +183,10 @@ import publickHeader from 'base/header/publickheader'
     mounted(){
     	//this.getData();
     	this.isBallClick();
-    },  
+    },
+
     methods: {
     	pullingDownFn(scroll){
-    		console.log('pulldown:'+this.$refs.Scroll.scroll.maxScrollY)
     		this.IS_PAGEUP = true;
     		this.oldScrollH = this.$refs.Scroll.scroll.maxScrollY;
     		this.cupNameArr = [];
@@ -238,14 +233,26 @@ import publickHeader from 'base/header/publickheader'
     						this.upTime = this.matchListData[this.matchListData.length-1].startTime2;
     						this.pullUpText = '上拉加载更多赛事';
     						if(res.data.matchList == 0){
-    							this.pullUpText = '到底啦！！！';
+    							this.pullUpText = '暂无更多内容！';
     						}
     					}else if(this.IS_PAGEUP === ''){
     						this.matchListData = res.data.matchList;
     						if(this.matchListData.length>0){
     							this.downTime = this.matchListData[0].startTime2;
     							this.upTime = this.matchListData[this.matchListData.length-1].startTime2;
-    						}
+    						}    						
+							console.log(this.isOpen)
+							this.$nextTick(function(){
+								if(!this.isOpen){
+    								var firstLi = document.querySelectorAll('ul[matchlist]>li')[0],
+    									firstOpen = firstLi.querySelector('.open'),
+    									firstUl = firstLi.querySelector('ul');
+    								firstOpen.className = 'open ing';
+    								firstUl.style.height = 'auto';
+    								this.$refs.Scroll.refresh();
+    								this.isOpen = true;
+    							}
+							})    						
     					}
     					this.matchListData.forEach(function(v,i){
     						if(that.cupList.hasOwnProperty(v.cupName)){
@@ -255,17 +262,17 @@ import publickHeader from 'base/header/publickheader'
     						}
     					})
     					for(var i in that.cupList){
+    						that.count += that.cupList[i].length;
+    					}
+    					for(var i in that.cupList){
     						var obj = {};
     						obj[i] = that.cupList[i];
     						that.cupNameArr.push(obj);
     					}
     					if(this.IS_PAGEUP === true){
 							console.log('scrollToId');
-							//this.$refs.Scroll.refresh();
 							this.$nextTick(function(){
 								setTimeout(function(){
-									console.log('setTimeout:' + (that.$refs.Scroll.scroll.maxScrollY-that.oldScrollH))
-									console.log(that.$refs.Scroll.scroll.maxScrollY+'-'+that.oldScrollH);
 									that.$refs.Scroll.scrollTo(0,that.$refs.Scroll.scroll.maxScrollY-that.oldScrollH,200)
 								},10)
 							})
@@ -278,12 +285,10 @@ import publickHeader from 'base/header/publickheader'
 							}
     					  	this.$refs.Scroll.refresh();
     					}
-    					//that.scrollToId = this.matchListData[0].lottery_entry_id;
-    					//console.log('#s'+this.matchListData[0].lottery_entry_id)
-    					console.log(this.matchListData)
     				}else{
     					console.log('请求失败');
     				}
+
     				layer.close(this.loding);
     			})
     		})
@@ -321,8 +326,9 @@ import publickHeader from 'base/header/publickheader'
     			football.className = 'fo on';
 				basketball.className = 'bo';
 				that.$nextTick(function(){
-					that.$refs.scroll.scrollTo(0,0,0,0)
-				})				
+					that.$refs.Scroll.scrollTo(0,0,0,0)
+				})
+				that.setMenu();			
     		};
     		basketball.onclick = function(){
     			that.lodingDom();
@@ -337,8 +343,9 @@ import publickHeader from 'base/header/publickheader'
     			football.className = 'fo';
 				basketball.className = 'bo on';
 				that.$nextTick(function(){
-					that.$refs.scroll.scrollTo(0,0,0,0)
+					that.$refs.Scroll.scrollTo(0,0,0,0)
 				})
+				that.setMenu();
                 
     		};
     	},
@@ -368,13 +375,18 @@ import publickHeader from 'base/header/publickheader'
 			} 
 		},
 		wrapShow(s){
-			if(s=='searchWrapShow'){
-				this.searchWrapShow = true;
-				this.isAllWrapShow=false;
-				this.chooseArr=[];
+			if(s == 'all'){
+				this.IS_PAGEUP = '';
+				//this.matchListData = [];
+				this.isAll = true;
+				this.isAllText = '全部';
+				this.getData();
 			}else{
-				this.isAllWrapShow=true;
-				this.searchWrapShow = false;
+				this.IS_PAGEUP = '';
+				//this.matchListData = [];
+				this.isAll = false;
+				this.isAllText = '推荐';
+				this.getData();
 			}
 		},
 		isAllChose(event){
@@ -406,8 +418,10 @@ import publickHeader from 'base/header/publickheader'
 			}else{
 				if(event.target.className == 'on'){
 					event.target.className = ''
+					this.count = 0;
 				}else{
 					event.target.className = 'on';
+					this.count = 0;
 				}				
 			};
 			var selectCupName = document.querySelectorAll('.searchMain li .on'),
@@ -417,6 +431,10 @@ import publickHeader from 'base/header/publickheader'
 				all_chos.className="all-chos chos_on";
 			}else{
 				all_chos.className="all-chos";
+			}
+			for(var i=0;i<selectCupName.length;i++){
+				console.log(selectCupName[i].querySelector('i').innerHTML)
+				this.count += selectCupName[i].querySelector('i').innerHTML*1;
 			}
 		},
 		searchSure(){
@@ -445,15 +463,17 @@ import publickHeader from 'base/header/publickheader'
 		setAllChoose(s){
 			var	selectSpan = document.querySelectorAll('.searchMain li span'),
 				all_chos = document.querySelector('.all-chos');
-				
+				this.count = 0;
 			if(all_chos.className=="all-chos"){
 				all_chos.className="all-chos chos_on";
 				for(var i = 0;i<selectSpan.length;i++){
 					selectSpan[i].className = 'on';
+					this.count += selectSpan[i].querySelector('i').innerHTML*1;
 				}
 			}else{
 				for(var i = 0;i<selectSpan.length;i++){
 					selectSpan[i].className = '';
+					this.count = 0;
 				}
 				all_chos.className="all-chos";
 			}
@@ -498,7 +518,10 @@ import publickHeader from 'base/header/publickheader'
 		},
 		setMenu: function(name){
     	    var menu = document.querySelector('#menu');
-    	    menu.className = 'menus show';
+    	    console.log(menu.className)
+    	    if(menu.className == 'menus show'){
+    	    	menu.className = 'menus';
+    	    }    	    
     	},
     	lodingDom(){
     		this.loding = layer.open({
@@ -519,17 +542,7 @@ import publickHeader from 'base/header/publickheader'
         }
     },
     watch: {
-    	matchListData:{
-    		handler: function(){
-    			var that = this;
-    			/*setTimeout(function(){
-    				that.newScrollH = that.$refs.Scroll.scroll.scrollerHeight;
-    				console.log(that.$refs.Scroll.scroll.scrollerHeight)
-    			},20)*/
-    			
-    		},
-    		deep: true
-    	}
+    	
     }
   }
 </script>
@@ -601,20 +614,12 @@ import publickHeader from 'base/header/publickheader'
 			width:50%;
 			float:left;
 			font-size:0.14rem;
-			color:@reds;
+			color:@maincolor;
 			text-align:center;
 			position:relative;
-			&:after{
-				content: '';
-				width: 0;
-				height: 0;
-				border:5px solid transparent;
-				border-top-color:@reds;
-				position:absolute;
-				top:50%;
-				margin-top:-2px;
-				margin-left:5px;
-			}
+		}
+		.matchliston{
+			color:@reds;
 		}
 		.search{
 			.border-left;
@@ -647,9 +652,9 @@ import publickHeader from 'base/header/publickheader'
 		background:rgba(0,0,0,0.3);
 		color:@maincolor;
 		position:absolute;
-		top:94px;
+		top:88px;
 		bottom:0;
-		z-index:999999;
+		z-index:99;
 		height:0;
 		overflow:hidden;
 	}
@@ -664,6 +669,9 @@ import publickHeader from 'base/header/publickheader'
 				.border-bottom;
 				background:@whites;
 				position:relative;
+				&:last-child{
+					.border-none;
+				}
 			}
 			.on{
 				color:@reds;
@@ -671,15 +679,23 @@ import publickHeader from 'base/header/publickheader'
 		}		
 	}
 	.searchwrap{
-		ul{
+		.searchMain{
 			padding:0 15px;
 			background:@whites;
 			display:flex;
 			flex-wrap:wrap;
 			justify-content:space-around flex-start;
+			align-content: flex-start;
 			padding-bottom:25px;
+			position:absolute;
+			left:0;
+			top:0;
+			right:0;
+			bottom:50px;
+			overflow:scroll;
 			li{
 				width:30%;
+				height:32px;
 				text-align:center;
 				line-height:32px;
 				margin-top:20px;
@@ -690,11 +706,13 @@ import publickHeader from 'base/header/publickheader'
 					color:#999999;
 					border:1px solid #b8b8b8;
 					border-radius:3px;
+					line-height:30px;
 				}
 				.on{
 					color:@reds;
 					border:1px solid @reds;
 					background:@shallowred2;
+					line-height:30px;
 				}
 			}			
 		}
@@ -703,55 +721,26 @@ import publickHeader from 'base/header/publickheader'
 			height:50px;
 			line-height:50px;
 			background:@whites;
-			border-top:1px solid @bordercolor;
 			padding:0 15px;
-			position:relative;
+			left:0;
+			bottom:0;
+			.border-top;
+			position:absolute;
 			.all{
 				float:left;	
 				font-size:0.14rem;		
 				.all-chos {
 				    width: 18px;
 				    height: 18px;
-				    border: 1px solid @bordercolor;
-				    border-radius: 888px;
+				    background:url(../../common/img/unselect.png) no-repeat center;
+				    background-size:17px;
 				    display: inline-block;
-				    margin-right: 10px;
+				    margin-right: 5px;
 				    transform: translateY(0.02rem);
-				    position: relative;
-				    &:after{
-				    	content: "";
-				        width: 0.10rem;
-				        height: 0.05rem;
-				        display: inline-block;
-				        border: 2px solid transparent;
-				        border-left-color: @bordercolor;
-				        border-bottom-color: @bordercolor;
-				        position: absolute;
-				        left: 50%;
-				        top: 50%;
-				        margin-left: -0.07rem;
-				        margin-top: -0.06rem;
-				        transform: rotate(-45deg);
-				    }
 				}
 				.chos_on{
-					border-color:@reds;
-					background:@reds;
-					&:after{
-						content: "";
-					    width: 0.10rem;
-					    height: 0.05rem;
-					    display: inline-block;
-					    border: 2px solid transparent;
-					    border-left-color: @whites;
-					    border-bottom-color: @whites;
-					    position: absolute;
-					    left: 50%;
-					    top: 50%;
-					    margin-left: -0.07rem;
-					    margin-top: -0.06rem;
-					    transform: rotate(-45deg);
-					}
+					background:url(../../common/img/selected.png) no-repeat center;
+					background-size:17px;
 				}
 				.num-chos {
 				    color: @reds;
@@ -770,14 +759,14 @@ import publickHeader from 'base/header/publickheader'
 			}
 		}
 	}
-	.show{
+	.matchSelectShow{
 		height:auto;
 	}
 	.com-list-wrap{
 		width:100%;
 		position:absolute;
 		left:0;
-		top:94px;
+		top:88px;
 		bottom:0;
 		right:0;
 		overflow:hidden;
@@ -912,7 +901,6 @@ import publickHeader from 'base/header/publickheader'
 			  	background-position:84px 25px;
 			  	background-size:15px 6px;
 			}
-
 			div[match-item]{
 				width:100%;
 				float:left;
@@ -975,6 +963,7 @@ import publickHeader from 'base/header/publickheader'
 				}
 				.price{
 					height:46px;
+					box-sizing:content-box;
 					padding:0 20px;
 					line-height:46px;
 					color:@reds;

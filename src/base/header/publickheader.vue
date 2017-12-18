@@ -36,7 +36,12 @@ export default {
 		},
 		menushow: function(){
 			var menu = document.querySelector('#menu');
-			menu.className = 'menus show';
+			console.log(menu.className)
+			if(menu.className == 'menus show'){
+				menu.className = 'menus';
+			}else{
+				menu.className = 'menus show';
+			}
 			menu.querySelector('#menupic').setAttribute('src',this.setPic())
 		},
 		getCookie(name){

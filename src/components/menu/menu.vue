@@ -1,7 +1,7 @@
 <template>
 	<div @click="setMenu()" class="menus" id="menu">
 		<div class="right">
-			<dl id="user">
+			<dl id="user" @click="goEnter()">
 				<dt><img id="menupic" :src="setPic()"></dt>
 				<dd id="menutel">{{getCookie('telephone')}}</dd>
 			</dl>
@@ -30,8 +30,12 @@ export default {
 			menu.className = 'menus';
 		},
 		getCookie(name){
-		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
-		　　return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+		    if(shareFn.isLogin()){
+		    	return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
+		    }else{
+		    	return '请登录';
+		    }
 		},
 		setPic(){
 			console.log(shareFn.getUserPic())
@@ -41,6 +45,11 @@ export default {
 				return shareFn.getUserPic();
 			}
 			
+		},
+		goEnter(){
+			if(!shareFn.isLogin()){
+				this.$router.push('enter');
+			}
 		}
 	},
 	watch:{

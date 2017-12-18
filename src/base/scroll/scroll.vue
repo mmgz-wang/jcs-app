@@ -19,11 +19,15 @@
       },
       probeType: {
         type: Number,
-        default: 1
+        default: 3
       },
       click: {
         type: Boolean,
         default: true
+      },
+      scrollIng: {
+        type: Function,
+        default: null
       },
       pullDownRefresh:{
         type: null,
@@ -59,6 +63,7 @@
     },
     methods: {
       initScroll() {
+        var that = this;
         if (!this.$refs.wrapper) {
           return
         }
@@ -73,6 +78,12 @@
           pullUpLoad: this.pullUpLoad
         }
         this.scroll = new BScroll(this.$refs.wrapper, options);
+        if(that.scrollIng != undefined){
+          this.scroll.on('scroll',function(opt){
+            that.scrollIng(opt);
+          })
+        }
+        
       },
       disable() {
         this.scroll && this.scroll.disable()

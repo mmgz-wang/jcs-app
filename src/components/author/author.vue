@@ -1,41 +1,51 @@
 <template>
 	<div class="author">
-		<div class="infor-wrap-art">			
-			<div class="ht-back">
-				<span class="back" @click="back()"></span>
-			</div>
-			<div class="author-infor" v-bind:style="objStyle">
-				
-			</div>
-			<div class="b-box">
-				<div class="scale"></div>
-				<dl>
-					<dt><img :src="authorInfor.picurl"></dt>
-					<dd>
-						<h3 name>{{authorInfor.nickname}}</h3>
-						<p fans>粉丝: {{authorInfor.follownum}} <i>|</i> 文章: {{authorInfor.allaticlenum}}</p>
-						<p brief>简介: {{authorInfor.brief}}</p>
-					</dd>
-				</dl>
-			</div>
-			
+		<div class="ht-back">
+			<span class="back" @click="back()"></span>
+			<p>{{authorName}}</p>
 		</div>
-		<div class="author-tab">
+		<div class="author-tab hd_next_tab" v-show="tabShow">
 			<span @click="tabClick('art')" :class="{auton:isart}">文章</span>
 			<span @click="tabClick('room')"  :class="{auton:!isart}">聊天室</span>
 		</div>
-		<div class="aut-list-wrap" :class="{roomActive:show,roomLeave:!show}">
-			<scroll class="aut-list" ref="scroll" :data="articleList">
-				<div autlistIn>
-					<div class="listcon" @click.stop="goarticle(item.id)" :id="item.id" v-for="item in articleList">
+		<scroll class="outerscroll" ref="scroll"
+		:scrollIng="scrollIng"
+		:data="scrollData">
+			<div>
+			<div class="infor-wrap-art">
+				<div class="author-infor" v-bind:style="objStyle">
+					
+				</div>
+				<div class="b-box">
+					<div class="scale"></div>
+					<dl>
+						<dt><img :src="authorInfor.picurl"></dt>
+						<dd>
+							<h3 name>{{authorInfor.nickname}}</h3>
+							<p fans>粉丝: {{authorInfor.follownum}} <i>|</i> 文章: {{authorInfor.allaticlenum}}</p>
+							<p brief>简介: {{authorInfor.brief}}</p>
+						</dd>
+					</dl>
+				</div>
+			</div>
+			<div class="author-tab">
+				<span @click="tabClick('art')" :class="{auton:isart}">文章</span>
+				<span @click="tabClick('room')"  :class="{auton:!isart}">聊天室</span>
+			</div>
+			<div class="aut_tab_wrap" :class="{roomActive:show,roomLeave:!show}">
+				<div class="aut_art_list_wrap">			
+					<div class="listcon" 
+					@click.stop="goarticle(item.id)" 
+					:id="item.id" 
+					v-for="item in articleList">
 						<div class="l_tim">
 							<span class="hour">{{setTime(item.last_modified).split(' ')[1]}}</span><br>
 							<span class="date">{{setTime(item.last_modified).split(' ')[0]}}</span>
 						</div>
 						<div class="r_txt">
 							<div class="txtbox">
-								<span class="txt" v-if="item.tabView" v-html="item.tabView"></span>
-								<span class="aut-list-digest">{{item.digest}}</span>
+								<span class="txt" v-if="item.tabView" v-html="tabView(item)"></span>
+								<span class="aut-list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">VIP</i>{{item.digest}}</span>
 							</div>
 							<div v-if="item.matches.length" class="match" @click.stop="gomatch(469732)">
 								{{item.matches[0].cup_name}}
@@ -45,11 +55,10 @@
 						</div>
 					</div>
 				</div>
-			</scroll>
-			<scroll class="aut-room-wrap" :data="autRoomList">
-				<div>
-					<p noRoom v-if="autRoomList.length==0">该老师还没有开通直播间！</p>
-					<div class="aut-room-list" v-for="item in autRoomList" :id="item.roomId" @click="gooRoom(item)">					
+				<div class="aut_room_list_wrap">
+					<p noroom v-if="autRoomList.length<=0">该老师还没有开通直播间，敬请期待。</p>		
+					<div class="aut-room-list" v-for="item in autRoomList" :id="item.roomId" @click="gooRoom(item)">
+								
 						<div infoinner>
 							<div class="msg">
 								<p class="master">主播: {{item.lecturerName}}</p>
@@ -69,8 +78,9 @@
 					    </div>
 					</div>
 				</div>
-			</scroll>
-		</div>
+			</div>
+			</div>
+		</scroll>
 		<div class="aut-foot">
 			<div>
 				<span class="aut-add-follow" 
@@ -93,6 +103,7 @@ export default {
 			articleList: [],
 			autRoomList: [],
 			authorInfor: [],
+			scrollData: [],
 			isart: true,
 			show: false,			
 			url: Common.baseUrl.host + '/Author/GetAuhorInfo',
@@ -103,16 +114,43 @@ export default {
 			loding: null,
 			authorId: '',
 			authorName: '',
-			followStr: '加关注'
+			followStr: '加关注',
+			tabShow: false
 		}
 	},
 	created(){
+		var that = this;
 		this.isFirstEnter = true;
+		this.$nextTick(function(){
+			var touchWrap = document.querySelector('.aut_tab_wrap');
+			touchWrap.addEventListener('transitionend',function(){
+				var artH = document.querySelector('.aut_art_list_wrap').offsetHeight,
+					roomH = document.querySelector('.aut_room_list_wrap').offsetHeight;
+					artH==0?artH=50:artH;
+					roomH==0?roomH=50:roomH;
+				if(that.show){
+					if(artH>roomH){
+						touchWrap.style.height = roomH+'px';
+					}else{
+						touchWrap.style.height = artH+'px';
+					}
+				}else{
+						touchWrap.style.height = artH+'px';
+				}
+				that.$refs.scroll.refresh();
+			})
+		})
 		
 	},
 	beforeRouteEnter(to, from, next) {
-	    if(from.name=='author'){
-	        to.meta.isback = true;
+		console.log(from)
+		console.log(to)
+	    if(from.name=='home'){
+	        to.meta.isback = false;
+	    }else if(from.name == 'articledetail'){
+	    	to.meta.isback = true;
+	    }else if(from.name == 'roomindex'){
+	    	to.meta.isback = true;
 	    }
 	    next();
 	},
@@ -129,9 +167,27 @@ export default {
 	    this.$route.meta.isback=false;
 	},
 	deactivated() {
-	    console.log("我是第export个页面的 deactivated 方法");
+	    //console.log("我是第export个页面的 deactivated 方法");
 	},
 	methods: {
+		scrollIng(opt){
+			var header = document.querySelector('.ht-back');
+			var tab = document.querySelector('.author-tab');
+			if(Math.abs(opt.y) <= 0.1){
+				header.className='ht-back';
+				header.style.opacity = 1;
+			}else if(Math.abs(opt.y)>0){
+				header.className='ht-back ht-on';
+				header.style.opacity = Math.abs(opt.y/10)*0.3;
+			}
+			if(Math.abs(opt.y) >= 180){
+				this.tabShow = true;
+				//tab.className = 'author-tab fixed';
+			}else if(Math.abs(opt.y) <= 180){
+				this.tabShow = false;
+				//tab.className = 'author-tab';
+			}
+		},
 		tabClick(s){
 			if(s == 'art'){
 				this.url = Common.baseUrl.host + '/Author/GetAuhorInfo';
@@ -141,7 +197,7 @@ export default {
 					return;
 				}
 				this.getData();
-
+				this.scrollData = this.articleList;
 			}else{
 				this.url = Common.baseUrl.roomMsgurls + '/Room/GetRoomList';
 				this.isart = false;
@@ -150,8 +206,12 @@ export default {
 					return;
 				}
 				this.getData();
-				
+				this.scrollData = this.autRoomList;
 			}
+			this.$nextTick(function(){
+				//this.$refs.scroll.scrollTo(0,0,0);
+				this.$refs.scroll.refresh();
+			})			
 			console.log(this.show)
 		},
 		getData(){
@@ -171,6 +231,7 @@ export default {
 					if(this.url.indexOf('GetRoomList')>0){
 						this.autRoomList = res.data;
 						console.log(this.autRoomList)
+						this.scrollData = this.autRoomList;
 					}else{
 						this.authorInfor = res.data.Author;
 						this.articleList = res.data.Articles;
@@ -179,11 +240,9 @@ export default {
 						this.authorName = this.authorInfor.nickname;
 						this.authorInfor.authorFollowed == 'true'?this.followStr = '已关注':this.followStr = '加关注';
 						console.log(this.followStr+this.authorFollowed)
-						
+						this.scrollData = this.articleList;
 					}
-					
-					layer.close(this.loding);
-					
+					layer.close(this.loding);					
 				})
 			})
 		},
@@ -214,6 +273,23 @@ export default {
 		        }
 		    }else{
 		        return data.roomPrice==0?'免费':data.roomPrice+'精彩币';
+		    }
+		},
+		tabView(item){
+		    var str = '';
+		    if(!item.tabView){
+		        return '';
+		    }    
+		    if(item.chargeable) {
+		        str += '<i class="vip">VIP</i>'+item.tabView;
+		        if(item.singleUnlock && item.price>0){
+		            str += '<span class="list-Price">'+item.price+'精彩币</span>';
+		        }else if(!item.singleUnlock){
+		            str += '<span class="list-Price">(VIP用户专享)</span>';
+		        }
+		        return str;
+		    }else{
+		        return item.tabView;
 		    }
 		},
 		formatTime: function(t1, t2){
@@ -395,6 +471,11 @@ export default {
 <style type="text/css" lang="less">
 @import '../../common/less/base.less';
 .author{
+	.outerscroll{
+		width:100%;
+		height:100%;
+		overflow:hidden;
+	}
 	width:100%;
 	height:100%;
 	background:@backcolor;
@@ -407,15 +488,37 @@ export default {
 		left:0;
 		top:0;
 		z-index:9999999;
+		font-size:@titsize;
+		color:transparent;
+		text-align:center;
+		line-height:44px;
 		.back{
 		    width:50px;
 		    height:44px;
 		    position:absolute;
-		    left:15px;
+		    left:0px;
 		    background:url('../../common/img/wback.png') no-repeat center;
 		    color:transparent;
 		    background-size:11px auto;
 		    z-index:999;
+		    background-position:15px center;
+		}
+	}
+	.ht-on{
+		background:@mainheadercolor;
+		font-size:@titsize;
+		color:@maincolor;
+		opacity:0.3;
+		.back{
+		    width:50px;
+		    height:44px;
+		    position:absolute;
+		    left:0px;
+		    background:url('../../common/img/deepback.png') no-repeat center;
+		    color:transparent;
+		    background-size:11px 20px;
+		    z-index:999;
+		    background-position:15px center;
 		}
 	}
 	.infor-wrap-art{
@@ -516,235 +619,243 @@ export default {
 			border-color:@reds;
 		}
 	}
-	.aut-list{
+	.hd_next_tab{
 		position:absolute;
-		width:50%;
-		bottom:0;
-		top:0;
-		overflow:hidden;		
-		.listcon{
-			width:100%;
-			background:@whites;
-			margin-bottom:10px;
-			padding:15px 0 0px 15px;
-			color:@maincolor;
-			display:flex;
-			font-size:@mainsize;
-		}
-		.l_tim{
-			color:#888;
-			width:15%;
-			text-align:right;
-		    padding-right:15px;
-			.date{
-				font-size:@assistsize;
-				color:@garycolor;
-			}
-			.hour{
-				color:@namecolor;
-				display:inline-block;
-				padding-bottom:7px;
-			}
-		}
-		.r_txt{
-			width:85%;
-			padding-right:4px;
-		}
-		.txtbox{
-			float:left;
-			.border-bottom;
-			padding-bottom:15px;
-			.aut-list-digest{
-				float:left;
-				width:100%;
-				word-break:break-all;
-				display:-webkit-box;
-			    -webkit-line-clamp:3;
-			    -webkit-box-orient:vertical;
-			    overflow:hidden;
-			    color:@maincolor;
-			}
-			.txt{
-				padding-bottom:15px;
-				display:inline-block;
-				i{
-					display:inline-block;
-					height:16px;
-					line-height:16px;
-					padding:0 5px;
-					margin-right:8px;
-				    border-radius:2px;
-				    font-style:normal;
-				    color:@reds;
-				    font-size:@assistsize;
-				    border:1px @reds solid;
-				}
-				.vip{
-					background:@reds;
-					color:@whites;
-					border-color:@reds;
-				}
-			}
-		}
-		.none{
-			border:none;
-			padding:0;
-		}
-		.match{
-			float:left;
-			width:100%;
-			font-size:@assistsize;
-			color:@blues;
-			height:40px;
-			line-height:40px;
-		}
-		.titbox span{
-			margin:0 8px 0 0px;
-		}
-		.titbox span:last-child{
-			display: inline-block;
-			margin:0;
-		}
-		.titbox span:last-child:after {
-		    content: '';
-		    width: 0px;
-		    height: 0px;
-		    float: right;
-		    border: 0.05rem solid transparent;
-		    border-left-color: #8b7a39;
-		    -webkit-transform: translate3d(6px,0.03rem,0);
-		    -moz-transform: translate3d(6px,0.03rem,0);
-		    -ms-transform: translate3d(6px,0.03rem,0);
-		    -o-transform: translate3d(6px,0.03rem,0);
-		    transform: translate3d(6px,0.03rem,0);
-		}
-		label{
-			color:@oranges;
-			font-size:@assistsize;
-			padding: 0 5px;
-		}
-		.txtbox .txt .gg{
-			padding:0px;
-		}
+		left:0;
+		top:44px;
+		margin:0;
+		z-index:66666;
 	}
-	.aut-room-wrap{
-		position:absolute;
-		width:50%;
-		bottom:0;
-		left:50%;
-		top:0;
-		overflow:hidden;
-		.aut-room-list{
-			display:flex;
-			width:100%;
-			background:@whites;
-			padding-left:15px;
-			&:last-child{
-				div[infoinner]{
-					.border-none;
-				}			
-			}
-		}
-		.msg{
-			position:relative;
-			width:100%;
-			color:@garycolor;
-			line-height:1;
-		}
-		.msg p{
-			font-size:0.12rem;
-		}
-		.roompic{
-
-			padding:8px 0;		
-			.on{
-				color:@reds;
-			}
-		}
-		h4{
-			color:@maincolor;
-			font-weight:normal;
-			font-size:0.15rem;
-			vertical-align:center;
-		}
-		.on-tit{
-			color:#ffd842;
-		}
-		i{
-			box-sizing:content-box;
-			display:inline-block;
-		}
-		i span{
-			font-size:0.1rem;
-			height:14px;
-			padding:0 3px;
-			line-height:14px;
-			display:inline-block;
-			line-height:14px;
-			margin-left:10px;
-			color:@oranges;
-			background:#fff2e6;
-		}
-		i .ing{
-			color:@whites;
-			background:@reds;
-		}
-		i .finish{
-			color:@whites;
-			background:#cecece;
-		}
-		.master{
-			padding:0px 0;
-		}
-		.explain{
-			padding-top:15px;
-			font-size:0.12rem;
-		}
-		.explain p{
-			line-height:0.24rem;
-		}
-		.setmsg{
-			height:22px;
-			text-align:right;
-			color:@reds;
-			line-height: 22px;
-			font-size:0.12rem;
-			padding-right:10px;
-			border:1px solid @reds;
-			border-radius:10px;
-			background:url(../../common/img/timeon.png) no-repeat left center;
-			background-size:14px;
-			padding-left:25px;
-			background-position:6px 3px;
-			position:absolute;
-			right:0px;
-			top:0px;
-		}
-		.gary{
-			color:#cecece;
-			border-color:#cecece;
-			background:url(../../common/img/timegary.png) no-repeat left center;
-			background-size:14px;
-			background-position:6px 3px;
-		}
-		div[infoinner]{
-			width: 100%;
-			cursor: pointer;
-			.border-bottom;
-			height:100%;
-			padding:20px 15px 20px 0;
-		}
-		p[noRoom]{
-			font-size:@mainsize;
-			color:@maincolor;
-			text-align:center;
-		}
-	}
-	.aut-list-wrap{
-		position:absolute;
-		top:265px;
-		bottom:0;
+	.aut_tab_wrap{
 		width:200%;
+		height:auto;
+		.aut_art_list_wrap{
+			width:50%;
+			height:auto;
+			.listcon{
+				width:100%;
+				background:@whites;
+				margin-bottom:10px;
+				padding:15px 0 0px 15px;
+				color:@maincolor;
+				display:flex;
+				font-size:@mainsize;		
+				.l_tim{
+					color:#888;
+					width:15%;
+					text-align:right;
+				    padding-right:15px;
+					.date{
+						font-size:@assistsize;
+						color:@garycolor;
+					}
+					.hour{
+						color:@namecolor;
+						display:inline-block;
+						padding-bottom:7px;
+					}
+				}
+				.r_txt{
+					width:85%;
+					padding-right:4px;
+				}
+				.txtbox{
+					float:left;
+					.border-bottom;
+					padding-bottom:15px;
+					.aut-list-digest{
+						float:left;
+						width:100%;
+						word-break:break-all;
+						display:-webkit-box;
+					    -webkit-line-clamp:3;
+					    -webkit-box-orient:vertical;
+					    overflow:hidden;
+					    color:@maincolor;
+					}
+					.txt{
+						padding-bottom:15px;
+						display:inline-block;
+						font-size:10px;
+						i{
+							box-sizing:content-box;
+							display:inline-block;
+							height:13px;
+							line-height:13px;
+							padding:0 5px;
+							margin-right:8px;
+						    border-radius:3px;
+						    font-style:normal;
+						    color:@reds;
+						    font-size:10px;
+						    border:1px @reds solid;
+						}
+						.vip{
+							background:@reds;
+							color:@whites;
+							border-color:@reds;
+						}
+						.list-Price{
+							color:@reds;
+						}
+					}
+				}
+				.none{
+					border:none;
+					padding:0;
+				}
+				.match{
+					float:left;
+					width:100%;
+					font-size:@assistsize;
+					color:@blues;
+					height:40px;
+					line-height:40px;
+				}
+				.titbox span{
+					margin:0 8px 0 0px;
+				}
+				.titbox span:last-child{
+					display: inline-block;
+					margin:0;
+				}
+				.titbox span:last-child:after {
+				    content: '';
+				    width: 0px;
+				    height: 0px;
+				    float: right;
+				    border: 0.05rem solid transparent;
+				    border-left-color: #8b7a39;
+				    -webkit-transform: translate3d(6px,0.03rem,0);
+				    -moz-transform: translate3d(6px,0.03rem,0);
+				    -ms-transform: translate3d(6px,0.03rem,0);
+				    -o-transform: translate3d(6px,0.03rem,0);
+				    transform: translate3d(6px,0.03rem,0);
+				}
+				label{
+					color:@oranges;
+					font-size:@assistsize;
+					padding: 0 5px;
+				}
+				.txtbox .txt .gg{
+					padding:0px;
+				}
+			}	
+		}
+		.aut_room_list_wrap{
+			width:50%;
+			height:auto;
+			position:absolute;
+			left:50%;
+			top:0;
+			.aut-room-list{
+				display:flex;
+				width:100%;
+				background:@whites;
+				padding-left:15px;
+				&:last-child{
+					div[infoinner]{
+						.border-none;
+					}			
+				}
+			}
+			.msg{
+				position:relative;
+				width:100%;
+				color:@garycolor;
+				line-height:1;
+			}
+			.msg p{
+				font-size:0.12rem;
+			}
+			.roompic{
+
+				padding:8px 0;		
+				.on{
+					color:@reds;
+				}
+			}
+			h4{
+				color:@maincolor;
+				font-weight:normal;
+				font-size:0.15rem;
+				vertical-align:center;
+			}
+			.on-tit{
+				color:#ffd842;
+			}
+			i{
+				box-sizing:content-box;
+				display:inline-block;
+			}
+			i span{
+				font-size:0.1rem;
+				height:14px;
+				padding:0 3px;
+				line-height:14px;
+				display:inline-block;
+				line-height:14px;
+				margin-left:10px;
+				color:@oranges;
+				background:#fff2e6;
+			}
+			i .ing{
+				color:@whites;
+				background:@reds;
+			}
+			i .finish{
+				color:@whites;
+				background:#cecece;
+			}
+			.master{
+				padding:0px 0;
+			}
+			.explain{
+				padding-top:15px;
+				font-size:0.12rem;
+			}
+			.explain p{
+				line-height:0.24rem;
+			}
+			.setmsg{
+				height:22px;
+				text-align:right;
+				color:@reds;
+				line-height: 22px;
+				font-size:0.12rem;
+				padding-right:10px;
+				border:1px solid @reds;
+				border-radius:10px;
+				background:url(../../common/img/timeon.png) no-repeat left center;
+				background-size:14px;
+				padding-left:25px;
+				background-position:6px 3px;
+				position:absolute;
+				right:0px;
+				top:0px;
+			}
+			.gary{
+				color:#cecece;
+				border-color:#cecece;
+				background:url(../../common/img/timegary.png) no-repeat left center;
+				background-size:14px;
+				background-position:6px 3px;
+			}
+			div[infoinner]{
+				width: 100%;
+				cursor: pointer;
+				.border-bottom;
+				height:100%;
+				padding:20px 15px 20px 0;
+			}
+			p[noRoom]{
+				font-size:@mainsize;
+				color:@maincolor;
+				text-align:center;
+				line-height:50px;
+			}
+		}
+		
 	}
 	.roomActive{
 		transform:translateX(-50%);

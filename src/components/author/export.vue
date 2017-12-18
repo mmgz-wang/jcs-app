@@ -238,35 +238,32 @@ import lackPage from 'base/lackpage/lackpage'
     background:#fbfbfb;
     .export-header{
         width:100%;
-    	height:50px;
-        line-height:50px;
+    	height:44px;
+        line-height:44px;
     	color: @backcolor;
     	font-size: 0.14rem;
-    	position: relative;
-        padding-left:50px;
         padding-right:15px;
-        border-top:1px solid transparent;
+        display:flex;
+        align-items:center;
     	.back{
-            width:50px;
+            width:38px;
             height:100%;
-            float:left;
-            position:absolute;
-            left:0;
             background:url('../../common/img/deepback.png') no-repeat center;
             color:transparent;
-            background-size:11px auto;
+            background-size:8px 17px;
+            background-position:15px center;
         }
         form{
-            height:30px;
-            margin-top:9px;
+            height:29px;
             border-radius:15px;
             background:#efefef;
-            line-height:30px;
+            line-height:29px;
             background:#efefef url(../../common/img/se.png) no-repeat left center;
-            background-size:16px;
+            background-size:14px;
             background-position:15px center;
-            padding-left:35px;
+            padding-left:30px;
             overflow:hidden;
+            flex-grow:1;
             input{
                 width:90%;
                 height: 29px;
@@ -274,6 +271,7 @@ import lackPage from 'base/lackpage/lackpage'
                 outline:none;
                 background:#efefef;
                 padding-left:5px;
+                line-height:29px;
             }
             ::-webkit-input-placeholder { /* WebKit browsers */ 
                 font-size:14px;
@@ -297,7 +295,7 @@ import lackPage from 'base/lackpage/lackpage'
     .scroll{
     	width: 100%;
     	position: absolute;
-    	top: 50px;
+    	top: 44px;
     	bottom: 0;
     	overflow: hidden;
     }
@@ -382,6 +380,7 @@ import lackPage from 'base/lackpage/lackpage'
         }
     }
     .isfans,.unfans{
+        box-sizing:content-box;
     	height: 25px;
     	line-height: 25px;
     	color: @assistcolor;

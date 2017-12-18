@@ -187,7 +187,8 @@ export default {
 							matchId: this.$router.currentRoute.query.id,
 							articleId: this.start_articleid,
 							sportType: this.sportType,
-							scoutMatchId: this.scoutMatchId
+							scoutMatchId: this.scoutMatchId,
+							lotteryEntryId: this.$router.currentRoute.query.entryId
 						}
 					}
 				).then(function(res){				
