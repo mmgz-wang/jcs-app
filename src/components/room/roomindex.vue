@@ -162,16 +162,18 @@ export default {
             var that = this;
             //连接并登陆
             this.IO.on('connect', function () {
-                //console.log('on connect')
+                console.log('on connect')
                 //链接成功
                 var jsonObject = {
                     roomId: that.roomId,
                     userId: ShareFn.getUserId(),
                     token: ShareFn.getSecurityCode()
                 };
+                console.log(jsonObject)
                 that.IO.emit('login', jsonObject);
             });
             this.IO.on('ack', function (data) {
+                console.log(data)
                 that.ackData = data;
                 that.roomUsers = data.roomUsers;
                 that.roomPrice = data.roomPrice;
@@ -195,9 +197,7 @@ export default {
                     that.isOver = true;
                     that.showMeaage('直播未开始');
                     layer.open({
-                        content: '<p class="teach-name">' + that.roomName + '</p>' +
-                        '<p>主播：' + data.roomLecturer + '<span style="width:40px;display: inline-block"></span>门票：' + that.roomPrice + '</p>' +
-                        '<p>直播时间：' + data.startTime.substr(5, 11) + ' ' + data.endTime.substr(5, 11) + '</p>',
+                        content: `<p class="teach-name">${that.roomName}</p><p>主播：${data.roomLecturer}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(that.roomPrice)}</p><p>直播时间：${data.startTime.substr(5, 11)} ${data.endTime.substr(5, 11)}</p>`,
                         btn: ['返回', '开启后通知我'],
                         shadeClose: false,
                         yes: function (index) {
@@ -205,16 +205,22 @@ export default {
                             that.$router.back();
                         },
                         no: function (index) {
+                            that.$nextTick(function(){
+                                that.$http.jsonp(
+                                    "http://123.206.88.92:8080/Room/SubscribeRoom",
+                                    {
+                                        params: {
+                                            language: 'M',
+                                            userId: ShareFn.getUserId(),
+                                            roomId: data.roomId
+                                        }
+                                    }
+                                ).then(function(){
 
-                            var sub = {
-                                url: "http://123.206.88.92:8080/Room/SubscribeRoom",
-                                data: {
-                                    language: 'M',
-                                    userId: getUserId(),
-                                    roomId: roomId
-                                }
-                            };
-                            customAjax(sub);
+                                },function(){
+                                    that.showMeaage('设置失败请!');
+                                })
+                            })
                             layer.close(index);
                         }
                     });
@@ -477,29 +483,6 @@ export default {
                                 });
                                 return;
                             } else if (res.data.Code == '0000') {
-                                /*that.$nextTick(function(){
-                                    that.$http.jsonp(function(){
-                                        roomMsgurls + '/Message/GetOpenedMsg',
-                                        {
-                                            params: {
-                                                userId: that.userId,
-                                                messageId: id,
-                                                token: ShareFn.getSecurityCode()
-                                            }
-                                        }
-                                    }).then(function(res){
-                                        console.log(res)
-                                        var ht = '<div class="pic" onclick="goauthor('+teachId+')">'+
-                                                    '<img src="' + data.userPic + '" alt="">'+
-                                                '</div><div class="msg">'+
-                                                    '<p class="tim">' + data.userName + '    ' + setTime(data.createTime) + '</p>'+
-                                                    '<div class="dialog">' + data.content + '<img class="lock-pic" src="./img/lop.png"></div>'+
-                                                '</div>';
-                                        $(that).parents('section').html(ht);
-                                    },function(){
-                                        console.log('解锁请求失败')
-                                    })
-                                })*/
                                 that.GetRoomMsg();
                                 layer.close(index)
                             }
@@ -669,7 +652,7 @@ export default {
         },
         firstNoFn(){
             this.back();
-            that.dialogShow = false;
+            this.dialogShow = false;
         },
         loadMsg: function(){
             var that = this;
@@ -740,7 +723,22 @@ export default {
                 skin: 'msg',
                 anim: 'scale'
             });
-        }
+        },
+        setPrice: function(data){
+            if(data.periodList != undefined){
+                if (data.roomPrice == 0 && data.periodList.length<=0) {
+                    return '免费';
+                }else if(data.roomPrice != 0 && data.periodList.length>=0){
+                    return data.roomPrice+'精彩币 '+this.returnPackage(data.periodList);
+                }else if(data.roomPrice != 0 && data.periodList.length<=0){
+                    return data.roomPrice+'精彩币';
+                }else{
+                    return this.returnPackage(data.periodList);
+                }
+            }else{
+                return data.roomPrice==0?'免费':data.roomPrice+'精彩币';
+            }
+        },
 
     },
     watch:{
@@ -1027,7 +1025,6 @@ export default {
                 height:100%;
                 padding-left:8px;
                 font-size:0.14rem;
-                line-height:38px;
             }
             ::-webkit-input-placeholder { /* WebKit browsers */ 
                 font-size:14px;

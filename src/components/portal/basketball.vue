@@ -37,6 +37,7 @@ export default {
           isShow: false
       },
       types: 0,
+      sportType: 0,
       needRefresh: true,
       pullDownRefresh: {threshold: 50, stop: 50},
       pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
@@ -60,10 +61,18 @@ export default {
     next();
   },
   activated() {
-    console.log(this.$route.meta)
     if(!this.$route.meta.iskeep || this.isFirstEnter){
       this.articleDataList = [];// 把数据清空，可以稍微避免让用户看到之前缓存的数据
       this.lastArticleId = 0;
+      if(this.$router.currentRoute.query.sportType == '足球'){
+        this.sportType = 0
+        this.headerData.ele = '<h1>足球</h1?'
+      }else if(this.$router.currentRoute.query.sportType == '篮球'){
+        this.sportType=1
+        this.headerData.ele = '<h1>篮球</h1?'
+      }else{
+        this.sportType=2;
+      }
       this.getData();
     }
     this.isFirstEnter = false;
@@ -87,7 +96,6 @@ export default {
       this.types = 1;
       this.pullUpText = '努力加载中 ...';
       this.getData();
-      
     },
     getData() {
       this.$nextTick(function () {
@@ -97,7 +105,7 @@ export default {
             params:{
               language: 'M',
               articleId: this.lastArticleId,
-              type:'1'
+              type:this.sportType
             }
           }
         ).then(function(res) {

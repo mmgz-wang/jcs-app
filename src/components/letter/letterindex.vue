@@ -407,22 +407,18 @@ export default {
             ::-webkit-input-placeholder { /* WebKit browsers */ 
                 font-size:14px;
                 color:#999999;
-                line-height:34px;
             } 
             :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
                 font-size:14px;
                 color:#999999;
-                line-height:34px;
             } 
             ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
                 font-size:14px;
                 color:#999999;
-                line-height:34px;
             } 
             :-ms-input-placeholder { /* Internet Explorer 10+ */ 
                 font-size:14px;
                 color:#999999;
-                line-height:34px;
             }
         }
         button{

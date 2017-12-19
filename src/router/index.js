@@ -140,7 +140,8 @@ export default new Router({
     { path: '/articledetail', name: 'articledetail', component: Article,
         meta: {
             requiresAuth: true,
-            iskeep: false
+            iskeep: false,
+            isback: false
         } 
     },
     { path: '/payfor', name: 'payfor', component: PayFor },

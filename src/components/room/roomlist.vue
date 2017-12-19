@@ -22,7 +22,7 @@
 							</p>
 							<!-- <p class="roompic">门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span></p> -->
 							<p class="time">直播时间:&nbsp;&nbsp; {{formatTime(item.startTime)}} —  {{formatTime(item.startTime, item.endTime)}}</p>
-					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :class="{roomlistgary:!item.isRoomDscriber}">开启通知</span>
+					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :id="'s'+item.roomId" :class="{roomlistgary:item.isRoomDscriber}">{{item.isRoomDscriber?'关闭通知':'开启通知'}}</span>
 						</div>
 						<div class="explain">
 							<h4>{{item.roomName}}
@@ -64,6 +64,7 @@ export default {
 			pullDownText: '下拉刷新！',
 			pullUpText: '上拉加载更多！',
 			roomPageIndex: 0,
+			informText: '开启通知',
 			pageRows: 20
 		}
 	},
@@ -93,15 +94,64 @@ export default {
 		  
 		},
 		gooRoom: function(item){
+			var that = this;
+			var roomId = item.roomId;
+			var targetBtn = document.querySelector('#s'+roomId);
 			console.log(item)
 			if(Sharefn.isLogin()){
-				this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
-			}else{
-				//if(item.roomStatus == 2 || item.roomStatus == 1){
-					this.$router.push({ name: 'enter'});
-				/*}else{
+				if(item.roomStatus==1){
+					layer.open({
+					    content: `<p class="teach-name">${item.roomName}</p><p>主播：${item.lecturerName}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(item)}</p><p>直播时间：${item.startTime.substr(5, 11)} ${item.endTime.substr(5, 11)}</p>`,
+					    btn: ['开启通知', '取消通知'],
+					    shadeClose: false,
+					    yes: function (index) {
+					        that.$nextTick(function(){
+	                            that.$http.jsonp(
+	                                "https://chat.jingcaishuo.com/Room/SubscribeRoom",
+	                                {
+	                                    params: {
+	                                        language: 'M',
+	                                        userId: Sharefn.getUserId(),
+	                                        roomId: roomId
+	                                    }
+	                                }
+	                            ).then(function(){
+	                            	targetBtn.innerHTML = '关闭通知';
+	                            	targetBtn.className='setmsg roomlistgary';
+	                            })
+	                        })
+	                        layer.close(index);
+					    },
+					    no: function (index) {
+					    	that.$nextTick(function(){
+					    	    that.$http.jsonp(
+					    	        "https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
+					    	        {
+					    	            params: {
+					    	                language: 'M',
+					    	                userId: Sharefn.getUserId(),
+					    	                roomId: roomId
+					    	            }
+					    	        }
+					    	    ).then(function(){
+					    	    	targetBtn.innerHTML = '开启通知';
+					    	    	targetBtn.className='setmsg';
+					    	    },function(){
+					    	        that.showMeaage('设置失败请重试！');
+					    	    })
+					    	})
+					    	layer.close(index);
+					    }
+					});
+				}else{
 					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
-				}*/
+				}
+			}else{
+				if(item.roomStatus == 2 || item.roomStatus == 1){
+					this.$router.push({ name: 'enter'});
+				}else{
+					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
+				}
 				
 			}
 			
@@ -201,14 +251,20 @@ export default {
 		        return starMonth+'-'+starDay+' '+starHour+':'+starMinute;
 		    }
 		},
+		showMeaage: function (msg) {
+		    layer.open({
+		        content: msg,
+		        time: 2,
+		        skin: 'msg',
+		        anim: 'scale'
+		    });
+		},
 		setMsg: function(e){
 			console.log(e.target.className)
 			var setmsgBtn = e.target;
 		    if (Sharefn.isLogin()) {
 		        var roomId = setmsgBtn.attributes['roomId'].nodeValue;
-		        console.log(roomId)
-		        if (setmsgBtn.className.indexOf('roomlistgary')<0) {
-		            setmsgBtn.className='setmsg roomlistgary';
+		        if (setmsgBtn.className.indexOf('roomlistgary')>0) {		            
 		            this.$http.jsonp("https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
 		            	{ 
 		            		params:{
@@ -218,7 +274,8 @@ export default {
 		                    }
 		                }
 		            ).then(function(res){
-		            	
+		            	document.querySelector('#s'+roomId).innerHTML = '开启通知';
+		            	setmsgBtn.className='setmsg';
 		            })
 		        } else {
 		            setmsgBtn.className='setmsg';
@@ -231,7 +288,8 @@ export default {
                             }
                         }
                     ).then(function(res){
-                    	
+                    	document.querySelector('#s'+roomId).innerHTML = '关闭通知';
+                    	setmsgBtn.className='setmsg roomlistgary';
                     })
 		        }
 		    } else {

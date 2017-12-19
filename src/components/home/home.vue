@@ -132,7 +132,11 @@ export default {
         })
       }else if(item.name=="篮球"){
         this.$router.push({
-          path: `/basketball`
+          path: `basketball?sportType=篮球`
+        })
+      }else if(item.name=="足球"){
+        this.$router.push({
+          path: `basketball?sportType=足球`
         })
       }else if(item.name=="直播"){
         this.$router.push({
@@ -164,9 +168,15 @@ export default {
           path: `/author/?id=${item.target_id}`
         })
       }else if(item.target_type == 'h5'){
-        if(h5Url.indexOf('chartroom')){
+        if(item.h5Url.indexOf('chartroom')){
+          var roomId = '';
+          item.h5Url.replace(/roomId=([0-9]{0,})/g,function($1,$2){
+            roomId = $2;
+            return $2;
+          });
+          
           this.$router.push({
-              path: `/author/?id=${item.target_id}`
+              path: `/roomindex?roomId=${roomId}`
           })
         }else{
           

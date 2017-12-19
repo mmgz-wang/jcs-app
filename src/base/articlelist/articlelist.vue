@@ -202,10 +202,8 @@ export default{
         padding-top:15px;
         i{
             float:left;
-            box-sizing:content-box;
-            height:15px;
-            line-height:15px;
-            padding:0 5px;
+            line-height:1;
+            padding:1px 5px;
             margin-right:10px;
             border-radius:3px;
             font-style:normal;

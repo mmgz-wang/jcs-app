@@ -31,7 +31,8 @@
 			<scroll class="matchdetail-list" :data="articleList">
 				<article-list 
 					:topMargin='false'
-					:matchShow="false" 
+					:matchShow="false"
+					@goarticle="goarticle"
 					:articleDataList="articleList">
 				  
 				</article-list>
@@ -221,9 +222,10 @@ export default {
 				})
 			})
 		},
-		goarticle(id){
+		goarticle(item){
+			console.log(item)
 			this.$router.push({
-			  path: `/articledetail/?id=${id}`
+			  path: `/articledetail/?id=${item.id}`
 			})
 		},
 		back(){

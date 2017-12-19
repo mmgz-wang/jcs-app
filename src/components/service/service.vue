@@ -18,7 +18,10 @@
         </div>
         
         <div class="service-foot">
-            <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+            <p>
+                <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
+            </p>
+            
             <button type="button" id="send" @click="sendMsg()">发送</button>
         </div>
     </div>    
@@ -346,7 +349,6 @@ export default {
                 float: right;
                 width:80%;
             }
-
             .rdialog{
                 float:right;
                 background:@whites;
@@ -384,14 +386,37 @@ export default {
         position:absolute;
         left:0;
         bottom:0;
-        input{
+         p{
             width:85%;
             height:100%;
-            outline:none;
-            border-radius:15px;
+            border-radius:17px;
+            overflow:hidden;
             border:1px solid @bordercolor;
-            padding-left:8px;
-            font-size:0.14rem;
+            input{
+                width:100%;
+                height:100%;
+                outline:none;
+                border:none;                
+                padding-left:8px;
+                font-size:0.14rem;
+                float:left;
+            }
+            ::-webkit-input-placeholder { /* WebKit browsers */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+                font-size:14px;
+                color:#999999;
+            } 
+            :-ms-input-placeholder { /* Internet Explorer 10+ */ 
+                font-size:14px;
+                color:#999999;
+            }
         }
         button{
             height:100%;

@@ -32,7 +32,6 @@ export default {
     padding:0.15rem 0;
     justify-content:space-around;
     dl{
-        float: left;
         text-align: center;
         font-size: 0.13rem;
         dt{

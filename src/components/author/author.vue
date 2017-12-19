@@ -678,11 +678,9 @@ export default {
 						display:inline-block;
 						font-size:10px;
 						i{
-							box-sizing:content-box;
-							display:inline-block;
-							height:13px;
-							line-height:13px;
-							padding:0 5px;
+							float:left;
+							line-height:1;
+							padding:1px 5px;
 							margin-right:8px;
 						    border-radius:3px;
 						    font-style:normal;

@@ -63,7 +63,6 @@
 					</div>							
 				</div>
 
-				
 				<div class="unlock" v-if="!articleData.chargeable || articleData.articlePurchased" v-html="articleData.text">
 				</div>
 				<p class="hoge" v-if="articleData.matches.length>0">温馨提醒：本平台所有赛事皆为主队在前，客队在后。</p>
@@ -124,7 +123,7 @@
         :tit="dialogData.tit"
         :yesFn="dialogData.yesFn"
         :noFn="dialogData.noFn"></pay-dialog>
-        <div class="loading-container" v-show="articleData==null">
+        <div class="loading-container" v-show="loadingShow">
             <loading></loading>
         </div>
     </div>
@@ -156,6 +155,7 @@ export default {
 			isCollect: false,
 			isLike: false,
 			dialogShow: false,
+			loadingShow: true,
 			cardId: 0,
 			dialogData: {
 				btns: ['确定','取消'],
@@ -172,10 +172,22 @@ export default {
 	mounted(){
 		console.log('mounted')
 	},
+	/*beforeRouteEnter(to, from, next) {
+		console.log(to)
+		console.log(from)
+	    if(from.name == 'articledetail'){
+	        to.meta.iskeep=true;
+	    }
+	    if(from.name == 'home'){
+	        to.meta.iskeep=false;
+	    }
+	    next();
+	},*/
 	activated() {
-		console.log('activated')
-		this.articleData = null;
-		this.getData();
+		//if(){
+			this.articleData = null;
+			this.getData();
+		//}		
 	},
 	deactivated() {
 		//console.log("我是第一个页面的 deactivated 方法");
@@ -209,7 +221,7 @@ export default {
 						this.isCollect = this.articleData.articleCollected;
 						this.isLike = this.articleData.articlePraised;
 						this.cardId = this.articleData.omnCardId;
-						console.log(this.articleData)
+						this.loadingShow = false;
 						this.payForWay(res.data);
 					}else if(res.data.code == '0003'){
 						layer.open({
@@ -526,14 +538,12 @@ export default {
 		},
 		custmorAjax(opt){
             var data = null;
-            console.log(opt)
             this.$http.post(
                 opt.url,
                 opt.data,
                 {
                     headers: opt.headers
-                }
-                
+                }                
             ).then(function(res){
                 opt.callback(res.data);
             },function(){
@@ -548,12 +558,15 @@ export default {
             this.$router.push({
                 path: `/articledetail/?id=${item.id}`
             })
-            location.reload();
+            //location.reload();
         },
 	},
 	watch: {
-		articleData: function(){
-
+		$route(){
+			//alert('变化')
+			this.getData();
+			this.loadingShow = true;
+			
 		}
 	}
 }
@@ -704,10 +717,8 @@ export default {
 				line-height:45px;
 				i{
 					float:left;
-					box-sizing:content-box;
-		            height:15px;
-		            line-height:15px;
-		            padding:0 5px;
+		            line-height:1;
+		            padding:1px 5px;
 		            margin-right:10px;
 		            border-radius:3px;
 		            color: @reds;
@@ -991,6 +1002,7 @@ export default {
             -webkit-box-orient:vertical;
             overflow:hidden;
             color:@maincolor;
+            margin-bottom:15px;
 		}
 		.bott{
 				box-sizing:content-box;
@@ -1003,10 +1015,8 @@ export default {
 				float:left;
 				i{
 					float:left;
-					box-sizing:content-box;
-		            height:15px;
-		            line-height:15px;
-		            padding:0 5px;
+		            line-height:1;
+		            padding:1px 5px;
 		            margin-right:10px;
 		            border-radius:3px;
 		            color: @reds;
@@ -1037,7 +1047,7 @@ export default {
 		.art-match{
 			float:left;
 			width:100%;
-			line-height:45px;
+			padding-bottom:15px;
 			font-size:0.1rem;
 			color:@blues;
 		}
