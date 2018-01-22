@@ -1,15 +1,16 @@
 <template>
 	<div class="loading">
 		<img class="onload" width="24" height="24" src="../../common/img/load.png">
-		<p class="desc">{{title}}</p>
+		<p class="desc">{{titles}}</p>
 	</div>
 </template>
 <script type="text/javascript">
 export default {
+  name: 'loading',
 	props: {
-		title: {
+		titles: {
 			type: String,
-			defaults: '正在载入...'
+			default: '正在载入...'
 		}
 	}
 }
@@ -33,7 +34,7 @@ export default {
 	}
 }
 .onload{
-	-webkit- animation: rotates 1.5s linear infinite;
+	-webkit-animation: rotates 1.5s linear infinite;
 	animation: rotates 1.5s linear infinite;
 	opacity:0.6;
 	margin-top:20%;
@@ -53,6 +54,6 @@ export default {
 	    -o-transform: rotate(360deg);
 	    -ms-transform: rotate(360deg);
 	}
-	
+
 }
 </style>

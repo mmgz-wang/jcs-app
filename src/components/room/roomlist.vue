@@ -1,16 +1,19 @@
 <template>
 	<div class="room-list">
 		<publick-header @menuClick="setMenu" :headerData="headerData"></publick-header>
-		<scroll class="room-list-scroll" 
+		<scroll class="room-list-scroll"
 		:needRefresh="needRefresh"
 		:pullDownRefresh="pullDownRefresh"
 		:pullUpLoad="pullUpLoad"
 		:pullingDownFn="pullingDownFn"
 		:pullingUpFn="pullingUpFn"
-		ref="scroll" 
-		:data="roomListData">	
-			<div class="roomlist-wrap">	
-				<p pulldown>{{pullDownText}}</p>		
+		ref="scroll"
+		:data="roomListData">
+			<div class="roomlist-wrap">
+				<p pulldown>{{pullDownText}}</p>
+        <div class="loading-container" v-show="!roomListData.length">
+          <loading></loading>
+        </div>
 				<div class="list" v-for="item in roomListData" :id="item.roomId" @click="gooRoom(item)">
 					<div class="room-pic">
 						<img :src="item.roomPic" alt="">
@@ -26,11 +29,11 @@
 						</div>
 						<div class="explain">
 							<h4>{{item.roomName}}
-								<i class="room-status" 
+								<i class="room-status"
 								:class="{early:item.roomStatus==1,rooming:item.roomStatus==2,roomover:item.roomStatus==3}"></i></h4>
 							<p> {{item.roomMemo}}</p>
 						</div>
-					    
+
 					</div>
 				</div>
 				<p pullup>{{pullUpText}}</p>
@@ -43,9 +46,10 @@
 
 <script type="text/javascript">
 import Common from '../../common/js/common'
-import Sharefn from '../../common/js/sharefn'
 import PublickHeader from 'base/header/publickheader'
 import Scroll from 'base/scroll/scroll'
+import loading from 'base/loading/loading'
+
 export default {
 	name: 'room-list',
 	data (){
@@ -69,14 +73,14 @@ export default {
 		}
 	},
 	components: {
-		PublickHeader,Scroll
+		PublickHeader,Scroll,loading
 	},
 	created(){
 		this.getData();
 	},
 	methods: {
 		setMenu: function(name){
-			var menu = document.querySelector('#menu');
+			var menu = document.querySelector('#menus');
 			menu.className = 'menus show';
 		},
 		pullingDownFn(scroll){
@@ -84,21 +88,21 @@ export default {
 		  this.roomPageIndex = 0;
 		  this.pullDownText = '努力加载中 ...';
 		  this.getData();
-		  
+
 		},
 		pullingUpFn(scroll){
 		  this.types = 1;
 		  this.roomPageIndex += 1;
 		  this.pullUpText = '努力加载中 ...';
 		  this.getData();
-		  
+
 		},
 		gooRoom: function(item){
 			var that = this;
 			var roomId = item.roomId;
 			var targetBtn = document.querySelector('#s'+roomId);
 			console.log(item)
-			if(Sharefn.isLogin()){
+			//if(this.shareFn.isLogin()){
 				if(item.roomStatus==1){
 					layer.open({
 					    content: `<p class="teach-name">${item.roomName}</p><p>主播：${item.lecturerName}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(item)}</p><p>直播时间：${item.startTime.substr(5, 11)} ${item.endTime.substr(5, 11)}</p>`,
@@ -111,7 +115,7 @@ export default {
 	                                {
 	                                    params: {
 	                                        language: 'M',
-	                                        userId: Sharefn.getUserId(),
+	                                        userId: this.shareFn.getUserId(),
 	                                        roomId: roomId
 	                                    }
 	                                }
@@ -129,7 +133,7 @@ export default {
 					    	        {
 					    	            params: {
 					    	                language: 'M',
-					    	                userId: Sharefn.getUserId(),
+					    	                userId: this.shareFn.getUserId(),
 					    	                roomId: roomId
 					    	            }
 					    	        }
@@ -146,22 +150,22 @@ export default {
 				}else{
 					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
 				}
-			}else{
+			/*}else{
 				if(item.roomStatus == 2 || item.roomStatus == 1){
 					this.$router.push({ name: 'enter'});
 				}else{
 					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
 				}
-				
-			}
-			
+
+			}*/
+
 		},
 		getData: function(){
 			this.$nextTick(function(){
-				this.$http.jsonp(Common.baseUrl.roomMsgurls+'/Room/GetRoomList',
-					{ 
+				this.$http.jsonp(Common.baseURI().roomMsgurls+'/Room/GetRoomList',
+					{
 						params:{
-							userId: Sharefn.getUserId(),
+							userId: this.shareFn.getUserId(),
 				            pageIndex: this.roomPageIndex,
 				            pageRows: this.pageRows
 				        }
@@ -181,7 +185,7 @@ export default {
 					}else{
 						console.log('请求失败')
 					}
-					
+
 				})
 			})
 		},
@@ -199,7 +203,10 @@ export default {
 		setPrice: function(data){
 		    if(data.periodList != undefined){
 		        if (data.roomPrice == 0 && data.periodList.length<=0) {
-		            return '免费';
+              if(data.allowVistor){
+                return '免费 游客可进'
+              }
+              return '免费';
 		        }else if(data.roomPrice != 0 && data.periodList.length>=0){
 		            return data.roomPrice+'精彩币 '+this.returnPackage(data.periodList);
 		        }else if(data.roomPrice != 0 && data.periodList.length<=0){
@@ -232,9 +239,9 @@ export default {
 		        starHour<9?starHour='0'+starHour:starHour;
 		        starMinute<9?starMinute='0'+starMinute:starMinute;
 		    if (arguments.length > 1) {
-		        var ends = new Date(arguments[1].replace(/-/g, '/')),            
-		            endsYear = ends.getFullYear(), 
-		            endsMonth = ends.getMonth()+1,           
+		        var ends = new Date(arguments[1].replace(/-/g, '/')),
+		            endsYear = ends.getFullYear(),
+		            endsMonth = ends.getMonth()+1,
 		            endsDay = ends.getDate(),
 		            endsHour = ends.getHours(),
 		            endsMinute = ends.getMinutes();
@@ -246,7 +253,7 @@ export default {
 		            return endsMonth+'-'+endsDay+' '+endsHour+':'+endsMinute;
 		        }else{
 		            return endsHour+':'+endsMinute;
-		        }    
+		        }
 		    } else {
 		        return starMonth+'-'+starDay+' '+starHour+':'+starMinute;
 		    }
@@ -262,14 +269,14 @@ export default {
 		setMsg: function(e){
 			console.log(e.target.className)
 			var setmsgBtn = e.target;
-		    if (Sharefn.isLogin()) {
+		    if (this.shareFn.isLogin()) {
 		        var roomId = setmsgBtn.attributes['roomId'].nodeValue;
-		        if (setmsgBtn.className.indexOf('roomlistgary')>0) {		            
+		        if (setmsgBtn.className.indexOf('roomlistgary')>0) {
 		            this.$http.jsonp("https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
-		            	{ 
+		            	{
 		            		params:{
 		            			language: 'M',
-			                    userId: Sharefn.getUserId(),
+			                    userId: this.shareFn.getUserId(),
 			                    roomId: roomId
 		                    }
 		                }
@@ -280,10 +287,10 @@ export default {
 		        } else {
 		            setmsgBtn.className='setmsg';
                     this.$http.jsonp("https://chat.jingcaishuo.com/Room/SubscribeRoom",
-                    	{ 
+                    	{
                     		params:{
                     			language: 'M',
-        	                    userId: Sharefn.getUserId(),
+        	                    userId: this.shareFn.getUserId(),
         	                    roomId: roomId
                             }
                         }
@@ -446,5 +453,12 @@ export default {
 		height:10px;
 		display:inline-block;
 	}
+  .loading-container{
+    position:absolute;
+    width:100%;
+    height:100%;
+    top:50%;
+    transform: translateY(-50%);
+  }
 }
 </style>

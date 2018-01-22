@@ -29,12 +29,12 @@
 		</div>
 		<div class="match-detail-wrap" :class="{roomActive:!isart,roomLeave:isart}">
 			<scroll class="matchdetail-list" :data="articleList">
-				<article-list 
+				<article-list
 					:topMargin='false'
 					:matchShow="false"
 					@goarticle="goarticle"
 					:articleDataList="articleList">
-				  
+
 				</article-list>
 			</scroll>
 			<div class="odds_wrap" v-if="oddsData != null">
@@ -99,21 +99,20 @@
 				</div>
 			</div>
 		</div>
-		
-		
+
+
 	</div>
 </template>
 <script type="text/javascript">
 import Scroll from "base/scroll/scroll"
 import Common from "common/js/common"
-import shareFn from "common/js/shareFn"
 import articleList from 'base/articlelist/articlelist'
 export default {
 	data(){
 		return {
 			isart: true,
-			show: false,			
-			url: Common.baseUrl.host + '/match/detail',
+			show: false,
+			url: Common.baseURI().host + '/match/detail',
 			start_articleid: 0,
 			articleList: [],
 			oddsData: [],
@@ -133,10 +132,10 @@ export default {
 			type: 2,
 			content: '加载中'
 		});
-		console.log('created')		
+		console.log('created')
 	},
 	mounted(){
-		
+
 		//this.getData();
 		console.log('mounted')
 	},
@@ -157,11 +156,11 @@ export default {
 			this.matchMsg =  null;
 			this.matchScore =  null;
 			this.isart = true;
-			this.url = Common.baseUrl.host + '/match/detail';
+			this.url = Common.baseURI().host + '/match/detail';
 		},
 		tabClick(s){
 			if(s == 'art'){
-				this.url = Common.baseUrl.host + '/match/detail';
+				this.url = Common.baseURI().host + '/match/detail';
 				this.isart = true;
 				this.show = false;
 				if(this.articleList.length>0){
@@ -169,13 +168,13 @@ export default {
 				}
 				this.getData();
 			}else{
-				this.url = Common.baseUrl.host + '/match/odds';
+				this.url = Common.baseURI().host + '/match/odds';
 				this.isart = false;
 				this.show = true;
 				if(this.oddsData.length>0){
 					return;
 				}
-				this.getData();	
+				this.getData();
 			}
 		},
 		getData(){
@@ -192,7 +191,7 @@ export default {
 							lotteryEntryId: this.$router.currentRoute.query.entryId
 						}
 					}
-				).then(function(res){				
+				).then(function(res){
 					if(this.url.indexOf('odds')>0){
 						if(res.data.code == '0000'){
 							this.oddsData = res.data.data
@@ -205,11 +204,11 @@ export default {
 								this.EuropeOdds = res.data.data.bbEuropeOdds;
 								this.SizeOdds = res.data.data.bbSizeOdds;
 							}
-												
+
 						}else{
 							this.oddsData = [];
 						}
-						
+
 					}else{
 						this.matchMsg = res.data.match;
 						this.matchScore = JSON.parse(res.data.matchScore);
@@ -218,7 +217,7 @@ export default {
 						this.scoutMatchId = res.data.scoutMatchId;
 					}
 					console.log(this.matchScore);
-					layer.close(this.loding);			
+					layer.close(this.loding);
 				})
 			})
 		},
@@ -236,7 +235,7 @@ export default {
 		Scroll,articleList
 	},
 	watch: {
-		
+
 	}
 }
 </script>

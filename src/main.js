@@ -6,10 +6,9 @@ import router from './router'
 import vueResource from 'vue-resource'
 import vueSwiper from 'vue-awesome-swiper'
 import VueLazyLoad from 'vue-lazyload'
- 
-
+import shareFn from 'common/js/sharefn.js'
+Vue.prototype.shareFn = shareFn;
 Vue.config.productionTip = false
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -20,9 +19,11 @@ new Vue({
 Vue.use(VueLazyLoad,{
 	loading: require('common/img/pic.jpg')
 })
+
 Vue.use(vueResource);
 Vue.use(vueSwiper);
 //Vue.use(Weui);
 //Vue.use(io,'http://123.206.88.92:80');
 //Vue.use(axios,VueAxios);
 //Vue.prototype.$ajax = Axios;
+

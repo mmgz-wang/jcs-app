@@ -31,23 +31,23 @@
                                 <img src="../../common/img/zhi.png" alt="" class="img">
                                 <span class="txt">支付宝支付</span>
                                 <span class="rico"></span>
-                            </li> 
+                            </li>
                             <li id="card">
                                 <img src="../../common/img/card.png" alt="" class="img">
                                 <span class="txt">银行转账</span>
                                 <p class="payCard">账户名称：北京信盈世纪科技有限责任公司<br>
                                     开户行：<span>平安银行北京丰盛支行</span><br>
                                     银行帐户：<span>11014837407009</span></p>
-                            </li>                  
+                            </li>
                         </ul>
                     </div>
                 </div>
-                
+
             </div>
             <p class="sm" style="">精彩币主要用于购买比赛分析文章，精彩币购买后不可提现，不可退款。如有问题请咨询<span class="online" id="onlineservice1">在线客服</span>或拨打<span class="tel" id="telphone">客服电话</span></p>
             <div class="mask-wx" @click.stop="setWx" v-show="wxShow">
                 <div class="dialog-wx">
-                    <div class="title">
+                    <div class="titles">
                         <p>微信支付</p>
                     </div>
                     <div class="main">
@@ -63,13 +63,12 @@
 </template>
 
 <script type="text/javascript">
-import shareFn from 'common/js/sharefn'
 import Common from 'common/js/common'
 import mainHeader from 'base/header/mainheader'
 import 'common/js/layer'
 import 'common/less/layer.css'
 export default {
-	name: 'roomindex',
+	name: 'payfor',
 	props: {
         id: {
             type: String,
@@ -79,7 +78,7 @@ export default {
     data(){
         return {
             headerData:{
-                name: 'roomindex',
+                name: 'payfor',
                 ele: '支付',
                 r_ele: '充值'
             },
@@ -90,7 +89,6 @@ export default {
             wxUrl: '',
             price: 0,
             authName: ''
-
         }
     },
     created(){
@@ -99,10 +97,10 @@ export default {
     },
     activated() {
         this.$nextTick(function(){
-            this.msgData = null;     
-            this.getData();    
+            this.msgData = null;
+            this.getData();
         })
-            
+
     },
     methods: {
         getData(){
@@ -116,11 +114,11 @@ export default {
             }
             this.$nextTick(function(){
                 this.$http.jsonp(
-                    Common.baseUrl.host + "/User/GetUserFortuneAndArticlePrice",
+                    Common.baseURI().host + "/User/GetUserFortuneAndArticlePrice",
                     {
                         params: {
-                            userId: shareFn.getUserId(),
-                            token: shareFn.getSecurityCode(),
+                            userId: this.shareFn.getUserId(),
+                            token: this.shareFn.getSecurityCode(),
                             articleId: this.articleId,
                             language: 'M'
                         }
@@ -153,7 +151,7 @@ export default {
                     yes: function(index){
                         that.$nextTick(function(){
                             that.$http.jsonp(
-                                Common.baseUrl.host + "/Purchase/PurchaseArticleByOmnCard",
+                                Common.baseURI().host + "/Purchase/PurchaseArticleByOmnCard",
                                 {
                                     params: {
                                         Language: "M",
@@ -162,8 +160,8 @@ export default {
                                         AuthorId: '',
                                         Id: '',
                                         price: that.msgData.price,
-                                        UserId: shareFn.getUserId(),
-                                        SecurityCode: shareFn.getSecurityCode()
+                                        UserId: this.shareFn.getUserId(),
+                                        SecurityCode: this.shareFn.getSecurityCode()
                                     }
                                 }
                             ).then(function(res){
@@ -194,12 +192,12 @@ export default {
                         "source": "1_2_7",
                         "loginfrom": "H5",
                         "paytype": payType,
-                        "UserId": shareFn.getUserId(),
-                        "SecurityCode": shareFn.getSecurityCode()
+                        "UserId": this.shareFn.getUserId(),
+                        "SecurityCode": this.shareFn.getSecurityCode()
                     };
                     console.log(JSON.stringify(godata))
                 that.$http.post(
-                    Common.baseUrl.host + "/weixin/tradepay",
+                    Common.baseURI().host + "/weixin/tradepay",
                     JSON.stringify(godata)
                 ).then(function(res){
                     console.log(res.data);
@@ -208,16 +206,16 @@ export default {
                         if(payType == 13){
                             this.wxShow = true;
                             this.wxUrl = data.code_url+`&redirect_url=http://www.jingcaishuo.com/chinese/jcs-app/dist/#/articledetail/?id=${this.articleId.toString()}`
-                        }else{                            
+                        }else{
                             if (typeof WeixinJSBridge == "undefined"){
-                                if( document.addEventListener ){  
-                                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);  
-                                }else if (document.attachEvent){  
-                                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady);   
-                                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);  
-                                }  
+                                if( document.addEventListener ){
+                                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                                }else if (document.attachEvent){
+                                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                                }
                             }else{
-                                onBridgeReady();  
+                                onBridgeReady();
                             }
                             function onBridgeReady(){
                                 console.log(data.code_url)
@@ -229,7 +227,7 @@ export default {
                                 });
                             }
                         }
-                        
+
                     }
                 },function(res){
                     console.log(res.data)
@@ -279,7 +277,7 @@ export default {
         width:100%;
         text-align: center;
         background:@shallowred;
-        color:@whites;    
+        color:@whites;
         h4{
             font-size: 15px;
             font-weight: normal;
@@ -297,8 +295,13 @@ export default {
             padding:0 5px;
         }
     }
-    .userico{float:left;width:50px;height:50px}
-    .userico img{width:50px;height:50px;border-radius:50%}
+    .userico{
+      float:left;
+      width:50px;
+      height:50px
+    }
+    .userico img{
+      width:50px;height:50px;border-radius:50%}
     .regbox{float:left;height:24px;line-height:24px;padding:0 5px;margin:15px 0 0 15px;font-size:.875em;color:#ff8200;border:1px #ff8200 solid; border-radius:4px; overflow:hidden}
     .regbox a{color:#ff8200}
     .loginbox{float:left;width:50%;}
@@ -320,7 +323,7 @@ export default {
         padding:0 10px;
         margin-top:15px;
         background:#ffdf1b;
-        border-radius:4px; 
+        border-radius:4px;
         font-size:.813em;
     }
     .recharge a{
@@ -329,7 +332,7 @@ export default {
     }
     .menulist{
         float:left;
-        width:100%; 
+        width:100%;
         background:@whites;
     }
     .menu{
@@ -339,8 +342,8 @@ export default {
     }
     .menu ul li{
         float:left;
-        width:100%; 
-        height:50px; 
+        width:100%;
+        height:50px;
         line-height:50px;
         font-size: 15px;
         .border-bottom;
@@ -350,6 +353,9 @@ export default {
                 line-height:53px;
             }
         }
+      &:after{
+        right:15px;
+      }
     }
     .menu ul li:last-child{
         border:none;
@@ -364,13 +370,14 @@ export default {
     }
     .menu .rico{
         float:right;
-        width:5%;
+        width:5px;
         height:100%;
         background:url('../../common/img/r_ico.png') no-repeat center;
         background-size:5px 10px;
+        margin-right: 15px;
     }
     .img{width:22px;height:22px;float:left;margin-top:14px;margin-right:10px;}
-    .balance{color:@reds;font-size: 12px;padding-left:0.5em;float:right;padding-right: 20px}
+    .balance{color:@reds;font-size: 12px;padding-left:0.5em;float:right;padding-right: 10px}
     .balance i{font-size:@assistsize;}
     .gary_pay{
         color:@namecolor;
@@ -395,7 +402,7 @@ export default {
     .paytit{width:100%;color:#ddd;padding-left:10px;padding-top:20px;overflow:hidden;}
     @media (device-height:480px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone4/4s */
     .txtbox dd{width:84%}
-    } 
+    }
 
     @media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
     .txtbox dd{width:84%}
@@ -419,7 +426,7 @@ export default {
         background: rgba(0,0,0,0.3);
         color:@maincolor;
         font-size:0.15rem;
-        z-index:10px;
+        z-index:111;
         .dialog-wx{
             width:80%;
             position:absolute;
@@ -442,13 +449,13 @@ export default {
                 border-radius:3px;
                 font-size:0.16rem;
             }
-            .title{
+            .titles{
                 height:70px;
                 width:100%;
                 background:@backcolor;
                 line-height:70px;
                 color:@maincolor;
-                font-size:@titsize;                
+                font-size:@titsize;
                 p{
                     display:inline-block;
                     background-image:url('../../common/img/wp.png');
@@ -480,7 +487,7 @@ export default {
                 margin:15px 0 20px 0;
             }
         }
-        
+
     }
 
 }

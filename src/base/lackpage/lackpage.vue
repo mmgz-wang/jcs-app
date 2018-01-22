@@ -3,10 +3,10 @@
     	<dl>
        <dt><img :src="src"></dt>
        <dd>
-          <h4>{{title}}</h4>
+          <h4>{{titles}}</h4>
           <p>{{hint}}</p>
           <p class="goenter" @click="goPage()">{{button}}</p>
-       </dd> 
+       </dd>
       </dl>
 	</div>
 </template>
@@ -20,7 +20,7 @@ export default {
       type: String,
       default: require('../../common/img/unenter.png')
     },
-    title: {
+    titles: {
       type: String,
       default: '您还没有登录'
     },
@@ -48,7 +48,7 @@ export default {
     goPage(){
       this.goCallback();
     }
-    
+
   }
 }
 </script>
@@ -92,7 +92,7 @@ export default {
         margin-top:15px;
       }
     }
-    
+
 
   }
 }

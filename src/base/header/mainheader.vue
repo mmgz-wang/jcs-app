@@ -2,21 +2,26 @@
 	<div class="main-header" :name="headerData.name">
          <span class="back" @click="back()"></span>
          <p>{{headerData.ele}}</p>
-         <span @click="setMsg(headerData.r_ele)" class="r_ele" v-if="headerData.r_ele">{{headerData.r_ele}}</span>
+         <span v-if="headerData.r_ele" @click="setMsg(headerData.r_ele)" class="r_ele">{{headerData.r_ele}}</span>
     </div>
 </template>
 <script type="text/javascript">
 export default {
 	props: {
 		headerData: {
-			name: {
-				type: String,
-				default: 'detail'
-			},
-			ele: {
-				type: String,
-				default: '详情'
-			}
+      type: Object,
+      default: function () {
+        return {
+          name: {
+            type: String,
+            default: 'detail'
+          },
+          ele: {
+            type: String,
+            default: '详情'
+          }
+        }
+      }
 		}
 	},
 	name: 'publickheader',
@@ -25,11 +30,15 @@ export default {
 	},
 	methods: {
 		back: function(){
-			this.$router.back();
+			if(this.headerData.name == 'roomindex'){
+        this.$emit('back');
+      }else{
+        this.$router.back();
+      }
 		},
-        setMsg(s){
-            this.$emit('setMsg',s)
-        }
+    setMsg(s){
+        this.$emit('setMsg',s)
+    }
 	}
 }
 </script>

@@ -22,7 +22,7 @@
                 <span>{{timeformat(item.matches[0].start_time)}} #</span>
             </div>
         </div>
-       
+
     </div>
 </template>
 <script type="text/javascript">
@@ -48,19 +48,19 @@ export default{
         }
     },
     created(){
-       
+
     },
     mounted(){
         this.$nextTick(function(){
             //console.log(this.articleDataList)
         })
-         
+
     },
     components: {
-        
+
     },
     methods: {
-        goauthor(Id){            
+        goauthor(Id){
             this.$router.push({
                 path: `/author/?id=${Id}`
             })
@@ -84,7 +84,7 @@ export default{
             var str = '';
             if(!item.tabView){
                 return '';
-            }    
+            }
             if(item.chargeable) {
                 str += '<i class="vip">VIP</i>'+item.tabView;
                 if(item.singleUnlock && item.price>0){
@@ -110,15 +110,15 @@ export default{
     watch: {
         articleDataList: {
             handler: function(val,oldval){
-                console.log(oldval)
-            },  
+
+            },
             deep: true
         }
     }
 }
 
 </script>
-<style lang="less">
+<style lang="less" type="text/less">
 @import "../../common/less/base.less";
 .artlistnomargin{
     margin-top:10px;
@@ -143,7 +143,7 @@ export default{
             float:left;
             width:100%;
             display:flex;
-            justify-content:space-between;   
+            justify-content:space-between;
             dt{
                 height:25px;
                 padding-right:8px;
@@ -175,7 +175,7 @@ export default{
         }
         dd i{
             float:left;
-            width:16%; 
+            width:16%;
             margin:-14px 5px 0 0;
             img{
                 width:100%
@@ -200,6 +200,7 @@ export default{
         float:left;
         width:100%;
         padding-top:15px;
+        line-height:14px;
         i{
             float:left;
             line-height:1;
@@ -208,7 +209,7 @@ export default{
             border-radius:3px;
             font-style:normal;
             color: @reds;
-            border:1px @reds solid; 
+            border:1px @reds solid;
             font-size:10px;
         }
         .vip{
@@ -222,7 +223,7 @@ export default{
             padding-right:5px;
         }
     }
-    
+
     .artlist-match{
         float:left;
         width:100%;
@@ -239,7 +240,7 @@ export default{
                 margin-right: 10px;
             }
         }
-        
+
     }
     .list-Price{
         font-size:0.1rem;

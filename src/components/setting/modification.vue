@@ -8,7 +8,7 @@
 			</li>
 			<li>
 				<span>新密码</span>
-				<input type="PassWord" placeholder="设置新密码(6位或一上)" name="npwd" v-model="npwd">
+				<input type="PassWord" placeholder="设置新密码(6位或以上)" name="npwd" v-model="npwd">
 			</li>
 			<li>
 				<span>确认密码</span>
@@ -22,7 +22,6 @@
 </template>
 <script type="text/javascript">
 import mainHeader from 'base/header/mainheader'
-import shareFn from 'common/js/shareFn'
 import Common from 'common/js/common'
 	export default{
 		data(){
@@ -57,21 +56,21 @@ import Common from 'common/js/common'
 					return ;
 				}
 				this.sendLogin();
-				
+
 			},
 			sendLogin(){
 				this.$http.post(
-					Common.baseUrl.nativeHost ,
+					Common.baseURI().nativeHost ,
 					{
-						"UserId": shareFn.getUserId(),
+						"UserId": this.shareFn.getUserId(),
 						"NewPassWord": this.npwd,
 						"PassWord": this.pwd,
-						"SecurityCode" : shareFn.getSecurityCode()
+						"SecurityCode" : this.shareFn.getSecurityCode()
 			        },
 					{
 						headers: {"X-Target":"TrentService.UpdatePassWord"}
 					}
-			        
+
 				).then(function(res){
 					console.log(res)
 					if(res.data.Code === '0000'){
@@ -96,7 +95,7 @@ import Common from 'common/js/common'
 		}
 	}
 </script>
-<style lang="less" type="text/css">
+<style lang="less">
 @import "../../common/less/base.less";
 	.modifi{
 		width:100%;
@@ -127,7 +126,7 @@ import Common from 'common/js/common'
 					line-height:50px;
 					padding-right:10px;
 				}
-				&:last-child{	
+				&:last-child{
 					.border-none;
 					margin-top:50px;
 					position:relative;
@@ -152,14 +151,15 @@ import Common from 'common/js/common'
 					font-size:0.14rem;
 					padding-left:10px;
 					height:50px;
+          width: 80%;
 				}
-				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
-				    -webkit-text-fill-color: #ededed !important;  
-				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
-				    background-color:transparent;  
-				    background-image: none;  
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+				    -webkit-text-fill-color: #ededed !important;
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+				    background-color:transparent;
+				    background-image: none;
 				     transition: background-color 50000s ease-in-out 0s;
-				}  
+				}
 				:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
 				     color: #b1b1b1;
 				    font-size:@mainsize;
@@ -173,7 +173,7 @@ import Common from 'common/js/common'
 				input:-ms-input-placeholder{
 				     color: #b1b1b1;
 				    font-size:@mainsize;
-				} 
+				}
 				input::-webkit-input-placeholder{
 				    color: #b1b1b1;
 				    font-size:@mainsize;

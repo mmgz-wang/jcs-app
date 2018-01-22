@@ -1,12 +1,12 @@
-<template>    
+<template>
     <div class="letterindex">
-        <main-header :headerData="headerData"></main-header>        
+        <main-header :headerData="headerData"></main-header>
         <div ref="scrollWraper" class="msg-list">
             <div ref="roomMain" class="room-main">
                 <section id="233782" v-for="item in msgData" :class="{left:item.flag=='from',right:item.flag=='to'}">
                     <div onclick="goauthor(353)" :class="{pic:item.flag=='from',rpic:item.flag=='to'}">
                         <img :src="item.flag=='from'?teachPic:userPic" alt="">
-                    </div> 
+                    </div>
                     <div :class="{msg:item.flag=='from',rmsg:item.flag=='to'}">
                         <p :class="{tim:item.flag=='from',rtim:item.flag=='to'}">
                             {{item.flag=='from'?headerData.ele:userId}}    {{setTime(item.timestamp)}}
@@ -16,23 +16,21 @@
                 </section>
             </div>
         </div>
-        
+
         <div class="room-foot">
             <p>
                 <input ref="msgInput" type="text" placeholder="发送消息..." name="msg">
             </p>
-            
+
             <button type="button" id="send" @click="sendMsg()">发送</button>
         </div>
-    </div>    
+    </div>
 </template>
 
 <script type="text/javascript">
-import shareFn from 'common/js/sharefn'
 import Scroll from 'base/scroll/scroll'
 import mainHeader from 'base/header/mainheader'
 import Common from 'common/js/common'
-import DialogZ from 'common/js/jcs_dialoga.js'
 import 'common/js/jcs_dialoga.css'
 export default {
 	name: 'letter',
@@ -46,9 +44,9 @@ export default {
             msgData: [],
             IO: null,
             roomUsers: 0,
-            isLogin: shareFn.isLogin(),
-            userId: shareFn.getUserId(),
-            userPic: shareFn.getUserPic(),
+            isLogin: this.shareFn.isLogin(),
+            userId: this.shareFn.getUserId(),
+            userPic: this.shareFn.getUserPic(),
             teachId: 0,
             websocket: null,
             teachPic: ''
@@ -66,8 +64,8 @@ export default {
             this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
             this.socketConnect();
         })
-        
-        
+
+
     },
     methods:{
         socketConnect(){
@@ -84,13 +82,13 @@ export default {
                         content: event.data.text,
                         flag: "from",
                         id: 'null',
-                        timestamp: shareFn.setTime('send')
+                        timestamp: this.shareFn.setTime('send')
                     })
                     that.msgData.push({
                         content: data.text,
                         flag: "from",
                         id: 'null',
-                        timestamp: shareFn.setTime('send')
+                        timestamp: this.shareFn.setTime('send')
                     })
                 }
             }else{
@@ -103,10 +101,10 @@ export default {
                 return false;
             }
             var opt = {
-                url: Common.baseUrl.nativeHost,
+                url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : shareFn.getSecurityCode(),
-                    "UserId" : shareFn.getUserId(),
+                    "SecurityCode" : this.shareFn.getSecurityCode(),
+                    "UserId" : this.shareFn.getUserId(),
                     "AuthorId" : that.$router.currentRoute.query.id,
                     "Contents" : that.$refs.msgInput.value
                 },
@@ -116,7 +114,7 @@ export default {
                         content: that.$refs.msgInput.value,
                         flag: "to",
                         id: 'null',
-                        timestamp: shareFn.setTime('send')
+                        timestamp: this.shareFn.setTime('send')
                     })
                     that.$refs.msgInput.value = '';
                 }
@@ -128,10 +126,10 @@ export default {
         GetLetterMsg(){
             var that = this;
             var opt = {
-                url: Common.baseUrl.nativeHost,
+                url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : shareFn.getSecurityCode(),
-                    "UserId" : shareFn.getUserId()*1,
+                    "SecurityCode" : this.shareFn.getSecurityCode(),
+                    "UserId" : this.shareFn.getUserId()*1,
                     "AuthorId" : that.$router.currentRoute.query.id*1,
                     "LetterId" : ""
                 },
@@ -145,7 +143,7 @@ export default {
             this.custmorAjax(opt);
         },
         setTime(s){
-            return shareFn.setTime(s);
+            return this.shareFn.setTime(s);
         },
         back(){
             this.$router.back();
@@ -160,7 +158,7 @@ export default {
                 var scrollH = innerH - mainH;
                 that.$refs.scrollWraper.scrollTop = scrollH;
             },50)
-            
+
         },
         showMeaage: function (msg) {
             layer.open({
@@ -179,7 +177,7 @@ export default {
                 {
                     headers: opt.headers
                 }
-                
+
             ).then(function(res){
                 opt.callback(res.data);
             },function(){
@@ -198,7 +196,7 @@ export default {
         },
         dialogData:{
             handler: function(){
-                
+
             },
             deep:true
         }
@@ -268,7 +266,7 @@ export default {
                 position:relative;
                 float:left;
                 word-wrap:break-word;
-                word-break:break-all; 
+                word-break:break-all;
                 white-space:pre-wrap;
                 .lock-pic {
                     position: absolute;
@@ -287,7 +285,7 @@ export default {
                     position:relative;
                     float:left;
                     word-wrap:break-word;
-                    word-break:break-all; 
+                    word-break:break-all;
                     white-space:pre-wrap;
                     &:before{
                         border-left-color:@shallowred;
@@ -318,7 +316,7 @@ export default {
                     }
                 }
             }
-           
+
             .dialog:before{
                 content:"";
                 position:absolute;
@@ -328,7 +326,7 @@ export default {
                 border:10px solid transparent;
                 border-left-color:@whites;
                 transform:rotate(-45deg);
-            }           
+            }
 
             .rpic{
                 float:right;
@@ -360,7 +358,7 @@ export default {
                 border-radius:10px;
                 position:relative;
                 word-wrap:break-word;
-                word-break:break-all; 
+                word-break:break-all;
                 white-space:pre-wrap;
             }
             .rdialog:before{
@@ -399,24 +397,24 @@ export default {
                 width:100%;
                 height:100%;
                 outline:none;
-                border:none;                
+                border:none;
                 padding-left:8px;
                 font-size:0.14rem;
                 float:left;
             }
-            ::-webkit-input-placeholder { /* WebKit browsers */ 
+            ::-webkit-input-placeholder { /* WebKit browsers */
                 font-size:14px;
                 color:#999999;
-            } 
-            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+            }
+            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
                 font-size:14px;
                 color:#999999;
-            } 
-            ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+            }
+            ::-moz-placeholder { /* Mozilla Firefox 19+ */
                 font-size:14px;
                 color:#999999;
-            } 
-            :-ms-input-placeholder { /* Internet Explorer 10+ */ 
+            }
+            :-ms-input-placeholder { /* Internet Explorer 10+ */
                 font-size:14px;
                 color:#999999;
             }

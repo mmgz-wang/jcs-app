@@ -3,15 +3,15 @@
     <main-header :headerData="headerData"></main-header>
     <scroll class="container" :data="articleDataList">
       <div class="scroll-wrap">
-        <article-list :topMargin="false" :articleDataList = "articleDataList"></article-list>
+        <article-list :topMargin="false" @goarticle="goarticle" :articleDataList = "articleDataList"></article-list>
         <div class="loading-container" v-show="!articleDataList.length">
           <loading></loading>
         </div>
       </div>
     </scroll>
-    <lack-page 
+    <lack-page
       :src="lackPageData.src"
-      :title="lackPageData.title"
+      :titles="lackPageData.titles"
       :hint="lackPageData.hint"
       :button="lackPageData.button"
       :goCallback="lackPageData.goCallback"
@@ -20,7 +20,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import sharefn from '../../common/js/sharefn'
 import mainHeader from 'base/header/mainheader'
 import Scroll from 'base/scroll/scroll'
 import loading from 'base/loading/loading'
@@ -40,14 +39,14 @@ export default {
       unArtLength: false,
       lackPageData:{
           src: require('../../common/img/uncollect.png'),
-          title: '暂无收藏文章',
+          titles: '暂无收藏文章',
           hint: '优秀的文章值得收藏起来反复研究',
           button: '去首页看看',
           goCallback(){
               this.$router.push({name: 'home'})
           }
       }
-    }   
+    }
   },
 	components: {
 		articleList,Scroll,loading,mainHeader,lackPage
@@ -68,12 +67,12 @@ export default {
     getData(id,done) {
       this.$nextTick(function () {
         this.$http.jsonp(
-          Common.baseUrl.host + '/article/list/collect?time=' + Math.random(),
-          { 
+          Common.baseURI().host + '/article/list/collect?time=' + Math.random(),
+          {
             params:{
               language: 'M',
-              userId:sharefn.getUserId(),
-              securityCode:sharefn.getSecurityCode(),
+              userId:this.shareFn.getUserId(),
+              securityCode:this.shareFn.getSecurityCode(),
               articleId: '0',
             }
           }
@@ -83,6 +82,11 @@ export default {
           }
           this.articleDataList = res.data.Articles;
         })
+      })
+    },
+    goarticle(item){
+      this.$router.push({
+        path: `/articledetail?id=${item.id}`
       })
     }
 

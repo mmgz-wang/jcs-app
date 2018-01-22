@@ -5,15 +5,15 @@
       <div class="scroll-wrap">
         <article-list :topMargin="false" :articleDataList = "articleDataList"></article-list>
         <!-- <div v-for="item in articleDataList">{{item.author_id}}</div> -->
-        
+
       </div>
       <div class="loading-container" v-show="!articleDataList.length">
         <loading></loading>
       </div>
     </scroll>
-    <lack-page 
+    <lack-page
       :src="lackPageData.src"
-      :title="lackPageData.title"
+      :titles="lackPageData.titles"
       :hint="lackPageData.hint"
       :button="lackPageData.button"
       :goCallback="lackPageData.goCallback"
@@ -22,7 +22,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import sharefn from 'common/js/sharefn'
 import mainHeader from 'base/header/mainheader'
 import Scroll from 'base/scroll/scroll'
 import loading from 'base/loading/loading'
@@ -41,14 +40,14 @@ export default {
       unArtLength: false,
       lackPageData:{
           src: require('../../common/img/unbuy.png'),
-          title: '暂无购买文章',
+          titles: '暂无购买文章',
           hint: '快去看看老师的最新爆料吧！',
           button: '前往VIP专区',
           goCallback(){
               this.$router.push({name: 'vip'})
           }
       }
-    }   
+    }
   },
 	components: {
 		articleList,Scroll,loading,mainHeader,lackPage
@@ -70,12 +69,12 @@ export default {
       var that = this;
       this.$nextTick(function () {
         this.$http.jsonp(
-          Common.baseUrl.host + '/article/list/buy?time=' + Math.random(),
-          { 
+          Common.baseURI().host + '/article/list/buy?time=' + Math.random(),
+          {
             params:{
               language: 'M',
-              userId:sharefn.getUserId(),
-              securityCode:sharefn.getSecurityCode(),
+              userId:this.shareFn.getUserId(),
+              securityCode:this.shareFn.getSecurityCode(),
               articleId: '0'
             }
           }

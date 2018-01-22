@@ -14,14 +14,14 @@
 						粉丝:<span id="flllow_num">{{articleData.follownum}}</span>文章:<span id="atticle_num">{{articleData.allaticlenum}}</span>
 					</dd>
 				</dl>
-				<span class="follow" 
+				<span class="follow"
 				:class="{follow_on:!authorFollowed}"
 				@click="goFollow(authorFollowed)"
 				 id="is_follow" v-html="followStr">{{followStr}}</span>
 			</div>
 			<div class="article-wrap">
 				<div class="free_txt">
-					<p class="show_tim">发布于：<span class="day" id="publish_day">{{setTime(articleData.last_modified)}}</span></p>		
+					<p class="show_tim">发布于：<span class="day" id="publish_day">{{setTime(articleData.last_modified)}}</span></p>
 					<p v-if="articleData.tabView" class="text" id="zhaiyao" v-html="articleData.tabView"></p>
 					<div class="digest">
 						{{articleData.digest}}
@@ -32,7 +32,7 @@
 						<span class="lock-pic"></span>
 						<div class="item" v-if="articleData.matches.length<=0">
 							<p class="nonematch">购买后可查看全文</p>
-						</div>	
+						</div>
 						<div class="item" v-for="item in articleData.matches">
 							<p cupname>
 								<span class="home_team">{{item.home_team}}</span>
@@ -45,11 +45,11 @@
 								<span class="com">{{item.cup_name}}</span>
 								<span class="day">{{setTime(item.start_time)}}</span>
 							</p>
-						</div>						
+						</div>
 					</div>
 					<div class="package-wrap">
 						<p class="main-num">{{productExplain(articleData)}}</p>
-						<div class="memberPackage" 
+						<div class="memberPackage"
 						v-html="payForWaystr"
 						v-if="articleData.chargeable && !articleData.articlePurchased" id="aaa" @click="PayForPackage">
 							<div class="package-item">
@@ -59,8 +59,8 @@
 								</p>
 								<button class="open-btn">解锁</button>
 							</div>
-						</div>	
-					</div>							
+						</div>
+					</div>
 				</div>
 
 				<div class="unlock" v-if="!articleData.chargeable || articleData.articlePurchased" v-html="articleData.text">
@@ -71,7 +71,7 @@
 
 				<p class="price1" v-if="articleData.chargeable && !articleData.singleUnlock && articleData.articlePurchased">(VIP用户专享)</p>
 
-				
+
 	    	</div>
 	    	<div v-if="recommendData.length" class="recommendList" style="">
 				<div class="tit-wrap">
@@ -84,12 +84,12 @@
 							<span class="txt" v-if="item.tabView" v-html="item.tabView">
 								<i>足球</i><i>初盘大小球</i>
 							</span>
-							
+
 						</div>
 						<span class="digest">
 							{{item.authorName}}: {{ item.digest}}
 						</span>
-						
+
 						<div class="art-match" v-if="item.matches.length>0">
 							<span>{{item.matches[0].cup_name}}</span>
 							<span>{{item.matches[0].home_team}} vs {{item.matches[0].away_team}}</span>
@@ -127,10 +127,9 @@
             <loading></loading>
         </div>
     </div>
-    
+
 </template>
-<script type="text/javascript">
-import shareFn from 'common/js/sharefn'
+<script type="text/ecmascript-6">
 import Common from 'common/js/common'
 import loading from 'base/loading/loading'
 import payDialog from 'base/paydialog/paydialog'
@@ -163,14 +162,14 @@ export default {
 				yesFn: null,
 				noFn: null
 			}
-			
+
 		}
 	},
 	created(){
-		console.log('created')
+
 	},
 	mounted(){
-		console.log('mounted')
+
 	},
 	/*beforeRouteEnter(to, from, next) {
 		console.log(to)
@@ -187,7 +186,7 @@ export default {
 		//if(){
 			this.articleData = null;
 			this.getData();
-		//}		
+		//}
 	},
 	deactivated() {
 		//console.log("我是第一个页面的 deactivated 方法");
@@ -200,17 +199,16 @@ export default {
 			var that = this;
 			this.$nextTick(function(){
 				this.$http.jsonp(
-					Common.baseUrl.host + '/article/detail?time=' + Math.random(),
+          Common.baseURI().host + '/article/detail?time=' + Math.random(),
 					{
 						params: {
 							language: 'M',
-							userId: shareFn.getUserId(),
-							securityCode: shareFn.getSecurityCode(),
+							userId: this.shareFn.getUserId(),
+							securityCode: this.shareFn.getSecurityCode(),
 							articleId: this.$router.currentRoute.query.id
 						}
 					}
 				).then(function(res){
-					console.log(res.data)
 					if(res.data.Code == '0000'){
 						this.articleData = res.data.Articles;
 						this.recommendData = res.data.recommendList;
@@ -235,7 +233,7 @@ export default {
 								setCookie('jsonLog',null,1);
 								function setCookie(c_name,value,expiredays){
 									var exdate=new Date();
-									exdate.setDate(exdate.getDate()+expiredays);								
+									exdate.setDate(exdate.getDate()+expiredays);
 									document.cookie=c_name+ "=" +escape(value)+
 									((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 								}
@@ -250,7 +248,7 @@ export default {
 		},
 		ArtFootClick(s){
 			var that = this;
-			if(!shareFn.isLogin()) {
+			if(!this.shareFn.isLogin()) {
 				this.bunceIn('您还没有登录！');
 				return ;
 			}
@@ -269,11 +267,9 @@ export default {
 			}else if(s == 'collect'){
 				var str = '';
 				this.isCollect?str='CrentService.ReleaseCollection':str='CrentService.AddCollection';
-				console.log(str+this.isCollect)
 				this.AddArticleWhat(
 					str,
 					function(data){
-						console.log(data)
 						if(data.Code == '0000'){
 							if(that.isCollect){
 								that.bunceIn('取消收藏成功');
@@ -294,7 +290,7 @@ export default {
 			}
 		},
 		setTime (s){
-			return shareFn.setTime(s);
+			return this.shareFn.setTime(s);
 		},
 		sportType (s){
 			if(s == 0){
@@ -373,18 +369,17 @@ export default {
 							return;
 						}
 						if(v.termmonths == val.termmonths){
-							console.log(v.termmonths)
 							payForWaystr += returnPackage(val);
 						}
 					})
-					
+
 				})
 				authorLevelList.forEach(function(v,i){
 					if(v.termmonths == 0 && v.termdays == 1){
 						payForWaystr += returnPackage(v);
 					}else if(v.termmonths == 0 && v.termdays != 1){
 						payForWaystr += returnPackage('zhou',v);
-					}		
+					}
 				})
 				function returnPackage(v){
 					var packageArr = {'0':'天','1':'月','3':'季','6':'半年','12':'年'};
@@ -399,19 +394,19 @@ export default {
 						return `<div class="package-item"><p><span>包周产品 <i>￥${arguments[1].price}
 						</i></span><span class="open-explain">看老师一星期产品</span></p><button months="${arguments[1].termmonths}" id="${arguments[1].id}" price="${arguments[1].price}" class="open-btn" types="packages">解锁</button></div>`
 					}else{
-						return `<div class="package-item"><p><span>包${packageArr[v.termmonths]}产品 
+						return `<div class="package-item"><p><span>包${packageArr[v.termmonths]}产品
 						<i>￥${v.price}</i></span><span class="open-explain">
-						${packageExplain[v.termmonths]}</span></p><button types="packages" class="open-btn" 
+						${packageExplain[v.termmonths]}</span></p><button types="packages" class="open-btn"
 						months="${v.termmonths}" id="${v.id}" price="${v.price}">
 						解锁</button></div>`;
 					}
 				}
 			}
-			this.payForWaystr = payForWaystr;	
+			this.payForWaystr = payForWaystr;
 		},
 		PayForPackage(){
 			var that = this;
-			if(!shareFn.isLogin()){
+			if(!this.shareFn.isLogin()){
 				this.$router.push({ name: 'enter'});
 				return false;
 			}
@@ -424,7 +419,6 @@ export default {
 				this.$router.push({
 					path: `/payfor?id=${this.$router.currentRoute.query.id}&proType=jcs`,
 				})
-				console.log(types)
 			}else if(types == 'card'){
 				this.dialogShow = true;
 				this.dialogData.yesFn = function(){
@@ -449,7 +443,7 @@ export default {
 		},
 		goFollow (s){
 			var that = this;
-			if(!shareFn.isLogin()) {
+			if(!this.shareFn.isLogin()) {
 				this.bunceIn('您还没有登录！')
 			} else {
 				if(!s) { //关注
@@ -461,13 +455,13 @@ export default {
 			function follow(flag) {
 				that.$nextTick(function(){
 					that.$http.jsonp(
-						Common.baseUrl.host + '/follow/' + flag,
-						{ 
+            Common.baseURI().host + '/follow/' + flag,
+						{
 							params: {
 								language: 'M',
 								analystId: that.authorId,
-								userId: shareFn.getUserId(),
-								securityCode: shareFn.getSecurityCode()
+								userId: this.shareFn.getUserId(),
+								securityCode: this.shareFn.getSecurityCode()
 							}
 						}
 					).then(function(res){
@@ -475,7 +469,7 @@ export default {
 						showFollow(2);
 					})
 				})
-				
+
 			}
 			function showFollow(type) {
 				if(that.authorFollowed) {
@@ -502,10 +496,10 @@ export default {
 		AddArticleWhat(str,Fn){
 			var that = this;
 			var opt = {
-			    url: Common.baseUrl.nativeHost,
+			    url: Common.baseURI().nativeHost,
 			    data: {
-			        "SecurityCode": shareFn.getSecurityCode(),
-			        "UserId": shareFn.getUserId(),
+			        "SecurityCode": this.shareFn.getSecurityCode(),
+			        "UserId": this.shareFn.getUserId(),
 			        "ArticleId": this.$router.currentRoute.query.id
 			    },
 			    headers:{"X-Target":str},
@@ -518,7 +512,7 @@ export default {
 		cardPay(){
 			this.$nextTick(function(){
 				this.$http.jsonp(
-					Common.baseUrl.host + "/Purchase/PurchaseArticleByOmnCard",
+					Common.baseURI().host + "/Purchase/PurchaseArticleByOmnCard",
 					{
 						params: {
 							Language: "M",
@@ -526,8 +520,8 @@ export default {
 							ArticleId: this.$router.currentRoute.query.id,
 							AuthorId: this.authorId,
 							Id: this.cardId,
-							UserId: shareFn.getUserId(),
-							SecurityCode: shareFn.getSecurityCode()
+							UserId: this.shareFn.getUserId(),
+							SecurityCode: this.shareFn.getSecurityCode()
 						}
 					}).then(function(res){
 						if(res.data.Code == '0000'){
@@ -543,7 +537,7 @@ export default {
                 opt.data,
                 {
                     headers: opt.headers
-                }                
+                }
             ).then(function(res){
                 opt.callback(res.data);
             },function(){
@@ -554,7 +548,6 @@ export default {
         	this.$router.push({path: '/service?id=234'})
         },
         goarticle(item){
-        	console.log(item)
             this.$router.push({
                 path: `/articledetail/?id=${item.id}`
             })
@@ -564,15 +557,15 @@ export default {
 	watch: {
 		$route(){
 			//alert('变化')
-			this.getData();
+			//this.getData();
 			this.loadingShow = true;
-			
+
 		}
 	}
 }
 
 </script>
-<style lang="less">
+<style lang="less" type="text/less">
 @import "../../common/less/base.less";
 .article-detail{
 	position:absolute;
@@ -681,7 +674,7 @@ export default {
 				line-height:23px;
 				font-size:0.14rem;
 			}
-			
+
 		}
 		.follow_on{
 			color:@reds;
@@ -707,7 +700,7 @@ export default {
 				font-size:@mainsize;
 				color:@maincolor;
 				line-height:0.25rem;
-			}		
+			}
 			.label{
 				padding-bottom:5px;
 			}
@@ -722,7 +715,7 @@ export default {
 		            margin-right:10px;
 		            border-radius:3px;
 		            color: @reds;
-		            border:1px @reds solid; 
+		            border:1px @reds solid;
 		            font-size:10px;
 		            margin-top:14px;
 				}
@@ -764,7 +757,7 @@ export default {
 						i{
 							color:@oranges;
 							padding:0 5px;
-						}						
+						}
 					}
 					.tim{
 						font-size:0.1rem;
@@ -787,7 +780,7 @@ export default {
 					width:0.25rem;
 					height:0.25rem;
 					background:url('../../common/img/lock.png') no-repeat center;
-					background-size:25px 25px;	
+					background-size:25px 25px;
 					position:absolute;
 					left:50%;
 					bottom:-0.16rem;
@@ -801,7 +794,7 @@ export default {
 					color:@shallowred;
 					position:relative;
 					line-height:40px;
-					
+
 				}
 			}
 		}
@@ -932,7 +925,7 @@ export default {
 
 			}
 		}
-		
+
 	}
 	.recommendList{
 		width:100%;
@@ -976,7 +969,7 @@ export default {
 					margin-top:-1px;
 				}
 			}
-		}		
+		}
 		.r-list{
 			width:100%;
 			float:left;
@@ -1020,7 +1013,7 @@ export default {
 		            margin-right:10px;
 		            border-radius:3px;
 		            color: @reds;
-		            border:1px @reds solid; 
+		            border:1px @reds solid;
 		            font-size:10px;
 				}
 				label{
@@ -1089,7 +1082,7 @@ export default {
 		background:rgba(251,251,251,0.9);
 		display:flex;
 		justify-content:space-around;
-		font-size:@assistsize;
+		font-size:0.11rem;
 		color:@maincolor;
 		position:absolute;
 		bottom:0;
@@ -1097,34 +1090,48 @@ export default {
 			flex-grow:1;
 			text-align:center;
 			span{
-				background:url('../../common/img/art-unlike.png') no-repeat left center;
+				background:url('../../common/img/art-unlike.png') no-repeat;
 				background-size: 17px;
-				padding-left:20px;
+				padding-left:25px;
+        line-height: 34px;
+        background-position: left 7px;
+        display: inline-block;
 			}
 			.arton{
 				color:@reds;
-				background:url('../../common/img/art-like.png') no-repeat left center;
+				background:url('../../common/img/art-like.png') no-repeat;
 				background-size: 17px;
-				padding-left:20px;
+        line-height: 34px;
+        background-position: left 7px;
+        display: inline-block;
 			}
 			&:nth-child(2){
 				span{
-					background:url('../../common/img/art-uncollect.png') no-repeat left center;
+					background:url('../../common/img/art-uncollect.png') no-repeat;
 					background-size: 17px;
-					padding-left:20px;
+					padding-left:25px;
+          line-height: 34px;
+          background-position: left 7px;
+          display: inline-block;
 				}
 				.arton{
 					color:@reds;
-					background:url('../../common/img/art-collect.png') no-repeat left center;
+					background:url('../../common/img/art-collect.png') no-repeat;
 					background-size: 17px;
-					padding-left:20px;
+					padding-left:25px;
+          line-height: 34px;
+          background-position: left 7px;
+          display: inline-block;
 				}
 			}
 			&:nth-child(3){
 				span{
-					background:url('../../common/img/art-letter.png') no-repeat left center;
+					background:url('../../common/img/art-letter.png') no-repeat;
 					background-size: 17px;
-					padding-left:20px;
+					padding-left:25px;
+          line-height: 34px;
+          background-position: left 8px;
+          display: inline-block;
 				}
 			}
 		}

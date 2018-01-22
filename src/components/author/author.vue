@@ -14,16 +14,17 @@
 			<div>
 			<div class="infor-wrap-art">
 				<div class="author-infor" v-bind:style="objStyle">
-					
+          <div class="scale"></div>
 				</div>
 				<div class="b-box">
-					<div class="scale"></div>
+
 					<dl>
 						<dt><img :src="authorInfor.picurl"></dt>
 						<dd>
 							<h3 name>{{authorInfor.nickname}}</h3>
 							<p fans>粉丝: {{authorInfor.follownum}} <i>|</i> 文章: {{authorInfor.allaticlenum}}</p>
 							<p brief>简介: {{authorInfor.brief}}</p>
+              <p class="brief-open"></p>
 						</dd>
 					</dl>
 				</div>
@@ -33,10 +34,10 @@
 				<span @click="tabClick('room')"  :class="{auton:!isart}">聊天室</span>
 			</div>
 			<div class="aut_tab_wrap" :class="{roomActive:show,roomLeave:!show}">
-				<div class="aut_art_list_wrap">			
-					<div class="listcon" 
-					@click.stop="goarticle(item.id)" 
-					:id="item.id" 
+				<div class="aut_art_list_wrap">
+					<div class="listcon"
+					@click.stop="goarticle(item.id)"
+					:id="item.id"
 					v-for="item in articleList">
 						<div class="l_tim">
 							<span class="hour">{{setTime(item.last_modified).split(' ')[1]}}</span><br>
@@ -56,18 +57,18 @@
 					</div>
 				</div>
 				<div class="aut_room_list_wrap">
-					<p noroom v-if="autRoomList.length<=0">该老师还没有开通直播间，敬请期待。</p>		
+					<p noroom v-if="autRoomList.length<=0">该老师还没有开通直播间，敬请期待。</p>
 					<div class="aut-room-list" v-for="item in autRoomList" :id="item.roomId" @click="gooRoom(item)">
-								
+
 						<div infoinner>
 							<div class="msg">
 								<p class="master">主播: {{item.lecturerName}}</p>
 								<p class="roompic">门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span></p>
 								<p class="time">直播时间:&nbsp;&nbsp; {{formatTime(item.startTime)}} ——  {{formatTime(item.startTime, item.endTime)}}</p>
-						    	<span 
-						    	v-if="item.roomStatus == '1'" 
-						    	@click.stop="setMsg($event);" 
-						    	:roomId = "item.roomId" 
+						    	<span
+						    	v-if="item.roomStatus == '1'"
+						    	@click.stop="setMsg($event);"
+						    	:roomId = "item.roomId"
 						    	:class="{gary:item.isRoomDscriber}"
 						    	class="setmsg">{{item.isRoomDscriber?'关闭通知':'开启通知'}}</span>
 							</div>
@@ -83,7 +84,7 @@
 		</scroll>
 		<div class="aut-foot">
 			<div>
-				<span class="aut-add-follow" 
+				<span class="aut-add-follow"
 				:class="{auton:authorFollowed=='false'}"
 				@click="goFollow(authorFollowed)">{{followStr}}</span>
 			</div>
@@ -93,10 +94,9 @@
 		</div>
 	</div>
 </template>
-<script type="text/javascript">
+<script type="text/ecmascript-6">
 import Scroll from "base/scroll/scroll"
 import Common from "common/js/common"
-import shareFn from "common/js/shareFn"
 export default {
 	data(){
 		return {
@@ -105,8 +105,8 @@ export default {
 			authorInfor: [],
 			scrollData: [],
 			isart: true,
-			show: false,			
-			url: Common.baseUrl.host + '/Author/GetAuhorInfo',
+			show: false,
+			url: Common.baseURI().host + '/Author/GetAuhorInfo',
 			start_articleid: 0,
 			authorFollowed: 'false',
 			objStyle: null,
@@ -140,7 +140,7 @@ export default {
 				that.$refs.scroll.refresh();
 			})
 		})
-		
+
 	},
 	beforeRouteEnter(to, from, next) {
 		console.log(from)
@@ -190,7 +190,7 @@ export default {
 		},
 		tabClick(s){
 			if(s == 'art'){
-				this.url = Common.baseUrl.host + '/Author/GetAuhorInfo';
+				this.url = Common.baseURI().host + '/Author/GetAuhorInfo';
 				this.isart = true;
 				this.show = false;
 				if(this.articleList.length>0){
@@ -199,7 +199,7 @@ export default {
 				this.getData();
 				this.scrollData = this.articleList;
 			}else{
-				this.url = Common.baseUrl.roomMsgurls + '/Room/GetRoomList';
+				this.url = Common.baseURI().roomMsgurls + '/Room/GetRoomList';
 				this.isart = false;
 				this.show = true;
 				if(this.autRoomList.length>0){
@@ -211,7 +211,7 @@ export default {
 			this.$nextTick(function(){
 				//this.$refs.scroll.scrollTo(0,0,0);
 				this.$refs.scroll.refresh();
-			})			
+			})
 			console.log(this.show)
 		},
 		getData(){
@@ -221,13 +221,13 @@ export default {
 					{
 						params: {
 							language: 'M',
-							userId: shareFn.getUserId(),
-							token: shareFn.getSecurityCode(),
+							userId: this.shareFn.getUserId(),
+							token: this.shareFn.getSecurityCode(),
 							authorId: this.$router.currentRoute.query.id,
 							articleId: this.start_articleid
 						}
 					}
-				).then(function(res){			
+				).then(function(res){
 					if(this.url.indexOf('GetRoomList')>0){
 						this.autRoomList = res.data;
 						console.log(this.autRoomList)
@@ -242,12 +242,12 @@ export default {
 						console.log(this.followStr+this.authorFollowed)
 						this.scrollData = this.articleList;
 					}
-					layer.close(this.loding);					
+					layer.close(this.loding);
 				})
 			})
 		},
 		setTime(s){
-			return shareFn.setTime(s);
+			return this.shareFn.setTime(s);
 		},
 		setRoomStatus: function(s){
 		    var statues = {
@@ -279,7 +279,7 @@ export default {
 		    var str = '';
 		    if(!item.tabView){
 		        return '';
-		    }    
+		    }
 		    if(item.chargeable) {
 		        str += '<i class="vip">VIP</i>'+item.tabView;
 		        if(item.singleUnlock && item.price>0){
@@ -305,9 +305,9 @@ export default {
 		        starHour<9?starHour='0'+starHour:starHour;
 		        starMinute<9?starMinute='0'+starMinute:starMinute;
 		    if (arguments.length > 1) {
-		        var ends = new Date(arguments[1].replace(/-/g, '/')),            
-		            endsYear = ends.getFullYear(), 
-		            endsMonth = ends.getMonth()+1,           
+		        var ends = new Date(arguments[1].replace(/-/g, '/')),
+		            endsYear = ends.getFullYear(),
+		            endsMonth = ends.getMonth()+1,
 		            endsDay = ends.getDate(),
 		            endsHour = ends.getHours(),
 		            endsMinute = ends.getMinutes();
@@ -319,7 +319,7 @@ export default {
 		            return endsMonth+'-'+endsDay+' '+endsHour+':'+endsMinute;
 		        }else{
 		            return endsHour+':'+endsMinute;
-		        }    
+		        }
 		    } else {
 		        return starMonth+'-'+starDay+' '+starHour+':'+starMinute;
 		    }
@@ -327,16 +327,16 @@ export default {
 		setMsg: function(e){
 			console.log(e.target.className)
 			var setmsgBtn = e.target;
-		    if (shareFn.isLogin()) {
+		    if (this.shareFn.isLogin()) {
 		        var roomId = setmsgBtn.attributes['roomId'].nodeValue;
 		        console.log(roomId)
 		        if (setmsgBtn.className.indexOf('gary')>-1) {
 		            setmsgBtn.className='setmsg';
 		            this.$http.jsonp("https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
-		            	{ 
+		            	{
 		            		params:{
 		            			language: 'M',
-			                    userId: shareFn.getUserId(),
+			                    userId: this.shareFn.getUserId(),
 			                    roomId: roomId
 		                    }
 		                }
@@ -346,10 +346,10 @@ export default {
 		        } else {
 		            setmsgBtn.className='setmsg gary';
                     this.$http.jsonp("https://chat.jingcaishuo.com/Room/SubscribeRoom",
-                    	{ 
+                    	{
                     		params:{
                     			language: 'M',
-        	                    userId: shareFn.getUserId(),
+        	                    userId: this.shareFn.getUserId(),
         	                    roomId: roomId
                             }
                         }
@@ -383,15 +383,15 @@ export default {
 		},
 		gooRoom: function(item){
 			console.log(item)
-			if(shareFn.isLogin()){
+			if(this.shareFn.isLogin()){
 				this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
 			}else{
-				this.$router.push({ name: 'enter'});			
+				this.$router.push({ name: 'enter'});
 			}
 		},
 		goFollow (s){
 			var that = this;
-			if(!shareFn.isLogin()) {
+			if(!this.shareFn.isLogin()) {
 				this.bunceIn('您还没有登录！')
 			} else {
 				if(s=='false') { //关注
@@ -404,13 +404,13 @@ export default {
 				console.log(flag)
 				that.$nextTick(function(){
 					that.$http.jsonp(
-						Common.baseUrl.host + '/follow/' + flag,
-						{ 
+            Common.baseURI().host + '/follow/' + flag,
+						{
 							params: {
 								language: 'M',
 								analystId: that.authorId,
-								userId: shareFn.getUserId(),
-								securityCode: shareFn.getSecurityCode()
+								userId: this.shareFn.getUserId(),
+								securityCode: this.shareFn.getSecurityCode()
 							}
 						}
 					).then(function(res){
@@ -418,7 +418,7 @@ export default {
 						showFollow();
 					})
 				})
-				
+
 			}
 			function showFollow() {
 				if(that.authorFollowed == 'true') {
@@ -434,7 +434,7 @@ export default {
 			//return false;
 		},
 		goLetter(){
-			if(!shareFn.isLogin()) {
+			if(!this.shareFn.isLogin()) {
 				this.bunceIn('您还没有登录！');
 				return ;
 			}
@@ -524,76 +524,77 @@ export default {
 	.infor-wrap-art{
 		box-sizing:border-box;
 		width:110%;
-		height:215px;
+		height:auto;
 		position:relative;
-		overflow:hidden;
 		margin-left:-5%;
 		.author-infor{
-			height:100%;
-			width:100%;		
-			filter: blur(4px);
+			height: 125px;
+			width:100%;
+      filter: blur(2px);
 			background-size:100%;
 			background-repeat:no-repeat;
 			background-position:center -100px;
-			position:absolute;
-			left:0;
-			top:-10%;
+      overflow: hidden;
+      position: relative;
+      .scale{
+        width:110%;
+        height:50%;
+        border-radius: 50%;
+        background: @whites;
+        position:absolute;
+        top: 75%;
+        left:-5%;
+      }
+
 		}
 		.b-box{
 			width:100%;
-			height:50%;
-			position:absolute;
-			bottom:0;
-			left:0;
-			background:@whites;
+			height: auto;
+			background:transparent;
+      position: relative;
 			z-index:33;
-			.scale{
-				width:110%;
-				height:90%;
-				border-radius:50%;
-				background:@whites;
-				position:absolute;
-				top:-28%;
-				left:-5%;
-				z-index:3;
-			}
 			dl{
 				width:100%;
 				text-align:center;
 				font-size:@assistsize;
-				position:absolute;
-				left:0;
-				top:-65px;
-				z-index:9;
 				dt{
 					width:100%;
 					height:73px;
+          margin-top: -80px;
 					img{
 						width:73px;
 						border-radius:50%;
 						border:1px solid @whites;
-						margin:0;
 						padding:0;
 					}
 				}
 				dd{
 					padding:0 30px;
 					clear:both;
-					margin-top:10px;
+					padding-top:10px;
 					color:@garycolor;
+          background: @whites;
 					h3{
 						color:@maincolor;
+            font-weight: 400;
+            font-size: 0.17rem;
 					}
 					p[brief]{
 						width:100%;
+            text-align: left;
 						word-break:break-all;
-    					display:-webkit-box;
+            display:-webkit-box;
 						-webkit-line-clamp:1;
 						-webkit-box-orient:vertical;
 						overflow:hidden;
 					}
+          .brief-open{
+            height: 16px;
+            background: url("../../common/img/open-t.png") no-repeat center;
+            background-size: 13px 6px;
+          }
 					p[fans]{
-						margin:10px 0;
+						margin:5px 0;
 					}
 				}
 			}
@@ -639,7 +640,7 @@ export default {
 				padding:15px 0 0px 15px;
 				color:@maincolor;
 				display:flex;
-				font-size:@mainsize;		
+				font-size:@mainsize;
 				.l_tim{
 					color:#888;
 					width:15%;
@@ -738,7 +739,7 @@ export default {
 				.txtbox .txt .gg{
 					padding:0px;
 				}
-			}	
+			}
 		}
 		.aut_room_list_wrap{
 			width:50%;
@@ -754,7 +755,7 @@ export default {
 				&:last-child{
 					div[infoinner]{
 						.border-none;
-					}			
+					}
 				}
 			}
 			.msg{
@@ -768,7 +769,7 @@ export default {
 			}
 			.roompic{
 
-				padding:8px 0;		
+				padding:8px 0;
 				.on{
 					color:@reds;
 				}
@@ -853,7 +854,7 @@ export default {
 				line-height:50px;
 			}
 		}
-		
+
 	}
 	.roomActive{
 		transform:translateX(-50%);
@@ -868,7 +869,7 @@ export default {
 		width:100%;
 		.border-top;
 		line-height:48px;
-		background:rgba(251,251,251,0.9);
+		background:rgba(251,251,251,0.95);
 		display:flex;
 		justify-content:space-around;
 		font-size:13px;
@@ -878,7 +879,7 @@ export default {
 		div{
 			flex-grow:1;
 			text-align:center;
-			span{				
+			span{
 				background:url(../../common/img/teach-follow.png) no-repeat left center;
 				background-size:17px;
 				padding-left:20px;
@@ -896,7 +897,7 @@ export default {
 					background-size:17px;
 					padding-left:20px;
 					color:@maincolor;
-				}				
+				}
 			}
 		}
 	}

@@ -70,7 +70,7 @@ import Common from 'common/js/common'
 					}
 				},1000)
 				var opt = {
-					url: Common.baseUrl.nativeHost,
+					url: Common.baseURI().nativeHost,
 					data: {
 						sign: _MD5('2'+this.tel+'dxm6zaqW'),
 						PhoneNumber: this.tel,
@@ -102,11 +102,11 @@ import Common from 'common/js/common'
 					return ;
 				}
 				this.$http.post(
-					Common.baseUrl.nativeHost ,
+					Common.baseURI().nativeHost ,
 					{
 						"language": 'M',
 			            "PhoneNumber": this.tel,
-			            "NewPassWord": this.pwd, 
+			            "NewPassWord": this.pwd,
 			            "VerifyCode": this.phonecode,
 			            "loginfrom":'PC'
 			        },
@@ -133,7 +133,7 @@ import Common from 'common/js/common'
 					{
 						headers: opt.headers
 					}
-			        
+
 				).then(function(res){
 					opt.callback(res.data);
 				},function(){
@@ -193,13 +193,13 @@ import Common from 'common/js/common'
 						position:absolute;
 						right:0;
 						top:0;
-					}				
+					}
 					&:before{
 						margin-top:18px;
 						content: '';
 						float:left;
 						width:21px;
-						height:21px;								
+						height:21px;
 						background:url('../../common/img/phonecode.png') no-repeat center;
 						background-size:21px;
 						margin:18px 5px 0 5px;
@@ -213,7 +213,7 @@ import Common from 'common/js/common'
 					content: '';
 					float:left;
 					width:21px;
-					height:21px;			
+					height:21px;
 					background:url('../../common/img/pwd.png') no-repeat center;
 					background-size:21px;
 					margin:18px 5px 0 5px;
@@ -223,12 +223,12 @@ import Common from 'common/js/common'
 					content: '';
 					float:left;
 					width:21px;
-					height:21px;			
+					height:21px;
 					background:url('../../common/img/invite.png') no-repeat center;
 					background-size:21px;
 					margin:18px 5px 0 5px;
 				}
-				&:last-child{	
+				&:last-child{
 					border:none;
 					margin-top:30px;
 				}
@@ -250,13 +250,13 @@ import Common from 'common/js/common'
 					padding-left:8px;
 					height:39px;
 				}
-				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
-				    -webkit-text-fill-color: #ededed !important;  
-				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
-				    background-color:transparent;  
-				    background-image: none;  
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+				    -webkit-text-fill-color: #ededed !important;
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+				    background-color:transparent;
+				    background-image: none;
 				     transition: background-color 50000s ease-in-out 0s;
-				}  
+				}
 				input-placeholder{
 					color:@assistcolor;
 				}

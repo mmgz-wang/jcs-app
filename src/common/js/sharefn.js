@@ -5,12 +5,12 @@ export default {
 	isEnter: false,
 	jsonLog: function (){
 		if(getCookie('jsonLog') == 'null' || getCookie('jsonLog') == undefined || getCookie('jsonLog') == null){
-			return {"SecurityCode":"","UserId":"",pic:""};
+			return {"abcde":"","abcd":"",pic:""};
 		}else{
 			return JSON.parse(getCookie('jsonLog'));
 		}
 		function getCookie(name){
-		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
 		　　 return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
 		}
 	},
@@ -21,7 +21,6 @@ export default {
 		 return _MD5(this.jsonLog().abcd+this.jsonLog().abcde)
 	},
 	getUserPic: function () {
-		//console.log(this.jsonLog())
 		return this.jsonLog().pic
 	},
 
@@ -73,7 +72,7 @@ export default {
 		}else{
 			return '今天 '+nowHours+':'+nowMinutes;
 		}
-		
+
 	},
 	setParms: function (s) {
 		var url = location.search;
@@ -91,7 +90,7 @@ export default {
 				parms[v[0]] = '1';
 			}else{
 				parms[v[0]] = v[1]
-			}		
+			}
 		})
 		return decodeURI(decodeURI(parms[s]));
 	},

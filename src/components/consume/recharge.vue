@@ -8,12 +8,12 @@
                         <img v-if="item.cost>168" src="../../common/img/hui.png" alt="">
                         <p>￥{{item.cost}}</p>
                         <span>{{item.cost}}精彩币</span>
-                        <span class="present"  v-if="item.cost>168">赠送{{setART(item.cost)}}篇文章</span>
+                        <!--<span class="present"  v-if="item.cost>168">赠送{{setART(item.cost)}}篇文章</span>-->
                     </div>
                 </div>
                 <div class="state">
-                    <p>充值成功后，请联系您的<span>专属客服MM索要赠品~~</span></p>
-                    <p>如果您还没有专属客服MM，快快<span>添加微信号J18612613688，</span>享受更多平台好礼~~</p>
+                  <p>特定积分充值有积分相赠，快去联系<span>专属客服MM领取吧~</span></p>
+                  <p>没有客服的小伙伴还请联系微信号<span>JCSxiaoyang</span></p>
                 </div>
             </div>
            <p class="p">充值方式</p>
@@ -29,22 +29,22 @@
                         <img src="../../common/img/zhi.png" alt="" class="img" />
                         <span class="txt">支付宝支付</span>
                         <span class="rico"></span>
-                    </li>                   
+                    </li>
                 </ul>
             </div>
            </div>
-           
+
            <p class="subbtn" @click="TrueClick()">确认支付<span class="affirm">￥{{price}}</span></p>
 
             <p class="sm" style="">精彩币主要用于购买比赛分析文章，精彩币购买后不可提现，不可退款。如有问题请咨询<span class="online" id="onlineservice1">在线客服</span>或拨打<span class="tel" id="telphone">客服电话</span></p>
             <div class="mask-wx" @click.stop="setWx" v-show="wxShow">
                 <div class="dialog-wx">
-                    <div class="title">
+                    <div class="titles">
                         <p>微信支付</p>
                     </div>
                     <div class="main">
                         <p class="name">充值金额</p>
-                        <p class="pay_price">￥{{price}}</p>
+                        <p class="pay_price">￥{{price}}.00</p>
                     </div>
                     <a class="wxGo" :href="wxUrl">立即支付</a>
                     <a class="cancle_pay" href="javascript:;">取消</a>
@@ -57,7 +57,6 @@
 </template>
 
 <script type="text/javascript">
-import shareFn from 'common/js/sharefn'
 import Common from 'common/js/common'
 import mainHeader from 'base/header/mainheader'
 import 'common/js/layer'
@@ -89,11 +88,11 @@ export default {
         getData(){
             this.$nextTick(function(){
                 this.$http.jsonp(
-                    Common.baseUrl.host + "/purchase/recharge",
+                    Common.baseURI().host + "/purchase/recharge",
                     {
                         params: {
-                            userId: shareFn.getUserId(),
-                            securityCode: shareFn.getSecurityCode(),
+                            userId: this.shareFn.getUserId(),
+                            securityCode: this.shareFn.getSecurityCode(),
                             language: 'M'
                         }
                     }
@@ -139,13 +138,13 @@ export default {
                     "chargeType": "13",
                     "money": this.price.toString(),
                     "priceType": this.id.toString(),
-                    "userId": shareFn.getUserId()*1,
-                    "securityCode": shareFn.getSecurityCode()
+                    "userId": this.shareFn.getUserId()*1,
+                    "securityCode": this.shareFn.getSecurityCode()
                 };
                 console.log(godata)
             this.$nextTick(function(){
                 that.$http.jsonp(
-                    Common.baseUrl.host + "/charge/chargeRealMoney",
+                    Common.baseURI().host + "/charge/chargeRealMoney",
                     {
                         params: godata
                     }
@@ -176,7 +175,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" type="text/less">
 @import '../../common/less/base.less';
 .recharge{
     background:@backcolor;
@@ -227,7 +226,7 @@ export default {
                     color:@namecolor;
                 }
                 .present{
-                    color:@reds;                    
+                    color:@reds;
                 }
 
             }
@@ -253,20 +252,20 @@ export default {
             }
         }
     }
-   
+
     .menulist{
         float:left;
-        width:100%; 
+        width:100%;
         background: @whites;
         .menu{
             float:left;
-            width:97%; 
+            width:97%;
             margin-left:3%;
-        
+
             ul li{
                 float:left;
-                width:100%; 
-                height:55px; 
+                width:100%;
+                height:55px;
                 line-height:55px;
                 border-bottom:1px @bordercolor solid;
                 border:none;
@@ -285,7 +284,7 @@ export default {
                 .rico{
                     float:right;
                     width:17px;
-                    height:17px; 
+                    height:17px;
                     margin:17px 16px 0 0;
                     background:url('../../common/img/unselect.png') no-repeat center;
                     background-size:17px;
@@ -293,7 +292,7 @@ export default {
                 .rico-on{
                     float:right;
                     width:17px;
-                    height:17px; 
+                    height:17px;
                     margin:17px 16px 0 0;
                     background:url('../../common/img/selected.png') no-repeat center;
                     background-size:17px;
@@ -312,7 +311,7 @@ export default {
                 width:60px;
                 height:17px;
             }
-           
+
         }
     }
     .subbtn {
@@ -380,13 +379,13 @@ export default {
                 border-radius:3px;
                 font-size:@mainsize;
             }
-            .title{
+            .titles{
                 height:70px;
                 width:100%;
                 background:@backcolor;
                 line-height:70px;
                 color:@maincolor;
-                font-size:@titsize;                
+                font-size:@titsize;
                 p{
                     display:inline-block;
                     background-image:url('../../common/img/wp.png');
@@ -418,7 +417,7 @@ export default {
                 line-height:45px;
             }
         }
-        
+
     }
 }
 </style>

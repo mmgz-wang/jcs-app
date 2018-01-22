@@ -11,31 +11,36 @@
 import shareFn from 'common/js/sharefn.js'
 export default {
 	props: {
-		headerData: {
-			name: {
-				type: String,
-				default: 'roomlist'
-			},
-			ele: {
-				type: String,
-				default: '<h1>聊天室</h1>'
-			},
-			isShow: {
-				type: Boolean,
-				default: true
-			}
-		}
+	  headerData:{
+	    type: Object,
+      default: function(){
+        return {
+          name: {
+            type: String,
+            default: 'roomlist'
+          },
+          ele: {
+            type: String,
+            default: '<h1>聊天室</h1>'
+          },
+          isShow: {
+            type: Boolean,
+            default: true
+          }
+        }
+      }
+    }
 	},
 	name: 'publickheader',
 	created(){
-		console.log(this.headerData)
+
 	},
 	methods: {
 		back: function(){
 			this.$router.back();
 		},
 		menushow: function(){
-			var menu = document.querySelector('#menu');
+			var menu = document.querySelector('#menus');
 			console.log(menu.className)
 			if(menu.className == 'menus show'){
 				menu.className = 'menus';
@@ -45,7 +50,7 @@ export default {
 			menu.querySelector('#menupic').setAttribute('src',this.setPic())
 		},
 		getCookie(name){
-		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)"); 
+		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
 		　　return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
 		},
 		setPic(){
@@ -54,7 +59,7 @@ export default {
 			}else{
 				return shareFn.getUserPic();
 			}
-			
+
 		}
 	}
 }

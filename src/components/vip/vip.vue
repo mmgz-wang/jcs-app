@@ -8,7 +8,7 @@
     :pullUpLoad="pullUpLoad"
     :pullingDownFn="pullingDownFn"
     :pullingUpFn="pullingUpFn"
-    ref="Scroll" 
+    ref="Scroll"
     :data="articleDataList">
       <div class="scroll-wrap">
         <p pulldown>{{pullDownText}}</p>
@@ -19,7 +19,7 @@
         </div>
       </div>
     </scroll>
-    <router-view></router-view>  
+    <router-view></router-view>
   </div>
 </template>
 
@@ -44,7 +44,7 @@ export default {
       pullDownText: '下拉刷新！',
       pullUpText: '上拉加载更多！',
       lastArticleId: 0
-    }   
+    }
   },
 	components: {
 		articleList,Scroll,loading,mainHeader
@@ -59,19 +59,19 @@ export default {
       this.lastArticleId = 0;
       this.pullDownText = '努力加载中 ...';
       this.getData();
-      
+
     },
     pullingUpFn(scroll){
       this.types = 1;
       this.pullUpText = '努力加载中 ...';
       this.getData();
-      
+
     },
     getData(id,done) {
       var that = this;
       this.$nextTick(function () {
         this.$http.jsonp(
-          Common.baseUrl.host + '/article/list/vip?time=' + Math.random(),
+          Common.baseURI().host + '/article/list/vip?time=' + Math.random(),
           { params:{language: 'M',articleId: this.lastArticleId}}
         ).then(function(res) {
           /*console.log(res);

@@ -1,7 +1,7 @@
 <template>
 	<div class="export">
         <header class="export-header">
-            <span class="back" @click="back()"></span>            
+            <span class="back" @click="back()"></span>
             <form id="search-form" action="#" @submit.prevent="searchOn">
                 <input type="search" name="search-export" placeholder="请输入老师昵称" v-model="searchText">
             </form>
@@ -22,8 +22,8 @@
                                     <span class="fans" v-if="item.follownum">{{item.follownum}}</span>
                                     <span class="tm" v-if="item.newarticletime">{{setTime(item.newarticletime)}}</span>
 	  								<i class="isfans" v-if="item.authorFollowed == 'true'" @click.stop="goFollow(item.id)">已关注</i>
-                                    <i class="unfans" v-if="item.authorFollowed == 'false'" @click.stop="goFollow(item.id)">
-                                         加关注
+                    <i class="unfans" v-if="item.authorFollowed == 'false'" @click.stop="goFollow(item.id)">
+                      <img src="../../common/img/add.png" alt="">关注
                                      </i>
 	  							</p>
 	  							<p class="newTxt" v-if="item.brief">{{item.brief}}</p>
@@ -31,13 +31,12 @@
 	  					</dl>
 	  				</div>
 	  			</div>
-	  		</div>	  		
+	  		</div>
 	  	</scroll>
 	</div>
 </template>
 
 <script>
-import shareFn from 'common/js/sharefn'
 import Scroll from 'base/scroll/scroll'
 import Common from 'common/js/common.js'
 import lackPage from 'base/lackpage/lackpage'
@@ -85,15 +84,15 @@ import lackPage from 'base/lackpage/lackpage'
     },
     methods: {
         setMenu: function(name){
-            var menu = document.querySelector('#menu');
+            var menu = document.querySelector('#menus');
             menu.className = 'menus show';
         },
     	getData: function(){
             var that = this;
     		this.customAjax({'X-Target':'FrentService.GetAllAuthors'},
                 {
-                    UserId: shareFn.getUserId(),
-                    SecurityCode: shareFn.getSecurityCode()
+                    UserId: this.shareFn.getUserId(),
+                    SecurityCode: this.shareFn.getSecurityCode()
                 },
                 function(data){
                     that.authorDataList = data.Author;
@@ -105,7 +104,7 @@ import lackPage from 'base/lackpage/lackpage'
         customAjax(heads,data,callback){
             this.$nextTick(function(){
                 this.$http.post(
-                    Common.baseUrl.nativeHost,
+                    Common.baseURI().nativeHost,
                     data,
                     {
                         headers: heads
@@ -123,8 +122,8 @@ import lackPage from 'base/lackpage/lackpage'
                 this.customAjax(
                     {'X-Target':'FrentService.SearchAuthors'},
                     {
-                        UserId: shareFn.getUserId(),
-                        SecurityCode: shareFn.getSecurityCode(),
+                        UserId: this.shareFn.getUserId(),
+                        SecurityCode: this.shareFn.getSecurityCode(),
                         KeyWord: that.searchText
                     },
                     function(data){
@@ -156,8 +155,8 @@ import lackPage from 'base/lackpage/lackpage'
                 this.customAjax(
                     {'X-Target':'FrentService.AddFollow'},
                     {
-                        UserId: shareFn.getUserId(),
-                        SecurityCode: shareFn.getSecurityCode(),
+                        UserId: this.shareFn.getUserId(),
+                        SecurityCode: this.shareFn.getSecurityCode(),
                         AuthorId: id
                     },
                     function(data){
@@ -183,15 +182,15 @@ import lackPage from 'base/lackpage/lackpage'
                 this.customAjax(
                     {'X-Target':'FrentService.ReleaseFollow'},
                     {
-                        UserId: shareFn.getUserId(),
-                        SecurityCode: shareFn.getSecurityCode(),
+                        UserId: this.shareFn.getUserId(),
+                        SecurityCode: this.shareFn.getSecurityCode(),
                         AuthorId: id
                     },
                     function(data){
                         console.log(data)
                         if(data.Code == '0000'){
                             target.className = 'unfans';
-                            target.innerHTML = '加关注';
+                            target.innerHTML = `<img src="${require('../../common/img/add.png')}" alt="">关注`;
                             layer.open({
                                 content: '取消关注成功',
                                 skin: 'msg',
@@ -207,7 +206,7 @@ import lackPage from 'base/lackpage/lackpage'
                     }
                 )
             }
-            
+
         },
     	goauthor(id){
     	  this.$router.push({
@@ -215,7 +214,7 @@ import lackPage from 'base/lackpage/lackpage'
     	  })
     	},
     	setTime(str){
-    		return shareFn.setTime(str);
+    		return this.shareFn.setTime(str);
     	},
         back(){
             this.$router.go(-1)
@@ -273,24 +272,24 @@ import lackPage from 'base/lackpage/lackpage'
                 padding-left:5px;
                 line-height:29px;
             }
-            ::-webkit-input-placeholder { /* WebKit browsers */ 
+            ::-webkit-input-placeholder { /* WebKit browsers */
                 font-size:14px;
                 color:#999999;
-            } 
-            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+            }
+            :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
                 font-size:14px;
                 color:#999999;
-            } 
-            ::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+            }
+            ::-moz-placeholder { /* Mozilla Firefox 19+ */
                 font-size:14px;
                 color:#999999;
-            } 
-            :-ms-input-placeholder { /* Internet Explorer 10+ */ 
+            }
+            :-ms-input-placeholder { /* Internet Explorer 10+ */
                 font-size:14px;
                 color:#999999;
             }
         }
-    	
+
     }
     .scroll{
     	width: 100%;
@@ -299,7 +298,7 @@ import lackPage from 'base/lackpage/lackpage'
     	bottom: 0;
     	overflow: hidden;
     }
-    .listcon:htn-child(1){
+    .listcon:nth-child(1){
     	margin-top:0;
     }
     .teachmsg{
@@ -315,7 +314,7 @@ import lackPage from 'base/lackpage/lackpage'
         display:flex;
         dt{
             padding-right:10px;
-            padding-top:17px;
+            padding-top:15px;
             p{
                 border-radius:50%;
                 position:relative;
@@ -342,11 +341,12 @@ import lackPage from 'base/lackpage/lackpage'
         dd{
             .border-bottom;
             flex-grow:1;
-            padding:19px 15px 17px 0;
+            padding:15px 15px 15px 0;
             p{
                 font-size:@mainsize;
                 position: relative;
                 line-height:1;
+                color: @maincolor;
                 .tm,.fans{
                     display:inline-block;
                     color:@assistcolor;
@@ -354,8 +354,8 @@ import lackPage from 'base/lackpage/lackpage'
                     background:url('../../common/img/tim.png') no-repeat left center;
                     background-size: 10px;
                     padding-left: 15px;
-                    margin-left:15px;
-                    margin-top:9px;
+                    margin-left:6px;
+                    margin-top:7px;
                 }
                 .fans{
                     background:url('../../common/img/fan.png') no-repeat left center;
@@ -367,10 +367,11 @@ import lackPage from 'base/lackpage/lackpage'
                 color: @namecolor;
                 font-size:0.13rem;
                 display:-webkit-box;
-                padding-top:15px;
+                padding-top: 5px;
                 -webkit-line-clamp: 3;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
+                line-height: 24px;
             }
         }
     }
@@ -380,19 +381,25 @@ import lackPage from 'base/lackpage/lackpage'
         }
     }
     .isfans,.unfans{
-        box-sizing:content-box;
+      box-sizing:content-box;
     	height: 25px;
-    	line-height: 25px;
+    	line-height: 27px;
     	color: @assistcolor;
     	font-size: @assistsize;
     	font-style: normal;
     	position: absolute;
     	right: 10px;
     	border: 1px solid @bordercolor;
-    	border-radius: 4px;
+    	border-radius: 2px;
     	top: 50%;
     	margin-top:-17px;
     	padding:0 13px;
+      img{
+        width: 10px;
+        height: 10px;
+        margin-right:5px;
+        display: inline-block;
+      }
     }
     .unfans{
         color:@reds;

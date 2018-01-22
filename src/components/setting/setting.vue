@@ -21,14 +21,13 @@
   		    	</div>
   			</div>
   			<p class="singout" v-if="isLogin()" @click="singOut()">退出当前账号</p>
-	  	</div>	
-	  	
+	  	</div>
+
 	    <router-view></router-view>
   	</div>
 </template>
 
 <script>
-import shareFn from 'common/js/sharefn'
 import mainHeader from 'base/header/mainheader'
 import Common from 'common/js/common.js'
 export default {
@@ -40,29 +39,29 @@ export default {
 				name: 'setting'
 			}
 		}
-		
+
 	},
 	created(){
 		this.$nextTick(function(){
-			if(shareFn.isLogin()){
-				
+			if(this.shareFn.isLogin()){
+
 			}
 		})
 	},
 	methods: {
 		isLogin(){
-			return shareFn.isLogin();
+			return this.shareFn.isLogin();
 		},
 		singOut(){
 			this.$nextTick(function(){
 					this.$http.jsonp(
-						Common.baseUrl.host + '/user/logout',
-						{	
+						Common.baseURI().host + '/user/logout',
+						{
 							params: {
-								"UserId": shareFn.getUserId(),
+								"UserId": this.shareFn.getUserId(),
 								loginfrom:'H5'
 							}
-				        }			        
+				        }
 					).then(function(res){
 						console.log(res)
 						if(res.data.Code === '0000'){
@@ -70,7 +69,7 @@ export default {
 							setCookie('jsonLog',null,1);
 							function setCookie(c_name,value,expiredays){
 								var exdate=new Date();
-								exdate.setDate(exdate.getDate()+expiredays);								
+								exdate.setDate(exdate.getDate()+expiredays);
 								document.cookie=c_name+ "=" +escape(value)+
 								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 							}
@@ -81,17 +80,17 @@ export default {
 						console.log('请求失败请检查网络')
 					})
 			})
-			
+
 			/*this.$http.post(
-				Common.baseUrl.nativeHost ,
-				{					
+				Common.baseURI().nativeHost ,
+				{
 					"UserId": shareFn.getUserId(),
 					loginfrom:'H5'
 		        },
 				{
 					headers: {"X-Target":"TrentService.LogOut"}
 				}
-		        
+
 			).then(function(res){
 				console.log(res)
 				if(res.data.Code === '0000'){
@@ -99,7 +98,7 @@ export default {
 					setCookie('jsonLog',null,1);
 					function setCookie(c_name,value,expiredays){
 						var exdate=new Date();
-						exdate.setDate(exdate.getDate()+expiredays);								
+						exdate.setDate(exdate.getDate()+expiredays);
 						document.cookie=c_name+ "=" +escape(value)+
 						((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 					}
@@ -158,10 +157,10 @@ export default {
 	right:0;
 	background: @backcolor;
 	color:#fff;
-	z-index:99;
+	z-index:9999;
 	input{
 		-webkit-user-select:auto;
-	} 
+	}
 	img{
 		border:0;
 	}
@@ -177,7 +176,7 @@ export default {
 			.border-none;
 		}
 	}
-	
+
 	.setwrap{
 		width:100%;
 		position:absolute;
@@ -191,12 +190,12 @@ export default {
 			color:@maincolor;
 			.menu-wrap{
 				float:left;
-				width:97%; 
+				width:97%;
 				margin-left:3%;
 				ul{
 
 					li{
-						width:100%; 
+						width:100%;
 						height:50px;
 						line-height:50px;
 						.border-bottom;

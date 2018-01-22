@@ -1,7 +1,7 @@
 <template>
   <div ref="wrapper">
     <slot>
-      
+
     </slot>
   </div>
 </template>
@@ -70,12 +70,13 @@
         if (this.$refs.list && (this.pullDownRefresh || this.pullUpLoad)) {
           this.$refs.list.style.minHeight = getRect(this.$refs.wrapper).height + 'px'
         }
-        console.log(this.pullUpLoad)
+
         let options = {
           probeType: this.probeType,
           click: this.click,
           pullDownRefresh: this.pullDownRefresh,
-          pullUpLoad: this.pullUpLoad
+          pullUpLoad: this.pullUpLoad,
+          mouseWheel: true
         }
         this.scroll = new BScroll(this.$refs.wrapper, options);
         if(that.scrollIng != undefined){
@@ -83,7 +84,7 @@
             that.scrollIng(opt);
           })
         }
-        
+
       },
       disable() {
         this.scroll && this.scroll.disable()
@@ -104,17 +105,16 @@
         var that = this;
         this.scroll.on('pullingDown',function(){
           this.isPullingDown = true;
-          if(this.isPullingDown){            
-            console.log('fish')
+          if(this.isPullingDown){
             that.isPullingDown = false;
             that.pullingDownFn(that);
-          }     
+          }
         })
         this.scroll.on('pullingUp',function(){
           that.pullingUpFn(that);
         })
       }
-      
+
     },
     watch: {
       data: {
@@ -127,7 +127,7 @@
           }, 20)
         },
         deep: true
-       
+
       }
     }
   }
@@ -135,5 +135,5 @@
 </script>
 
 <style rel="stylesheet/style">
-  
+
 </style>

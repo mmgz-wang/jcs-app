@@ -12,7 +12,7 @@
 		    :pullUpLoad="pullUpLoad"
 		    :pullingDownFn="pullingDownFn"
 		    :pullingUpFn="pullingUpFn"
-		    ref="scroll" 
+		    ref="scroll"
 			class="consume-list" :data="consumeList" >
 				<div>
 					<p pulldown>{{pullDownText}}</p>
@@ -36,7 +36,7 @@
 		    :pullUpLoad="pullUpLoad"
 		    :pullingDownFn="pullingDownFn"
 		    :pullingUpFn="pullingUpFn"
-		    ref="scroll" 
+		    ref="scroll"
 			class="recharge-list" :data="rechargeList">
 				<div>
 					<p pulldown>{{pullDownText}}</p>
@@ -60,8 +60,6 @@
 import mainHeader from "base/header/mainheader"
 import Scroll from "base/scroll/scroll"
 import Common from "common/js/common"
-import shareFn from "common/js/shareFn"
-//import loading from 'base/loading/loading'
 export default {
 	name: 'consumerecord',
 	data(){
@@ -94,7 +92,7 @@ export default {
 		this.loding = layer.open({
 			type: 2,
 			content: '加载中'
-		});	
+		});
 	},
 	mounted(){
 		this.$nextTick(function(){
@@ -102,8 +100,8 @@ export default {
 		})
 	},
 	activated() {
-		
-	    
+
+
 	},
 	methods: {
 		 pullingDownFn(scroll){
@@ -112,14 +110,14 @@ export default {
 			this.pullDownText = '努力加载中 ...';
 			this.pullUpText = '上拉加载更多！';
 			this.getData();
-		  
+
 		},
 		pullingUpFn(scroll){
 			console.log('666')
 			this.types = 1;
 			this.pullUpText = '努力加载中 ...';
 			this.getData();
-		  
+
 		},
 		tabClick(s){
 			if(s == 'art'){
@@ -142,12 +140,12 @@ export default {
 		getData(){
 			var that = this;
 			var opt = {
-				url: Common.baseUrl.nativeHost,
+				url: Common.baseURI().nativeHost,
 				data: {
 					"Type": that.queryTypes,
 					Id: that.queryId,
-					"SecurityCode": shareFn.getSecurityCode(),
-					"UserId": shareFn.getUserId()
+					"SecurityCode": this.shareFn.getSecurityCode(),
+					"UserId": this.shareFn.getUserId()
 				},
 				headers:{"X-Target":'TrentService.GetUserCapitalDetails'},
 				callback: function(data){
@@ -190,7 +188,7 @@ export default {
 						tim = 60;
 						that.codeing = false;
 					}
-					layer.close(that.loding);		
+					layer.close(that.loding);
 				}
 			}
 			this.custmorAjax(opt);
@@ -203,7 +201,7 @@ export default {
 				{
 					headers: opt.headers
 				}
-		        
+
 			).then(function(res){
 				opt.callback(res.data);
 			},function(){
@@ -225,11 +223,11 @@ export default {
 		Scroll,mainHeader//,loading
 	},
 	watch: {
-		
+
 	}
 }
 </script>
-<style type="text/css" lang="less">
+<style type="text/less" lang="less">
 @import '../../common/less/base.less';
 .consumerocore{
 	width:100%;
@@ -350,7 +348,7 @@ export default {
 			}
 		}
 	}
-	
+
 	.roomActive{
 		transform:translateX(-50%);
 		transition: all 0.6s ease;

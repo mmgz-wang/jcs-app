@@ -22,13 +22,12 @@
 	  					</dl>
 	  				</div>
 	  			</div>
-	  		</div>	  		
+	  		</div>
 	  	</scroll>
 	</div>
 </template>
 
-<script>
-import shareFn from '../../common/js/sharefn'
+<script type="text/ecmascript-6">
 import Scroll from 'base/scroll/scroll'
 import mainHeader from 'base/header/mainheader'
   export default {
@@ -79,7 +78,7 @@ import mainHeader from 'base/header/mainheader'
     },
     methods: {
         setMenu: function(name){
-            var menu = document.querySelector('#menu');
+            var menu = document.querySelector('#menus');
             menu.className = 'menus show';
         },
     	goauthor(id){
@@ -88,7 +87,7 @@ import mainHeader from 'base/header/mainheader'
     	  })
     	},
     	setTime(str){
-    		return shareFn.setTime(str);
+    		return this.shareFn.setTime(str);
     	},
         back(){
             this.$router.go(-1)
@@ -144,7 +143,7 @@ import mainHeader from 'base/header/mainheader'
                 padding-left:5px;
             }
         }
-    	
+
     }
     .scroll{
     	width: 100%;
@@ -177,9 +176,9 @@ import mainHeader from 'base/header/mainheader'
                 height:40px;
                 border-radius:50%
             }
-        }        
+        }
         dd{
-            width:85%;                     
+            width:85%;
             float:right;
             padding-right:10px;
             p{

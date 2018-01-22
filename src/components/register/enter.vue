@@ -9,7 +9,7 @@
 				<input type="PassWord" placeholder="请输入密码" name="pwd" v-model="pwd">
 			</li>
 			<li>
-				<button type="button" 
+				<button type="button"
 				:class="{btn_gary:tel.length==0||pwd.length==0}"
 				@click="signIn()">登录</button>
 			</li>
@@ -18,7 +18,7 @@
 				<router-link to="/forget"><span class="forget-pwd">忘记密码？</span></router-link>
 			</li>
 		</ul>
-		
+
 	</div>
 </template>
 <script type="text/javascript">
@@ -59,8 +59,8 @@ import Common from 'common/js/common'
 			},
 			sendLogin(){
 				this.$nextTick(function(){
-					this.$http.jsonp(Common.baseUrl.host + '/user/login',
-						{ 
+					this.$http.jsonp(Common.baseURI().host + '/user/login',
+						{
 							params:{
 								language: 'M',
 					            PhoneNumber: this.tel,
@@ -99,7 +99,7 @@ import Common from 'common/js/common'
 		}
 	}
 </script>
-<style lang="less" type="text/css">
+<style lang="less">
 @import "../../common/less/base.less";
 	.enter-in{
 		width:100%;
@@ -137,7 +137,7 @@ import Common from 'common/js/common'
 					content: '';
 					float:left;
 					width:21px;
-					height:21px;		
+					height:21px;
 					background:url('../../common/img/pwd.png') no-repeat center;
 					background-size:21px;
 					margin:18px 5px 0 5px;
@@ -169,13 +169,13 @@ import Common from 'common/js/common'
 					height:39px;
 					line-height:39px;
 				}
-				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
-				    -webkit-text-fill-color: #ededed !important;  
-				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
-				    background-color:transparent;  
-				    background-image: none;  
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+				    -webkit-text-fill-color: #ededed !important;
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+				    background-color:transparent;
+				    background-image: none;
 				     transition: background-color 50000s ease-in-out 0s;
-				} 
+				}
 				:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
 				     color: #b1b1b1;
 				    font-size:@mainsize;
@@ -189,7 +189,7 @@ import Common from 'common/js/common'
 				input:-ms-input-placeholder{
 				     color: #b1b1b1;
 				    font-size:@mainsize;
-				} 
+				}
 				input::-webkit-input-placeholder{
 				    color: #b1b1b1;
 				    font-size:@mainsize;

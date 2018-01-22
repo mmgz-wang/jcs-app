@@ -2,7 +2,7 @@
   <div id="app">
     <keep-alive>
       <router-view></router-view>
-    </keep-alive>  
+    </keep-alive>
     <menus></menus>
   </div>
 </template>
@@ -11,6 +11,11 @@
 import menus from './components/menu/menu'
   export default {
     name: 'app',
+    data(){
+      return {
+
+      }
+    },
     components: {
     	menus
     },
@@ -21,7 +26,7 @@ import menus from './components/menu/menu'
   }
 </script>
 
-<style lang="less">
+<style lang="less" type="text/less">
 @import "./common/less/base.less";
 *{
   margin:0;
@@ -33,13 +38,16 @@ import menus from './components/menu/menu'
 html,body{
   width:100%;
   height:100%;
+  max-width: 800px;
   background:@backcolor;
   list-style:none;
+  margin:0 auto;
 }
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   width:100%;
   height:100%;
   overflow:hidden;
+  position: relative;
 }
 </style>

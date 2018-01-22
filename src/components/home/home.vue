@@ -10,28 +10,28 @@
       <router-link to="/competition">赛事</router-link>
       <router-link to="/attention">关注</router-link>
       <router-link to="/my">我的</router-link>
-    </nav>  
-    <scroll 
+    </nav>
+    <scroll
       :needRefresh="needRefresh"
       :pullDownRefresh="pullDownRefresh"
       :pullUpLoad="pullUpLoad"
       :pullingDownFn="pullingDownFn"
       :pullingUpFn="pullingUpFn"
-      ref="Scroll" 
+      ref="Scroll"
       class="container" :data="articleDataList">
         <div class="scroll-wrap">
           <p pulldown>{{pullDownText}}</p>
           <div class="loading-container" v-show="!articleDataList.length">
             <loading></loading>
           </div>
-          
-            <banner :banners = "banners" @bannerClick="bannerClick"></banner>
+
+            <banner :data = "banners" @bannerClick="bannerClick"></banner>
             <portal @portalClick="portalClick" :portals = "portals"></portal>
-            <article-list 
+            <article-list
               @goarticle="goarticle"
-              :topMargin='true' 
+              :topMargin='true'
               :articleDataList="articleDataList">
-                
+
             </article-list>
           <p pullup>{{pullUpText}}</p>
         </div>
@@ -46,7 +46,6 @@ import loading from 'base/loading/loading'
 import banner from 'base/banner/banner'
 import portal from '../home/portal'
 import Common from 'common/js/common'
-import shareFn from 'common/js/shareFn'
 import articleList from 'base/articlelist/articlelist'
 export default {
 	data() {
@@ -74,7 +73,7 @@ export default {
 	mounted: function() {
     this.top = 0;
     this.getData();
-    this.$routerPath = this.$router.path
+    this.$routerPath = this.$router.path;
 	},
   methods: {
     pullingDownFn(scroll){
@@ -82,13 +81,13 @@ export default {
       this.lastArticleId = 0;
       this.pullDownText = '努力加载中 ...';
       this.getData();
-      
+
     },
     pullingUpFn(scroll){
       this.types = 1;
       this.pullUpText = '努力加载中 ...';
       this.getData();
-      
+
     },
     getData() {
       if(this.reloads){
@@ -96,23 +95,22 @@ export default {
       }
       this.$nextTick(function () {
         this.$http.jsonp(
-          Common.baseUrl.host + '/top-header?time=' + Math.random(),
-          { 
+          Common.baseURI().host + '/top-header?time=' + Math.random(),
+          {
             params:{
               language: 'M',
               articleId: this.lastArticleId,
-              userId: shareFn.getUserId()
+              userId: this.shareFn.getUserId()
             }
           }
         ).then(function(res) {
-          console.log(res.data)
           if(res.data.result.data.Banner != undefined){
             this.banners = res.data.result.data.Banner;
           }
           if(res.data.result.data.Portal != undefined){
             this.portals = res.data.result.data.Portal;
           }
-          
+
           if(this.types){
             this.articleDataList = this.articleDataList.concat(res.data.result.artileList.Articles);
             this.pullUpText = '上拉加载更多！';
@@ -150,6 +148,10 @@ export default {
         this.$router.push({
           path: `/recordlist`
         })
+      }else if(item.name=="电子竞技"){
+        this.$router.push({
+          path: `/e-sports`
+        })
       }
     },
     goarticle(item){
@@ -174,18 +176,18 @@ export default {
             roomId = $2;
             return $2;
           });
-          
+
           this.$router.push({
               path: `/roomindex?roomId=${roomId}`
           })
         }else{
-          
+
         }
       }
     },
     goLetter(){
       var that = this;
-      if(shareFn.isLogin()){
+      if(this.shareFn.isLogin()){
         this.$router.push('letterlist')
       }else{
         layer.open({
@@ -206,9 +208,9 @@ export default {
   watch: {
     $routerPath :{
       handler: function(news,old) {
-        console.log(news)
+
       }
-    } 
+    }
   }
 }
 
@@ -277,7 +279,7 @@ export default {
       left:50%;
       transform:translate3d(-50%,-50%,0);
     }
-    
+
   }
   .tab{
     width:100%;

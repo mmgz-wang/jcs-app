@@ -1,13 +1,13 @@
 <template>
 	<div class="letterlist">
 	  	<main-header :headerData="headerData"></main-header>
-	  	<scroll class="letter-scroll" 
+	  	<scroll class="letter-scroll"
         :needRefresh="needRefresh"
         :pullDownRefresh="pullDownRefresh"
         :pullUpLoad="pullUpLoad"
         :pullingDownFn="pullingDownFn"
         :pullingUpFn="pullingUpFn"
-        ref="scroll" 
+        ref="scroll"
         :data="letterListData">
 	  		<div style="float:left" class="scroll-wrap">
                 <p pulldown>{{pullDownText}}</p>
@@ -27,11 +27,11 @@
 	  				</div>
 	  			</div>
                 <p pullup v-if="letterListData.length>4">{{pullUpText}}</p>
-	  		</div>	  		
+	  		</div>
 	  	</scroll>
-	  	<lack-page 
+	  	<lack-page
         :src="lackPageData.src"
-        :title="lackPageData.title"
+        :titles="lackPageData.titles"
         :hint="lackPageData.hint"
         :button="lackPageData.button"
         :goCallback="lackPageData.goCallback"
@@ -41,11 +41,8 @@
 </template>
 
 <script>
-import shareFn from 'common/js/sharefn'
 import mainHeader from 'base/header/mainheader'
 import Scroll from 'base/scroll/scroll'
-import loading from 'base/loading/loading'
-import articleList from 'base/articlelist/articlelist'
 import Common from 'common/js/common.js'
 import lackPage from 'base/lackpage/lackpage'
   export default {
@@ -53,42 +50,41 @@ import lackPage from 'base/lackpage/lackpage'
     data() {
     	return {
     		letterListData: [],
-            headerData: {
-                ele: '私信',
-                name: 'letter',
-                isShow: true
-            },
-            isEnter: true,
-            types: 0,
-            needRefresh: true,
-            pullDownRefresh: {threshold: 50, stop: 50},
-            pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
-            pullDownText: '下拉刷新！',
-            pullUpText: '上拉加载更多！',
-            lackPageData:{
-                src: require('../../common/img/unenter.png'),
-                title: '您还没有登录',
-                hint: '登录后才能使用该功能',
-                button: '立即登录',
-                goCallback(){
-                    this.$router.push({name: 'enter'})
-                }
+        headerData: {
+            ele: '私信',
+            name: 'letter'
+        },
+        isEnter: true,
+        types: 0,
+        needRefresh: true,
+        pullDownRefresh: {threshold: 50, stop: 50},
+        pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
+        pullDownText: '下拉刷新！',
+        pullUpText: '上拉加载更多！',
+        lackPageData:{
+            src: require('../../common/img/unenter.png'),
+            titles: '您还没有登录',
+            hint: '登录后才能使用该功能',
+            button: '立即登录',
+            goCallback(){
+                this.$router.push({name: 'enter'})
             }
+        }
     	}
     },
     components: {
     	mainHeader,Scroll,lackPage
     },
     created() {
-    	
+
     },
     activated() {
-        if(shareFn.isLogin()){
+        if(this.shareFn.isLogin()){
             this.$nextTick(function(){
                 this.getData();
                 this.getNews();
             })
-            
+
             this.isEnter = false;
         }
     },
@@ -108,10 +104,10 @@ import lackPage from 'base/lackpage/lackpage'
     	getData: function(data){
             var that = this;
             var opt = {
-                url: Common.baseUrl.nativeHost,
+                url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : shareFn.getSecurityCode(),
-                    "UserId" : shareFn.getUserId()
+                    "SecurityCode" : this.shareFn.getSecurityCode(),
+                    "UserId" : this.shareFn.getUserId()
                 },
                 headers:{"X-Target":"TrentService.GetLetteredAuthors"},
                 callback: function(data){
@@ -120,7 +116,7 @@ import lackPage from 'base/lackpage/lackpage'
                         if(that.letterListData.length<=0){
                             that.lackPageData = {
                                 src: require('../../common/img/unletter.png'),
-                                title: '暂无私信内容',
+                                titles: '暂无私信内容',
                                 hint: '多和老师交流才能进步哦！',
                                 button: '找个老师聊聊',
                                 goCallback(){
@@ -138,10 +134,10 @@ import lackPage from 'base/lackpage/lackpage'
         getNews(){
             var that = this;
             var opt = {
-                url: Common.baseUrl.nativeHost,
+                url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : shareFn.getSecurityCode(),
-                    "UserId" : shareFn.getUserId()
+                    "SecurityCode" : this.shareFn.getSecurityCode(),
+                    "UserId" : this.shareFn.getUserId()
                 },
                 headers:{"X-Target":"TrentService.CheckLetter"},
                 callback: function(data){
@@ -166,7 +162,7 @@ import lackPage from 'base/lackpage/lackpage'
     	  })
     	},
     	setTime(str){
-    		return shareFn.setTime(str);
+    		return this.shareFn.setTime(str);
     	},
         custmorAjax(opt){
             var data = null;
@@ -177,7 +173,7 @@ import lackPage from 'base/lackpage/lackpage'
                 {
                     headers: opt.headers
                 }
-                
+
             ).then(function(res){
                 opt.callback(res.data);
             },function(){
@@ -297,7 +293,7 @@ import lackPage from 'base/lackpage/lackpage'
             }
         }
     }
-    
+
     .teacherlist{
     	float:left;
     	width:100%;

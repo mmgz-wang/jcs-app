@@ -63,9 +63,9 @@ import Common from 'common/js/common'
 						that.codeing = false;
 					}
 				},1000)
-				
+
 				var opt = {
-					url: Common.baseUrl.host + '/user/register/sendVerifyCode',
+					url: Common.baseURI().host + '/user/register/sendVerifyCode',
 					data: {
 						phoneNumber: this.tel
 					},
@@ -74,7 +74,7 @@ import Common from 'common/js/common'
 							that.goOn = true;
 						}else{
 							that.bunceIn(data.msg);
-						}						
+						}
 					}
 				}
 				this.custmorAjax(opt);
@@ -94,17 +94,17 @@ import Common from 'common/js/common'
 					return ;
 				}
 				this.$http.post(
-					Common.baseUrl.nativeHost ,
+					Common.baseURI().nativeHost ,
 					{
 						"VerifyCode": this.phonecode,
 						"PhoneNumber": this.tel,
-						"UserId": shareFn.getUserId(),
-						"SecurityCode": shareFn.getSecurityCode()
+						"UserId": this.shareFn.getUserId(),
+						"SecurityCode": this.shareFn.getSecurityCode()
 			        },
 					{
 						headers: {"X-Target":"TrentService.ChangePhoneNumber"}
 					}
-			        
+
 				).then(function(res){
 					console.log(res)
 					if(res.data.Code === '0000'){
@@ -178,7 +178,7 @@ import Common from 'common/js/common'
 					color:@maincolor;
 					line-height:50px;
 				}
-				&:last-child{	
+				&:last-child{
 					.border-none;
 					margin-top:50px;
 				}
@@ -201,13 +201,13 @@ import Common from 'common/js/common'
 					height:50px;
 					width:50%;
 				}
-				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
-				    -webkit-text-fill-color: #ededed !important;  
-				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
-				    background-color:transparent;  
-				    background-image: none;  
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+				    -webkit-text-fill-color: #ededed !important;
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+				    background-color:transparent;
+				    background-image: none;
 				     transition: background-color 50000s ease-in-out 0s;
-				}  
+				}
 				:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
 				     color: #b1b1b1;
 				    font-size:@mainsize;
@@ -221,7 +221,7 @@ import Common from 'common/js/common'
 				input:-ms-input-placeholder{
 				     color: #b1b1b1;
 				    font-size:@mainsize;
-				} 
+				}
 				input::-webkit-input-placeholder{
 				    color: #b1b1b1;
 				    font-size:@mainsize;

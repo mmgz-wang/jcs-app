@@ -15,6 +15,7 @@ import RoomList from '../components/room/roomlist'
 import Competition from '../components/competition/competition'
 import MatchDetail from '../components/competition/matchdetail'
 import Attention from '../components/attention/attention'
+
 import My from '../components/my/my'
     import MyPresent from '../components/my/my_present'
     import MyCollect from '../components/my/my_collect'
@@ -24,12 +25,13 @@ import My from '../components/my/my'
         import Change from '../components/setting/change'
         import Modification from '../components/setting/modification'
         import Our from '../components/setting/our'
+        import NickName from '../components/setting/nickname'
 
 import Author from '../components/author/author'
 import Export from '../components/author/export'
 import Result from '../components/author/result'
 
-import Menu from '../components/menu/menu'
+import Esports from '../components/portal/e-sports'
 import Article from '../components/articledetail/articledetail'
 
 import PayFor from '../components/consume/payfor'
@@ -47,7 +49,6 @@ export default new Router({
     //首页
     { path: '/', name: 'home', component: Home },
     { path: '/home', name: 'home', component: Home },
-
     //首页子页面
     { path: '/vip', name: 'vip', component: Vip },
     { path: '/letterlist', name: 'letterlist', component: Letterlist,
@@ -55,10 +56,15 @@ export default new Router({
             {path:'/letterindex', name: 'letterindex', component: Letterindex}
         ]
     },
-    { path: '/basketball', name: 'basketball', component: Basketball, 
+    { path: '/basketball', name: 'basketball', component: Basketball,
         meta: {
             iskeep:false
         }
+    },
+    { path: '/e-sports', name: 'e-sports', component: Esports,
+      meta: {
+        iskeep:false
+      }
     },
     { path: '/live_articlelist', name: 'live_articlelist', component: Live_articlelist},//portal直播
     { path: '/recordlist', name: 'recordlist', component: RecordList},//portal红人榜
@@ -70,7 +76,7 @@ export default new Router({
             meta: {
                 requiresAuth: true,
                 iskeep: false
-            } 
+            }
         },
     //赛事
     { path: '/competition', name: 'competition', component: Competition,
@@ -84,14 +90,14 @@ export default new Router({
             iskeep: false,
             isback: true
         }
-    }, 
+    },
 
     //关注
     { path: '/attention', name: 'attention', component: Attention,
         meta: {
             requiresAuth: true,
             iskeep: false
-        } 
+        }
     },
     { path: '/author', name: 'author', component: Author,
         meta: {
@@ -118,10 +124,10 @@ export default new Router({
             { path: 'myCollect', name: 'myCollect', component: MyCollect },
             { path: 'myBuy', name: 'my_buy', component: MyBuy },
             { path: 'help', name:'help', component: Help },
-            { path: 'service', name:'service', component: Service },
+            { path: 'nickname', name:'nickName', component: NickName},
             { path: 'setting', name:'setting', component: Setting,
                 children: [
-                    { path: 'modifi', name: 'modifi', component: Modification },                    
+                    { path: 'modifi', name: 'modifi', component: Modification },
                     { path: 'change', name: 'change', component: Change },
                     { path: 'our', name: 'our', component: Our }
                 ]
@@ -130,19 +136,19 @@ export default new Router({
         meta: {
             requiresAuth: true,
             iskeep: false
-        } 
+        }
     },
 
     //在线客服
     { path: '/service', name:'service', component: Service},
-     
+
     //公用文章详情
     { path: '/articledetail', name: 'articledetail', component: Article,
         meta: {
             requiresAuth: true,
             iskeep: false,
             isback: false
-        } 
+        }
     },
     { path: '/payfor', name: 'payfor', component: PayFor },
     { path: '/recharge', name: 'recharge', component: Recharge,
@@ -161,7 +167,7 @@ export default new Router({
     { path: '/forget', name: 'forget', component: Forget },
   ],
   scrollBehavior(to, from, savedPosition){
-   
+
     if (savedPosition) {
         return savedPosition
     } else {

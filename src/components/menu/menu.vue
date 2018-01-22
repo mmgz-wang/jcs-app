@@ -1,5 +1,5 @@
 <template>
-	<div @click="setMenu()" class="menus" id="menu">
+	<div @click="setMenu()" class="menus" id="menus">
 		<div class="right">
 			<dl id="user" @click="goEnter()">
 				<dt><img id="menupic" :src="setPic()"></dt>
@@ -18,36 +18,33 @@
 </template>
 
 <script type="text/javascript">
-import shareFn from 'common/js/sharefn'
 export default {
-	name: 'menu',
-	created(){
-		
+	name: 'menus',
+  created(){
+
 	},
 	methods: {
 		setMenu: function(name){
-			var menu = document.querySelector('#menu');
+			var menu = document.querySelector('#menus');
 			menu.className = 'menus';
 		},
 		getCookie(name){
 		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-		    if(shareFn.isLogin()){
+		    if(this.shareFn.isLogin()){
 		    	return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
 		    }else{
 		    	return '请登录';
 		    }
 		},
 		setPic(){
-			console.log(shareFn.getUserPic())
-			if(shareFn.getUserPic()==undefined || shareFn.getUserPic()==''){
+			if(this.shareFn.getUserPic()==undefined || this.shareFn.getUserPic()==''){
 				return require('../../common/img/uyse.png')
 			}else{
-				return shareFn.getUserPic();
+				return this.shareFn.getUserPic();
 			}
-			
 		},
 		goEnter(){
-			if(!shareFn.isLogin()){
+			if(!this.shareFn.isLogin()){
 				this.$router.push('enter');
 			}
 		}
@@ -90,7 +87,7 @@ export default {
 	}
 	@media (device-height:480px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone4/4s */
 		ul{line-height:45px;}
-	} 
+	}
 
 	@media (device-height:568px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone5 */
 		ul{line-height:45px;}

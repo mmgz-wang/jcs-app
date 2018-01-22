@@ -1,13 +1,13 @@
 <template>
-  <div class="ent_nav" id="portals">        
+  <div class="ent_nav" id="portals">
         <dl v-for="item in portals" v-if="item.name!='筛价格' && item.name!='选低价'" @click="portalClick(item)">
-            <dt><img :src="baseurl+item.img_url" alt=""></dt>
+            <dt><img :src="item.img_url" alt=""></dt>
             <dd>{{item.name}}</dd>
         </dl>
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
 export default {
 	props: ['portals'],
     data() {
@@ -23,7 +23,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" type="text/less">
 @import "../../common/less/base.less";
 .ent_nav{
     color: @blacks;
@@ -43,6 +43,7 @@ export default {
         dd{
             padding-top:9px;
             line-height:1;
+            color: @maincolor;
         }
     }
 }

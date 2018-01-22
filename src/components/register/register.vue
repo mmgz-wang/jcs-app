@@ -21,7 +21,7 @@
 				@click="signIn()">注册</button>
 			</li>
 		</ul>
-		
+
 	</div>
 </template>
 <script type="text/javascript">
@@ -73,9 +73,9 @@ import _MD5 from 'common/js/md5.js'
 					}
 				},1000)
 				var opt = {
-					url: Common.baseUrl.nativeHost,
+					url: Common.baseURI().nativeHost,
 					data: {
-						sign: _MD5('2'+this.tel+'dxm6zaqW'),
+						sign: _MD5('1'+this.tel+'dxm6zaqW'),
 						PhoneNumber: this.tel,
 						Type: 1
 					},
@@ -96,8 +96,8 @@ import _MD5 from 'common/js/md5.js'
 			},
 			signIn(){
 				if(!this.goOn){
-					this.bunceIn('请获取验短信证码！');
-					return ;
+					//this.bunceIn('请获取验短信证码！');
+					//return ;
 				}
 				if(!this.pwd.length>=6){
 					this.bunceIn('您设置的密码格式有误，请确认！')
@@ -107,7 +107,7 @@ import _MD5 from 'common/js/md5.js'
 			},
 			sendLogin(){
 				this.$http.post(
-					Common.baseUrl.nativeHost ,
+					Common.baseURI().nativeHost ,
 					{
 						"VerifyCode" : this.phonecode,
 						"PhoneNumber" : this.tel,
@@ -116,11 +116,11 @@ import _MD5 from 'common/js/md5.js'
 						"OSV" : "PC"
 			        },
 					{
-						headers: {"X-Target":"TrentService.Register"}
+						headers: {"X-Target": "TrentService.Register"}
 					}
-			        
+
 				).then(function(res){
-					console.log(res)
+					console.log(res.data)
 					if(res.data.Code === '0000'){
 						console.log('注册成功')
 					}else if(res.data.Code === '2007'){
@@ -142,7 +142,7 @@ import _MD5 from 'common/js/md5.js'
 					{
 						headers: opt.headers
 					}
-			        
+
 				).then(function(res){
 					opt.callback(res.data);
 				},function(){
@@ -162,7 +162,7 @@ import _MD5 from 'common/js/md5.js'
 		}
 	}
 </script>
-<style lang="less" type="text/css">
+<style lang="less" type="text/less">
 @import "../../common/less/base.less";
 	.register{
 		width:100%;
@@ -206,13 +206,13 @@ import _MD5 from 'common/js/md5.js'
 						right:0;
 						bottom:0;
 						line-height:39px;
-					}				
+					}
 					&:before{
 						margin-top:18px;
 						content: '';
 						float:left;
 						width:21px;
-						height:21px;	
+						height:21px;
 						background:url('../../common/img/phonecode.png') no-repeat center;
 						background-size:21px;
 						margin:18px 5px 0 5px;
@@ -226,7 +226,7 @@ import _MD5 from 'common/js/md5.js'
 					content: '';
 					float:left;
 					width:21px;
-					height:21px;			
+					height:21px;
 					background:url('../../common/img/pwd.png') no-repeat center;
 					background-size:21px;
 					margin:18px 5px 0 5px;
@@ -238,13 +238,13 @@ import _MD5 from 'common/js/md5.js'
 						content: '';
 						float:left;
 						width:21px;
-						height:21px;			
+						height:21px;
 						background:url('../../common/img/invite.png') no-repeat center;
 						background-size:21px;
 						margin:18px 5px 0 5px;
 					}
 				}
-				&:last-child{	
+				&:last-child{
 					.border-none;
 					margin-top:30px;
 				}
@@ -270,13 +270,13 @@ import _MD5 from 'common/js/md5.js'
 					padding-left:8px;
 					height:39px;
 				}
-				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {  
-				    -webkit-text-fill-color: #ededed !important;  
-				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;  
-				    background-color:transparent;  
-				    background-image: none;  
+				input:-webkit-autofill , textarea:-webkit-autofill, select:-webkit-autofill {
+				    -webkit-text-fill-color: #ededed !important;
+				    -webkit-box-shadow: 0 0 0px 1000px transparent  inset !important;
+				    background-color:transparent;
+				    background-image: none;
 				     transition: background-color 50000s ease-in-out 0s;
-				}  
+				}
 				:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
 				     color: #b1b1b1;
 				    font-size:@mainsize;
@@ -290,7 +290,7 @@ import _MD5 from 'common/js/md5.js'
 				input:-ms-input-placeholder{
 				     color: #b1b1b1;
 				    font-size:@mainsize;
-				} 
+				}
 				input::-webkit-input-placeholder{
 				    color: #b1b1b1;
 				    font-size:@mainsize;
