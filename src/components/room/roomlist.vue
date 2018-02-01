@@ -14,7 +14,7 @@
         <div class="loading-container" v-show="!roomListData.length">
           <loading></loading>
         </div>
-				<div class="list" v-for="item in roomListData" :id="item.roomId" @click="gooRoom(item)">
+				<div class="list" v-for="item in roomListData" v-if="item.lecturerId!=281" :id="item.roomId" @click="gooRoom(item)">
 					<div class="room-pic">
 						<img :src="item.roomPic" alt="">
 					</div>
@@ -101,7 +101,6 @@ export default {
 			var that = this;
 			var roomId = item.roomId;
 			var targetBtn = document.querySelector('#s'+roomId);
-			console.log(item)
 			//if(this.shareFn.isLogin()){
 				if(item.roomStatus==1){
 					layer.open({

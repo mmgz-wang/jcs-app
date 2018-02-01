@@ -32,7 +32,8 @@ import Common from 'common/js/common'
 				headerData:{
 					name: 'enter-in',
 					ele: '登录精彩说'
-				}
+				},
+        loginfrom: 'H5'
 			}
 		},
 		created(){
@@ -58,24 +59,32 @@ import Common from 'common/js/common'
 				this.sendLogin();
 			},
 			sendLogin(){
+        if(Common.getDeviceinfo().type=="pc"){
+			    this.loginfrom = 'PC'
+        }else if(Common.getDeviceinfo().app=='weixin'){
+          this.loginfrom = 'H5'
+        }
 				this.$nextTick(function(){
 					this.$http.jsonp(Common.baseURI().host + '/user/login',
 						{
 							params:{
 								language: 'M',
-					            PhoneNumber: this.tel,
-					            PassWord: this.pwd,
-					            loginfrom:'H5'
-					        }
-					    }
+                PhoneNumber: this.tel,
+                PassWord: this.pwd,
+                loginfrom: this.loginfrom
+              }
+            }
 					).then(function(res){
-						console.log(res.data)
 						if(res.data.Code === '0000'){
 							console.log(res.data)
 							this.$router.back();
 							var jsonLog='{"abc":"'+escape(this.tel)+'","abcd":"'+res.data.UserId+'","abcde":"'+res.data.SecurityKey+'","pic":"'+res.data.PicPath+'"}';
-
 							setCookie('jsonLog',jsonLog,1);
+              setCookie(
+                'telephone',
+                res.data.NikeName,
+                1
+              );
 							function setCookie(c_name,value,expiredays){
 								var exdate=new Date();
 								exdate.setDate(exdate.getDate()+expiredays);

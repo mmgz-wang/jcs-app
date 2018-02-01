@@ -138,13 +138,18 @@
               }
             }
           ).then(function (res) {
+            console.log(res.data)
             if (res.data.code == '0000') {
               this.userData = res.data;
               this.userId =  this.shareFn.getUserId();
               if(this.userData.NickName != '' && this.userData.NickName != null && this.userData.NickName != undefined && this.userData.NickName != this.userData.PhoneNumber){
                 this.showName = true;
               }
-              setCookie('telephone', this.strReplace(this.userData.PhoneNumber), 1);
+              setCookie(
+                'telephone',
+                this.userData.PhoneNumber == this.userData.NickName?this.strReplace(this.userData.PhoneNumber):this.userData.NickName,
+                1
+              );
               function setCookie(c_name, value, expiredays) {
                 var exdate = new Date();
                 exdate.setDate(exdate.getDate() + expiredays);

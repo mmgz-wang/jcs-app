@@ -14,6 +14,7 @@
 
       <div ref="scrollWraper" class="msg-list">
         <div ref="roomMain" class="room-main">
+          <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <section v-for="item in msgData"
                    :class="{
                             left:item.isLecturer||userName!=item.userName,
@@ -28,7 +29,7 @@
                 :class="{
                                 pic:item.isLecturer||userName!=item.userName,
                                 rpic:!item.isLecturer&&userName==item.userName
-                            }" onclick="goauthor(353)">
+                            }">
                 <img :src="item.userPic" alt="">
               </div>
               <div
@@ -53,7 +54,7 @@
                      :class="{
                                     dialog:item.isLecturer||userName!=item.userName,
                                     rdialog:!item.isLecturer&&userName==item.userName
-                                }">{{item.content}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
+                                }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
                                                         src="../../common/img/lop.png">
                 </div>
                 <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
@@ -65,7 +66,6 @@
             </div>
 
           </section>
-
         </div>
       </div>
       <p class="newmsg_in" @click="newMsgClick()" v-show="newMsg">您有新消息</p>
@@ -182,7 +182,9 @@
         awardShow: false,
         awardNum: '',
         config: null,
-        wxDialog: false
+        wxDialog: false,
+        loadPcShow: false,
+        newsId: ''
       }
     },
     created() {
@@ -209,10 +211,17 @@
       //}
     },
     mounted() {
-      this.loadMsg();
+      if(Common.getDeviceinfo().type == 'pc'){
+        this.laodPcMsg();
+      }else{
+        this.loadMsg();
+      }
     },
     computed: {},
     methods: {
+      coding(str){
+        return unescape(str.replace(/&#x/g,'%u').replace(/;/g,''));
+      },
       reseteRoomStatus(){
         this.IO = io.connect(Common.baseURI().ioUrl);
         this.roomScoket();
@@ -249,7 +258,6 @@
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
-          console.log(data)
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
@@ -336,26 +344,26 @@
         this.IO.on('chatevent', function (data) {
           console.log(data)
           if (data.userId != that.userId) {
+            if(that.newsId == data.messageId){
+              return ;
+            }
             that.msgData.push(data);
+            that.newsId = data.messageId;
             var mainH = that.$refs.scrollWraper.offsetHeight;
             var innerH = that.$refs.roomMain.offsetHeight;
             var scrollH = innerH - mainH;
-            console.log(mainH+':'+innerH)
-            console.log(that.$refs.scrollWraper.scrollTop+':'+scrollH)
+
             if(that.$refs.scrollWraper.scrollTop != scrollH){
               that.newMsg = true;
             }else{
               that.scrollTo();
             }
-
-
           }
           if (data.payable) {
             that.GetRoomMsg();
           }
         });
         this.IO.on('rescindevent', function (data) {
-          that.wxDialog=true;
           that.GetRoomMsg();
         });
         this.IO.on('roomstatusevent', function (data) {
@@ -382,7 +390,7 @@
       },
       sendMsg() {
         var that = this;
-        console.log(this.shareFn.jsonLog())
+
         if (that.$refs.msgInput.value == '') {
           return false;
         }
@@ -404,7 +412,6 @@
           userId: that.shareFn.getUserId(),
           content: that.$refs.msgInput.value
         };
-        console.log(jsonObject)
         this.IO.emit('chatevent', jsonObject);
         that.$refs.msgInput.value = '';
         that.scrollTo();
@@ -413,6 +420,7 @@
         var targetsName = event.target.className,
           targets = event.target,
           that = this;
+        this.isPullDown = false;
         if (s == 'all') {
           that.toData = {
             limit: 20,
@@ -481,7 +489,6 @@
         that.scrollTo();
       },
       setMsg(s) {
-        console.log(999)
         if(!this.shareFn.isLogin()){
           this.$router.push('enter');
           return ;
@@ -523,23 +530,31 @@
           that.toData,
           function (res) {
             if (res.status == 200) {
+
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
                 setTimeout(function () {
                   var hei = document.querySelector('section').offsetHeight;
                   wrapEle.scrollTop = res.data.messages.length * hei;
-                  console.log(res.data.messages.length * hei)
                 }, 20)
               } else {
                 that.msgData = res.data.messages;
                 that.scrollTo();
               }
               res.data.isMsgDescriber ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
+              if(that.isPullDown && res.data.messages.length == 0){
+                layer.open({
+                  content: '已无更多历史消息！',
+                  time: 2,
+                  skin: 'msg'
+                });
+              }
             } else {
               console.log('请求失败')
             }
             that.messageIds = that.msgData[0].messageId;
             var downDom = document.querySelector('.custmor-pullDown');
+            that.loadPcShow = false;
             if (downDom != null) {
               wrapEle.removeChild(downDom);
               that.isPullDown = false;
@@ -557,12 +572,9 @@
           shadeClose: false,
           btn: ['确定', '取消'],
           yes: function (index) {
-            if (that.ackData.userMoney < price) {
-              if(Common.getDeviceinfo().type == 'pc'){
+            if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
                 that.custmorPost(7,id.toString());
-              }else{
-
-              }
+                layer.close(index)
             }else{
               that.custmorJsonp(
                 Common.baseURI().host + '/Purchase/PurchaseChatRoomMsg',
@@ -571,9 +583,8 @@
                   Language: 'M',
                   payable: true,
                   MsgId: id,
-                  SecurityCode: this.shareFn.getSecurityCode()
+                  SecurityCode: that.shareFn.getSecurityCode()
                 },function (res) {
-                  console.log(res.data)
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
                     texts = "精彩币余额不足请充值！";
@@ -712,16 +723,34 @@
           }
         })
       },
+      laodPcMsg: function () {
+        var that = this;
+        this.$refs.scrollWraper.addEventListener('scroll',function () {
+          if(this.scrollTop==0){
+            that.loadPcShow = true;
+            that.isPullDown = true;
+            that.toData = {
+              limit: 20,
+              messageId: that.messageIds,
+              userId: that.userId,
+              range: that.range,
+              token: that.shareFn.getSecurityCode()
+            }
+            that.GetRoomMsg();
+          }
+        })
+      },
       back() {
         this.$router.back();
         this.IO.emit('leaveroomevent');
+        console.log('leaveroomevent')
       },
       scrollTo() {
         var that = this;
         setTimeout(function () {
-          if (that.isPullDown) {
-            return;
-          }
+          // if (that.isPullDown) {
+          //   return;
+          // }
           var mainH = that.$refs.scrollWraper.clientHeight;
           var innerH = that.$refs.roomMain.clientHeight;
           var scrollH = innerH - mainH;
@@ -828,7 +857,7 @@
         ).then(function (res) {
           if(res.data.Code == '0000'){
             var resultStr = res.data.DLBPara;
-            console.log(resultStr)
+
             this.config = {
               value: resultStr,
               filter: '#FFFFFF',
@@ -837,7 +866,6 @@
               imagePath: require('../../common/img/jcslog.png')
             }
             this.wxDialog=true;
-            layer.close(index);
           }else if(res.data.Code == 3008){
             alert("您已经购买过了");
           }else if(res.data.Code == '2006'||res.data.Code == '2005'){
@@ -1517,5 +1545,10 @@
 
     }
   }
-
+  .load_pc{
+    text-align: center;
+    font-size: 0.12rem;
+    line-height: 30px;
+    color: @assistcolor;
+  }
 </style>

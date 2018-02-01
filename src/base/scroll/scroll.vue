@@ -76,7 +76,11 @@
           click: this.click,
           pullDownRefresh: this.pullDownRefresh,
           pullUpLoad: this.pullUpLoad,
-          mouseWheel: true
+          mouseWheel: true,
+          scrollbar:  {
+            fade: false,
+            interactive: false
+          }
         }
         this.scroll = new BScroll(this.$refs.wrapper, options);
         if(that.scrollIng != undefined){
@@ -135,5 +139,7 @@
 </script>
 
 <style rel="stylesheet/style">
-
+  .bscroll-indicator{
+    background: #eeeeee !important;
+  }
 </style>

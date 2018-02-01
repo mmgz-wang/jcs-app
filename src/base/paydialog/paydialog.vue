@@ -2,7 +2,7 @@
 	<div class="paydialog">
 	    <ul>
 	        <li class="room-pay-tit" v-html="tit">
-	            
+
 	        </li>
 	        <li v-if="lis.length>0"></li>
 	        <li v-for="(item,index) in btns" @click="lisClick" :class="{yes:index==0,no:index==1}">{{item}}</li>
@@ -28,7 +28,7 @@ export default {
 			type: Array,
 			default:function(){
 				return ['确定','取消'];
-			} 
+			}
 		},
 		yesFn: {
 			type: Function,
@@ -44,7 +44,7 @@ export default {
 		}
 	},
 	created(){
-		console.log(this.btns)
+
 	},
 	methods: {
 		lisClick(event){

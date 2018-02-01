@@ -3,11 +3,11 @@
 		<div class="right">
 			<dl id="user" @click="goEnter()">
 				<dt><img id="menupic" :src="setPic()"></dt>
-				<dd id="menutel">{{getCookie('telephone')}}</dd>
+				<dd id="menutel">{{nickName}}</dd>
 			</dl>
 			<ul>
 				<router-link to="/home"><li id="home">首页</li></router-link>
-				<router-link to="/roomlist"><li id="roomlist">直播</li></router-link>
+				<router-link to="/roomlist"><li id="roomlist">聊天室</li></router-link>
 				<router-link to="/competition"><li id="competition">赛事</li></router-link>
 				<router-link to="/attention"><li id="attention">关注</li></router-link>
 				<router-link to="/vip"><li id="menu_vip">VIP文章</li></router-link>
@@ -20,6 +20,11 @@
 <script type="text/javascript">
 export default {
 	name: 'menus',
+  data(){
+	  return {
+	    nickName: '请登录'
+    }
+  },
   created(){
 
 	},
@@ -27,13 +32,15 @@ export default {
 		setMenu: function(name){
 			var menu = document.querySelector('#menus');
 			menu.className = 'menus';
+      //this.getCookie('telephone')
 		},
 		getCookie(name){
 		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
 		    if(this.shareFn.isLogin()){
-		    	return (arr=document.cookie.match(reg))?unescape(arr[2]):'请登录';
+		      arr = document.cookie.match(reg);
+		    	this.nickName = unescape(arr[2]);
 		    }else{
-		    	return '请登录';
+          this.nickName = '请登录';
 		    }
 		},
 		setPic(){
@@ -51,6 +58,7 @@ export default {
 	},
 	watch:{
 		$route(){
+      this.getCookie('telephone')
 			document.querySelector('.menus').className = 'menus'
 		}
 	}
