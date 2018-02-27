@@ -25,7 +25,7 @@
 							</p>
 							<!-- <p class="roompic">门票: <span :class="{on:item.roomStatus==2 || item.roomStatus==1}" v-html="setPrice(item)"></span></p> -->
 							<p class="time">直播时间:&nbsp;&nbsp; {{formatTime(item.startTime)}} —  {{formatTime(item.startTime, item.endTime)}}</p>
-					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :id="'s'+item.roomId" :class="{roomlistgary:item.isRoomDscriber}">{{item.isRoomDscriber?'关闭通知':'开启通知'}}</span>
+					    	<span v-if="item.roomStatus == '1'" @click.stop="setMsg($event);" :roomId = "item.roomId" class="setmsg" :id="'s'+item.roomId" :class="{roomlistgary:item.isRoomDscriber}">{{item.isRoomDscriber?'关闭通知':'开播后通知'}}</span>
 						</div>
 						<div class="explain">
 							<h4>{{item.roomName}}
@@ -68,7 +68,7 @@ export default {
 			pullDownText: '下拉刷新！',
 			pullUpText: '上拉加载更多！',
 			roomPageIndex: 0,
-			informText: '开启通知',
+			informText: '开播后通知我',
 			pageRows: 20
 		}
 	},
@@ -78,6 +78,18 @@ export default {
 	created(){
 		this.getData();
 	},
+  beforeRouteEnter(to, from, next) {
+    if(from.name == 'roomindex'){
+      to.meta.iskeep=true;
+    }
+    next();
+  },
+  activated(){
+	  if(this.$route.meta && this.$refs.scroll.scroll.y == 0){
+      //console.log(this.$refs.scroll.scroll)
+	    this.$refs.scroll.refresh();
+    }
+  },
 	methods: {
 		setMenu: function(name){
 			var menu = document.querySelector('#menus');
@@ -103,49 +115,53 @@ export default {
 			var targetBtn = document.querySelector('#s'+roomId);
 			//if(this.shareFn.isLogin()){
 				if(item.roomStatus==1){
-					layer.open({
-					    content: `<p class="teach-name">${item.roomName}</p><p>主播：${item.lecturerName}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(item)}</p><p>直播时间：${item.startTime.substr(5, 11)} ${item.endTime.substr(5, 11)}</p>`,
-					    btn: ['开启通知', '取消通知'],
-					    shadeClose: false,
-					    yes: function (index) {
-					        that.$nextTick(function(){
-	                            that.$http.jsonp(
-	                                "https://chat.jingcaishuo.com/Room/SubscribeRoom",
-	                                {
-	                                    params: {
-	                                        language: 'M',
-	                                        userId: this.shareFn.getUserId(),
-	                                        roomId: roomId
-	                                    }
-	                                }
-	                            ).then(function(){
-	                            	targetBtn.innerHTML = '关闭通知';
-	                            	targetBtn.className='setmsg roomlistgary';
-	                            })
-	                        })
-	                        layer.close(index);
-					    },
-					    no: function (index) {
-					    	that.$nextTick(function(){
-					    	    that.$http.jsonp(
-					    	        "https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
-					    	        {
-					    	            params: {
-					    	                language: 'M',
-					    	                userId: this.shareFn.getUserId(),
-					    	                roomId: roomId
-					    	            }
-					    	        }
-					    	    ).then(function(){
-					    	    	targetBtn.innerHTML = '开启通知';
-					    	    	targetBtn.className='setmsg';
-					    	    },function(){
-					    	        that.showMeaage('设置失败请重试！');
-					    	    })
-					    	})
-					    	layer.close(index);
-					    }
-					});
+				  if(this.shareFn.isLogin()){
+            layer.open({
+              content: `<p class="teach-name">${item.roomName}</p><p>主播：${item.lecturerName}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(item)}</p><p>直播时间：${item.startTime.substr(5, 11)} ${item.endTime.substr(5, 11)}</p>`,
+              btn: ['开播后通知我', '取消通知'],
+              shadeClose: false,
+              yes: function (index) {
+                that.$nextTick(function(){
+                  that.$http.jsonp(
+                    "https://chat.jingcaishuo.com/Room/SubscribeRoom",
+                    {
+                      params: {
+                        language: 'M',
+                        userId: this.shareFn.getUserId(),
+                        roomId: roomId
+                      }
+                    }
+                  ).then(function(){
+                    targetBtn.innerHTML = '关闭通知';
+                    targetBtn.className='setmsg roomlistgary';
+                  })
+                })
+                layer.close(index);
+              },
+              no: function (index) {
+                that.$nextTick(function(){
+                  that.$http.jsonp(
+                    "https://chat.jingcaishuo.com/Room/CancleSubscribeRoom",
+                    {
+                      params: {
+                        language: 'M',
+                        userId: this.shareFn.getUserId(),
+                        roomId: roomId
+                      }
+                    }
+                  ).then(function(){
+                    targetBtn.innerHTML = '开播后通知我';
+                    targetBtn.className='setmsg';
+                  },function(){
+                    that.showMeaage('设置失败请重试！');
+                  })
+                })
+                layer.close(index);
+              }
+            });
+          }else{
+            this.showMeaage('您还没有登录！')
+          }
 				}else{
 					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
 				}
@@ -165,13 +181,13 @@ export default {
 					{
 						params:{
 							userId: this.shareFn.getUserId(),
-				            pageIndex: this.roomPageIndex,
-				            pageRows: this.pageRows
-				        }
-				    }
+              pageIndex: this.roomPageIndex,
+              pageRows: this.pageRows
+            }
+          }
 				).then(function(res){
-					console.log(res.data)
-					console.log(this.types)
+					// console.log(res.data)
+					// console.log(this.types)
 					if(res.status == 200 && res.data.length > 0){
 						if(this.types){
 
@@ -280,7 +296,7 @@ export default {
 		                    }
 		                }
 		            ).then(function(res){
-		            	document.querySelector('#s'+roomId).innerHTML = '开启通知';
+		            	document.querySelector('#s'+roomId).innerHTML = '开播后通知我';
 		            	setmsgBtn.className='setmsg';
 		            })
 		        } else {
@@ -299,9 +315,17 @@ export default {
                     })
 		        }
 		    } else {
-		        app.pushLoginView();
+		        this.showMeaage('您还没有登录！')
 		    }
-		}
+		},
+    showMeaage: function (msg) {
+      layer.open({
+        content: msg,
+        time: 2,
+        skin: 'msg',
+        anim: 'scale'
+      });
+    },
 	},
 	watch:{
 		data(){

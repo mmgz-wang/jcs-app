@@ -1,6 +1,7 @@
 <template>
   <transition name="slide">
     <div class="roomindex">
+      <img style="width: 0;height: 0;opacity: 0;display: none;" src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
       <main-header @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
       <div class="room-nav">
         <ul class="selector">
@@ -15,7 +16,7 @@
       <div ref="scrollWraper" class="msg-list">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
-          <section v-for="item in msgData"
+          <section v-for="item in msgData" :id="item.messageId"
                    :class="{
                             left:item.isLecturer||userName!=item.userName,
                             right:!item.isLecturer&&userName==item.userName,
@@ -258,13 +259,14 @@
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
+          console.log(data)
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
-          that.teacherId = data.userId;
           that.roomPic = data.userPic;
           that.userMoney = data.userMoney;
           that.userName = data.userName;
+          that.lecturerName = that.$router.currentRoute.query.lecturerName;
           if (data.code == 999) {
             if(that.shareFn.isLogin()){
               that.dialogShow = true;
@@ -342,7 +344,6 @@
           }
         });
         this.IO.on('chatevent', function (data) {
-          console.log(data)
           if (data.userId != that.userId) {
             if(that.newsId == data.messageId){
               return ;
@@ -424,7 +425,7 @@
         if (s == 'all') {
           that.toData = {
             limit: 20,
-            userId: that.userId,
+            userId: this.shareFn.getUserId(),
             range: 0,
             token: this.shareFn.getSecurityCode()
           }
@@ -440,7 +441,7 @@
         } else if (s == 'teach') {
           that.toData = {
             limit: 20,
-            userId: that.userId,
+            userId: this.shareFn.getUserId(),
             range: 1,
             token: this.shareFn.getSecurityCode()
 
@@ -456,7 +457,7 @@
         } else if (s == 'own') {
           that.toData = {
             limit: 20,
-            userId: that.userId,
+            userId: this.shareFn.getUserId(),
             range: 2,
             token: this.shareFn.getSecurityCode()
           }
@@ -471,7 +472,7 @@
         } else if (s == 'recommend') {
           that.toData = {
             limit: 20,
-            userId: that.userId,
+            userId: this.shareFn.getUserId(),
             range: 3,
             token: this.shareFn.getSecurityCode()
           }
@@ -663,7 +664,6 @@
                 that.dialogShow = false;
               }
             }
-          //}
         }
       },
       firstNoFn() {
@@ -743,7 +743,6 @@
       back() {
         this.$router.back();
         this.IO.emit('leaveroomevent');
-        console.log('leaveroomevent')
       },
       scrollTo() {
         var that = this;
@@ -902,6 +901,9 @@
         if(e.target.src.indexOf('_s')>0){
           this.bigImgShow = true;
           this.imgurl = e.target.src.replace('_s','');
+        }else{
+          this.bigImgShow = true;
+          this.imgurl = e.target.src;
         }
       },
       previewHide(){
@@ -925,6 +927,14 @@
 
         },
         deep: true
+      },
+      $route: {
+        handler: function (old,news) {
+          if(this.$route.name == 'roomlist'){
+            this.IO.emit('leaveroomevent');
+            console.log('leaveroomevent')
+          }
+        }
       }
     },
     components: {

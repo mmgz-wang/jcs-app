@@ -357,7 +357,6 @@ export default {
 
 			}
 			if('' != articles.omnCardId &&'' != articles.omnCardValue && articles.omnCardId != 0 && articles.omnCardValue != 0&&undefined!=articles.omnCardId&&undefined!=articles.omnCardValue&& articles.singleUnlock) {
-
 				payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${articles.omnCardValue}精彩币以下</i></span><span class="open-explain">
 				仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`
 			}
@@ -391,9 +390,15 @@ export default {
 						'12':'看老师全年产品'
 					};
 					if(arguments.length>1){
+            if(arguments[1].price == 0 || arguments[1].price == undefined){
+              return '';
+            }
 						return `<div class="package-item"><p><span>包周产品 <i>￥${arguments[1].price}
 						</i></span><span class="open-explain">看老师一星期产品</span></p><button months="${arguments[1].termmonths}" id="${arguments[1].id}" price="${arguments[1].price}" class="open-btn" types="packages">解锁</button></div>`
 					}else{
+            if(v.price == 0 || v.price == undefined){
+              return '';
+            }
 						return `<div class="package-item"><p><span>包${packageArr[v.termmonths]}产品
 						<i>￥${v.price}</i></span><span class="open-explain">
 						${packageExplain[v.termmonths]}</span></p><button types="packages" class="open-btn"

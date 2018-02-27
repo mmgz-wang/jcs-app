@@ -132,6 +132,12 @@
         },
         deep: true
 
+      },
+      $route: {
+        handler: function () {
+          // this.refresh();
+          // console.log(this.$route)
+        }
       }
     }
   }

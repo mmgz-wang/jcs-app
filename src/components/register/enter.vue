@@ -64,6 +64,7 @@ import Common from 'common/js/common'
         }else if(Common.getDeviceinfo().app=='weixin'){
           this.loginfrom = 'H5'
         }
+
 				this.$nextTick(function(){
 					this.$http.jsonp(Common.baseURI().host + '/user/login',
 						{

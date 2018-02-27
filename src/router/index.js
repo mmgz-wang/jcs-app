@@ -71,13 +71,17 @@ export default new Router({
 
     //首页TAB
         //聊天室
-    { path: '/roomlist', name: 'roomlist', component: RoomList },
-        {path:'/roomindex', name: 'roomindex', component: RoomIndex,
-            meta: {
-                requiresAuth: true,
-                iskeep: false
-            }
-        },
+    { path: '/roomlist', name: 'roomlist', component: RoomList,
+      meta: {
+        iskeep: false
+      }
+    },
+    {path:'/roomindex', name: 'roomindex', component: RoomIndex,
+        meta: {
+            requiresAuth: true,
+            iskeep: false
+        }
+    },
     //赛事
     { path: '/competition', name: 'competition', component: Competition,
         meta: {
