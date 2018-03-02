@@ -114,7 +114,7 @@ import _MD5 from 'common/js/md5.js'
 						"InviteId" : this.invitecode,
 						"PassWord" : this.pwd,
 						"OSV" : "PC"
-			        },
+          },
 					{
 						headers: {"X-Target": "TrentService.Register"}
 					}
