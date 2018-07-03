@@ -29,7 +29,7 @@
 
 <script>
 import mainHeader from 'base/header/mainheader'
-import Common from 'common/js/common.js'
+import Common from 'common/js/common'
 export default {
 	name: 'my',
 	data(){
@@ -37,7 +37,8 @@ export default {
 			headerData: {
 				ele: '设置',
 				name: 'setting'
-			}
+			},
+      loginfrom: 'H5'
 		}
 
 	},
@@ -53,17 +54,22 @@ export default {
 			return this.shareFn.isLogin();
 		},
 		singOut(){
+		  let that = this;
+      if (Common.getDeviceinfo().type=="pc") {
+        this.loginfrom = 'PC'
+      } else if (Common.getDeviceinfo().app=='weixin') {
+        this.loginfrom = 'WEIXIN'
+      } else if ( Common.getDeviceinfo().type=="android" || Common.getDeviceinfo().type=="ios") {
+		    this.loginfrom = 'H5'
+      }
 			this.$nextTick(function(){
-					this.$http.jsonp(
+					this.$http.post(
 						Common.baseURI().host + '/user/logout',
 						{
-							params: {
-								"UserId": this.shareFn.getUserId(),
-								loginfrom:'H5'
-							}
-				        }
+								"userId": that.shareFn.getUserId(),
+								"loginfrom": that.loginfrom
+            }
 					).then(function(res){
-						console.log(res)
 						if(res.data.Code === '0000'){
 							this.bunceIn('成功退出！')
 							setCookie('jsonLog',null,1);
@@ -74,41 +80,13 @@ export default {
 								document.cookie=c_name+ "=" +escape(value)+
 								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 							}
-							//this.$router.back();
+							this.$router.back();
 							location.reload();
 						}
 					},function(){
 						console.log('请求失败请检查网络')
 					})
 			})
-
-			/*this.$http.post(
-				Common.baseURI().nativeHost ,
-				{
-					"UserId": shareFn.getUserId(),
-					loginfrom:'H5'
-		        },
-				{
-					headers: {"X-Target":"TrentService.LogOut"}
-				}
-
-			).then(function(res){
-				console.log(res)
-				if(res.data.Code === '0000'){
-					this.bunceIn('成功退出！')
-					setCookie('jsonLog',null,1);
-					function setCookie(c_name,value,expiredays){
-						var exdate=new Date();
-						exdate.setDate(exdate.getDate()+expiredays);
-						document.cookie=c_name+ "=" +escape(value)+
-						((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
-					}
-					//this.$router.back();
-					location.reload();
-				}
-			},function(){
-				console.log('请求失败请检查网络')
-			})*/
 		},
 		setClick(s){
 			if(s == 'mode'){

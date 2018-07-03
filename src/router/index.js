@@ -4,10 +4,13 @@ import Router from 'vue-router'
 import Home from '../components/home/home'
 import Vip from '../components/vip/vip'
 import Basketball from '../components/portal/basketball'
+import Worldcup from '../components/portal/worldcup'
+
 import Live_articlelist from '../components/portal/live_articlelist'
 import RecordList from '../components/portal/recordlist'
 import Letterlist from '../components/letter/letterlist'
 import Letterindex from '../components/letter/letterindex'
+import FreeList from '../components/portal/freelist'
 
 //TAB
 import RoomList from '../components/room/roomlist'
@@ -45,10 +48,11 @@ import Service from '../components/service/service'
 Vue.use(Router)
 
 export default new Router({
+  //mode: 'history',
   routes: [
     //首页
-    { path: '/', name: 'home', component: Home },
-    { path: '/home', name: 'home', component: Home },
+    { path: '/', name: 'Home', component: Home },
+    { path: '/home', name: 'Home', component: Home },
     //首页子页面
     { path: '/vip', name: 'vip', component: Vip },
     { path: '/letterlist', name: 'letterlist', component: Letterlist,
@@ -60,6 +64,16 @@ export default new Router({
         meta: {
             iskeep:false
         }
+    },
+    { path: '/worldcup', name: 'worldcup', component: Worldcup,
+      meta: {
+        iskeep:false
+      }
+    },
+    { path: '/freelist', name: 'freelist', component: FreeList,
+      meta: {
+        iskeep:false
+      }
     },
     { path: '/e-sports', name: 'e-sports', component: Esports,
       meta: {

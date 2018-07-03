@@ -7,7 +7,7 @@
     :pullUpLoad="pullUpLoad"
     :pullingDownFn="pullingDownFn"
     :pullingUpFn="pullingUpFn"
-    ref="scroll" 
+    ref="scroll"
     :data="articleDataList">
   		<div class="scroll-wrap">
         <p pulldown>{{pullDownText}}</p>
@@ -44,7 +44,7 @@ export default {
       pullDownText: '下拉刷新！',
       pullUpText: '上拉加载更多！',
       lastArticleId: 0,
-    }   
+    }
   },
 	components: {
 		articleList,Scroll,loading,publickHeader
@@ -66,12 +66,13 @@ export default {
       this.lastArticleId = 0;
       if(this.$router.currentRoute.query.sportType == '足球'){
         this.sportType = 0
-        this.headerData.ele = '<h1>足球</h1?'
+        this.headerData.ele = '<h1>足球</h1>'
       }else if(this.$router.currentRoute.query.sportType == '篮球'){
         this.sportType=1
-        this.headerData.ele = '<h1>篮球</h1?'
+        this.headerData.ele = '<h1>篮球</h1>'
       }else{
         this.sportType=2;
+        this.headerData.ele = '<h1>免费</h1>'
       }
       this.getData();
     }
@@ -90,7 +91,7 @@ export default {
       this.lastArticleId = 0;
       this.pullDownText = '努力加载中 ...';
       this.getData();
-      
+
     },
     pullingUpFn(scroll){
       this.types = 1;
@@ -101,7 +102,7 @@ export default {
       this.$nextTick(function () {
         this.$http.jsonp(
           'http://www.jingcaishuo.com/article/list/subType?time=' + Math.random(),
-          { 
+          {
             params:{
               language: 'M',
               articleId: this.lastArticleId,
@@ -109,7 +110,6 @@ export default {
             }
           }
         ).then(function(res) {
-          console.log(res.data);
           if(res.data.Code == '0000'){
             if(this.types){
               this.articleDataList = this.articleDataList.concat(res.data.articleList);
@@ -119,7 +119,6 @@ export default {
               this.pullDownText = '下拉刷新！';
             }
             this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id;
-            console.log(this.lastArticleId)
           }else{
             layer.open({
               content: `网络出错，请稍后再试${res.data.Code}`,

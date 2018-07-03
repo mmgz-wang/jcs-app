@@ -4,6 +4,7 @@
         <router-link to="/vip"><span class="hd-vip">文章</span></router-link>
         <img src="../../common/img/jcs.png">
         <span class="letter" @click="goLetter()">私信</span>
+        <span class="expert-in" @click="expertIn">专家</span>
     </header>
     <nav class="tab">
       <router-link to="/roomlist">聊天室</router-link>
@@ -25,17 +26,17 @@
             <loading></loading>
           </div>
 
-            <banner :data = "banners" @bannerClick="bannerClick"></banner>
+            <banner :bannerData = "banners" @bannerClick="bannerClick"></banner>
             <portal @portalClick="portalClick" :portals = "portals"></portal>
             <article-list
               @goarticle="goarticle"
               :topMargin='true'
               :articleDataList="articleDataList">
-
             </article-list>
           <p pullup>{{pullUpText}}</p>
         </div>
     </scroll>
+    <!--<guessDialog :item="curGuessItem"></guessDialog>-->
     <router-view></router-view>
   </div>
 </template>
@@ -47,6 +48,7 @@ import banner from 'base/banner/banner'
 import portal from '../home/portal'
 import Common from 'common/js/common'
 import articleList from 'base/articlelist/articlelist'
+import guessDialog from 'base/guessdialog/guessdialog'
 export default {
 	data() {
     return {
@@ -61,11 +63,12 @@ export default {
       pullDownText: '下拉刷新！',
       pullUpText: '上拉加载更多！',
       reloads: false,
-      $routerPath: []
+      $routerPath: [],
+      curGuessItem: null
     }
   },
 	components: {
-		banner,portal,articleList,Scroll,loading
+		banner, portal, articleList, Scroll, loading, guessDialog
 	},
   created(){
 
@@ -87,7 +90,6 @@ export default {
       this.types = 1;
       this.pullUpText = '努力加载中 ...';
       this.getData();
-
     },
     getData() {
       if(this.reloads){
@@ -95,15 +97,17 @@ export default {
       }
       this.$nextTick(function () {
         this.$http.jsonp(
-          Common.baseURI().host + '/top-header?time=' + Math.random(),
+          `${Common.baseURI().host}/top-header/?time=${Math.random()}`,
           {
             params:{
               language: 'M',
               articleId: this.lastArticleId,
-              userId: this.shareFn.getUserId()
+              userId: this.shareFn.getUserId(),
+              ver: 2
             }
           }
         ).then(function(res) {
+          console.log(res.data)
           if(res.data.result.data.Banner != undefined){
             this.banners = res.data.result.data.Banner;
           }
@@ -112,10 +116,10 @@ export default {
           }
 
           if(this.types){
-            this.articleDataList = this.articleDataList.concat(res.data.result.artileList.Articles);
+            this.articleDataList = this.articleDataList.concat(res.data.result.artileList);
             this.pullUpText = '上拉加载更多！';
           }else{
-            this.articleDataList = res.data.result.artileList.Articles;
+            this.articleDataList = res.data.result.artileList;
             this.pullDownText = '下拉刷新！';
           }
           this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id;
@@ -152,6 +156,18 @@ export default {
         this.$router.push({
           path: `/e-sports`
         })
+      }else if(item.name == "免费") {
+        this.$router.push({
+          path: `worldcup?sportType=免费`
+        })
+      }else if(item.name == "世界杯") {
+        this.$router.push({
+          path: `worldcup?sportType=世界杯`
+        })
+      }else if(item.name == "看战绩") {
+        this.$router.push({
+          path: `worldcup`
+        })
       }
     },
     goarticle(item){
@@ -160,6 +176,7 @@ export default {
         })
     },
     bannerClick(item){
+      console.log(item)
       if(item.target_type == 'article'){
         this.$router.push({
           path: `/articledetail/?id=${item.target_id}`,
@@ -202,6 +219,9 @@ export default {
           }
         })
       }
+    },
+    expertIn(){
+      this.$router.push('export')
     }
 
   },
@@ -279,7 +299,13 @@ export default {
       left:50%;
       transform:translate3d(-50%,-50%,0);
     }
-
+    .expert-in{
+      float: right;
+      background: url("../../common/img/expert-search.png") no-repeat center;
+      background-size: auto 20px;
+      color: transparent;
+      margin-right: 5px;
+    }
   }
   .tab{
     width:100%;
@@ -319,5 +345,6 @@ export default {
       top:50%;
       transform: translateY(-50%);
   }
+
 }
 </style>

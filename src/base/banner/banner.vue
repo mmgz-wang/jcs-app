@@ -1,7 +1,7 @@
 <template>
-  <div id="banner">
-    <swiper  :options="data.length>1 ? swiperOption : swiperOption2"  ref="mySwiper">
-        <swiper-slide v-for="item in data" :key="item.id">
+  <div id="banner" v-if="bannerData.length>0">
+    <swiper  :options="bannerData.length>1 ? swiperOption : swiperOption2"  ref="mySwiper">
+        <swiper-slide v-for="item in bannerData" :key="item.id">
             <img @click="bannerClick(item)" :src="item.img_url">
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
@@ -13,7 +13,14 @@
 require('swiper/dist/css/swiper.css')
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 export default {
-    props: ['data'],
+    props: {
+      bannerData: {
+        type: Array,
+        default: function () {
+          return []
+        }
+      }
+    },
     components: {
         swiper,
         swiperSlide
@@ -24,23 +31,13 @@ export default {
             swiperOption: {
                 autoplay: 1000,
                 loop : true,
-                notNextTick: true,
                 pagination: '.swiper-pagination',
-                slidesPerView: 'auto',
-                centeredSlides: true,
-                paginationClickable: true,
-                autoHeight: true,
-                spaceBetween: 0,
-                autoplayDisableOnInteraction:false,
+                autoplayDisableOnInteraction:false
             },
             swiperOption2: {
                 autoplay: false,
                 loop : false,
-                notNextTick: true,
-                slidesPerView: 'auto',
-                centeredSlides: true,
-                paginationClickable: true,
-                spaceBetween: 0,
+                paginationClickable: true
             }
         }
     },
@@ -59,12 +56,23 @@ export default {
 
         },
         bannerClick(item){
-            this.$emit('bannerClick',item);
+          console.log(item)
+          this.$emit('bannerClick',item);
         }
     },
-    watch:{
-        banners: function(){
+    watch: {
+        banners: {
 
+        },
+        $route: {
+          handler: function (old,news) {
+            console.log('old:'+old.name)
+            console.log('news:'+news.name)
+            if(old.name == 'Home'){
+              this.$refs.mySwiper.swiper.destroy(true, true)
+            }
+          },
+          deep: true
         }
     }
 

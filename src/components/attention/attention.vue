@@ -76,7 +76,7 @@
           isShow: true
         },
         queryString: {
-          urls: '/Author/GetFollowedAuhorArticles',
+          urls: '/Author/GetFollowedAuhorArticles/',
           data: {
             language: 'M',
             userId: this.shareFn.getUserId(),
@@ -115,9 +115,7 @@
         articleBtn.onclick = function () {
           that.isloading = true;
           that.isTeach = false;
-          //that.authorDataList = [];
-          that.queryString.urls = '/Author/GetFollowedAuhorArticles';
-          console.log(that.queryString)
+          that.queryString.urls = '/Author/GetFollowedAuhorArticles/';
           that.getData(that.queryString);
           that.$refs.scroll.refresh();
           this.className = 'on';
@@ -127,14 +125,12 @@
         teacherBtn.onclick = function () {
           that.isloading = true;
           that.isTeach = true;
-          //that.articleDataList = [];
-          that.queryString.urls = '/author/list/follow';
+          that.queryString.urls = '/author/list/follow/';
           that.getData(that.queryString);
           that.$refs.scroll.refresh();
           this.className = 'on';
           articleBtn.className = '';
           that.$refs.scroll.scrollTo(0, 0, 0, 0)
-          console.log(this.authorDataList)
         };
       })
       this.isFirstEnter = true;
@@ -155,7 +151,7 @@
       var that = this;
       if (!this.$route.meta.iskeep || this.isFirstEnter) {
         this.queryString = {
-          urls: '/Author/GetFollowedAuhorArticles',
+          urls: '/Author/GetFollowedAuhorArticles/',
           data: {
             language: 'M',
             userId: that.shareFn.getUserId(),
@@ -167,7 +163,7 @@
         this.articleDataList = [];
         this.authorDataList = [];
         this.isTeach = false;
-        this.queryString.urls = '/Author/GetFollowedAuhorArticles';
+        this.queryString.urls = '/Author/GetFollowedAuhorArticles/';
         let articleBtn = document.querySelector('#article');
         let teacherBtn = document.querySelector('#teacher');
         articleBtn.className = 'on';
@@ -182,33 +178,29 @@
       if (this.$route.name == 'home') {
         this.$refs.scroll.scrollTo(0, 0, 0);
       }
-      console.log("我是第一个页面的 deactivated 方法");
     },
     methods: {
       pullingDownFn(scroll) {
         this.types = 0;
         this.queryString.data.articleId = 0;
         this.pullDownText = '努力加载中 ...';
-        console.log(this.queryString);
         this.getData(this.queryString);
       },
       pullingUpFn(scroll) {
         this.types = 1;
         this.pullUpText = '努力加载中 ...';
-        console.log(this.queryString);
         this.getData(this.queryString);
       },
-      /*setMenu: function(name){
+      setMenu: function(name){
           var menu = document.querySelector('#menus');
           menu.className = 'menus show';
-      },*/
+      },
       getData: function (data) {
         this.$nextTick(function () {
           this.$http.jsonp(Common.baseURI().host + data.urls,
             {
               params: data.data
             }).then(function (res) {
-            console.log(res.data)
             if (res.data.Code == '0000' || res.data.code == '0000') {
               if ((res.data.Articles != undefined && res.data.Articles.length == 0) || (res.data.data != undefined && res.data.data.length == 0)) {
                 this.lackPageData = {
@@ -222,7 +214,6 @@
                 }
                 this.isEnter = true;
                 return;
-
               }
               ;
               this.isEnter = false;
@@ -242,7 +233,6 @@
               }
             }
           }, function (res) {
-            console.log(res)
             this.isEnter = true;
             //this.$router.push({name: 'enter'})
             //alert('请求失败！')

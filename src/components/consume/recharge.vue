@@ -133,15 +133,18 @@ export default {
             const PAY_TYPE_GOLD = 3;
             const PAY_TYPE_CARD = 6;
             const PAY_TYPE_SIX=7;
+            var payType = 13;
+            if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+              payType = 12;
+            }
             var godata = {
                     "language": "M",
-                    "chargeType": "13",
+                    "chargeType": payType,
                     "money": this.price.toString(),
                     "priceType": this.id.toString(),
                     "userId": this.shareFn.getUserId()*1,
                     "securityCode": this.shareFn.getSecurityCode()
                 };
-                console.log(godata)
             this.$nextTick(function(){
                 that.$http.jsonp(
                     Common.baseURI().host + "/charge/chargeRealMoney",
@@ -152,9 +155,31 @@ export default {
                     if(res.data.Code == "0000"){
                         var data = JSON.parse(res.data.WxPara);
                         console.log(data)
+
+                      if(payType == 13){
                         this.wxShow = true;
                         this.wxUrl = data.code_url+`&redirect_url=${location.href}`
-
+                      }else{
+                        if (typeof WeixinJSBridge == "undefined"){
+                          if( document.addEventListener ){
+                            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                          }else if (document.attachEvent){
+                            document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                          }
+                        }else{
+                          onBridgeReady();
+                        }
+                        function onBridgeReady(){
+                          console.log(data.code_url)
+                          WeixinJSBridge.invoke(
+                            'getBrandWCPayRequest',
+                            JSON.parse(data.code_url),
+                            function(res){
+                              showMessage(res.err_msg);
+                            });
+                        }
+                      }
                     }
                 },function(res){
                     console.log(res.data)

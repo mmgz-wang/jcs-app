@@ -61,21 +61,20 @@ import Common from 'common/js/common'
 			sendLogin(){
         if(Common.getDeviceinfo().type=="pc"){
 			    this.loginfrom = 'PC'
-        }else if(Common.getDeviceinfo().app=='weixin'){
+        }else if(Common.getDeviceinfo().app=='weixin' || Common.getDeviceinfo().type=="android" || Common.getDeviceinfo().type=="android"){
           this.loginfrom = 'H5'
         }
 
 				this.$nextTick(function(){
-					this.$http.jsonp(Common.baseURI().host + '/user/login',
-						{
-							params:{
-								language: 'M',
-                PhoneNumber: this.tel,
-                PassWord: this.pwd,
-                loginfrom: this.loginfrom
-              }
+					this.$http.post(Common.baseURI().host + '/user/login',
+            {
+              language: 'M',
+              phoneNumber: this.tel,
+              passWord: this.pwd,
+              loginfrom: this.loginfrom
             }
 					).then(function(res){
+					  console.log(res)
 						if(res.data.Code === '0000'){
 							console.log(res.data)
 							this.$router.back();
@@ -100,7 +99,9 @@ import Common from 'common/js/common'
 								time: 2
 							})
 						}
-					})
+					}).catch(function (err) {
+            console.log(err)
+          })
 				})
 			}
 		},

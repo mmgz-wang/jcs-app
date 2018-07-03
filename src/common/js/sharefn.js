@@ -7,6 +7,7 @@ export default {
 		if(getCookie('jsonLog') == 'null' || getCookie('jsonLog') == undefined || getCookie('jsonLog') == null){
 			return {"abcde":"","abcd":"",pic:""};
 		}else{
+		  // return this.param;
 			return JSON.parse(getCookie('jsonLog'));
 		}
 		function getCookie(name){

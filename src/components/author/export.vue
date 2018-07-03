@@ -150,6 +150,15 @@ import lackPage from 'base/lackpage/lackpage'
         goFollow(id){
             var target = event.target;
             target.nodeName == 'IMG'?target=target.parentNode:target;
+            console.log(this.shareFn.isLogin())
+            if(!this.shareFn.isLogin()){
+              layer.open({
+                content: '您还没有登录，请登录！',
+                skin: 'msg',
+                time:2
+              })
+              return false;
+            }
             console.log(target)
             if(target.className == 'unfans'){
                 this.customAjax(

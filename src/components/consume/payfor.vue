@@ -58,6 +58,20 @@
                     <a class="cancle_pay" href="javascript:;">取消</a>
                 </div>
             </div>
+          <div class="wx_dialog" v-show="wxDialog">
+            <div class="mask-wx">
+              <div class="dialog-wx">
+                <div class="titles">
+                  <p>微信支付</p>
+                </div>
+                <div class="main">
+                  <vue-q-art v-if="config!=null" :config="config"></vue-q-art>
+                  <a>微信扫码支付</a>
+                  <a class="cancle_pay" @click="wxDialog=false" href="javascript:;">取消</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
     </transition>
 </template>
@@ -67,6 +81,8 @@ import Common from 'common/js/common'
 import mainHeader from 'base/header/mainheader'
 import 'common/js/layer'
 import 'common/less/layer.css'
+import 'common/js/jcs_dialoga.css'
+import VueQArt from 'vue-qart'
 export default {
 	name: 'payfor',
 	props: {
@@ -76,24 +92,27 @@ export default {
         }
     },
     data(){
-        return {
-            headerData:{
-                name: 'payfor',
-                ele: '支付',
-                r_ele: '充值'
-            },
-            msgData: null,
-            CommodityType: 0,
-            articleId: 0,
-            wxShow: false,
-            wxUrl: '',
-            price: 0,
-            authName: ''
-        }
+      return {
+        headerData:{
+            name: 'payfor',
+            ele: '支付',
+            r_ele: '充值'
+        },
+        msgData: null,
+        CommodityType: 0,
+        articleId: 0,
+        wxShow: false,
+        wxUrl: '',
+        price: 0,
+        authName: '',
+        wxDialog: false,
+        config: null
+      }
     },
     created(){
         //this.getData();
         //console.log(this.$route.params)
+      console.log(Common.getDeviceinfo())
     },
     activated() {
         this.$nextTick(function(){
@@ -182,60 +201,114 @@ export default {
 
                     }
                 })
-            }else if(s == 'we'){
-                var godata = {
-                        "Language": "M",
-                        "CommodityId": this.articleId.toString(),
-                        "CommodityType": this.CommodityType,
-                        "price": this.msgData.Price.toString(),
-                        "AuthorId": this.msgData.AuthorId.toString(),
-                        "source": "1_2_7",
-                        "loginfrom": "H5",
-                        "paytype": payType,
-                        "UserId": this.shareFn.getUserId(),
-                        "SecurityCode": this.shareFn.getSecurityCode()
-                    };
-                    console.log(JSON.stringify(godata))
-                that.$http.post(
-                    Common.baseURI().host + "/weixin/tradepay",
-                    JSON.stringify(godata)
-                ).then(function(res){
-                    console.log(res.data);
-                    if(res.data.Code == "0000"){
-                        var data = JSON.parse(res.data.WxPara);
-                        if(payType == 13){
-                            this.wxShow = true;
-                            this.wxUrl = data.code_url+`&redirect_url=http://www.jingcaishuo.com/chinese/jcs-app/dist/#/articledetail/?id=${this.articleId.toString()}`
-                        }else{
-                            if (typeof WeixinJSBridge == "undefined"){
-                                if( document.addEventListener ){
-                                    document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-                                }else if (document.attachEvent){
-                                    document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-                                    document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-                                }
-                            }else{
-                                onBridgeReady();
-                            }
-                            function onBridgeReady(){
-                                console.log(data.code_url)
-                                WeixinJSBridge.invoke(
-                                'getBrandWCPayRequest',
-                                JSON.parse(data.code_url),
-                                function(res){
-                                showMessage(res.err_msg);
-                                });
-                            }
-                        }
+            } else if(s == 'we') {
+              if(Common.getDeviceinfo().type == 'pc'){
+                console.log(Common.getDeviceinfo().type)
+                that.custmorPost(0,this.articleId.toString());
 
+              }else{
+                var godata = {
+                  "Language": "M",
+                  "CommodityId": this.articleId.toString(),
+                  "CommodityType": this.CommodityType,
+                  "price": this.msgData.Price.toString(),
+                  "AuthorId": this.msgData.AuthorId.toString(),
+                  "source": "1_2_7",
+                  "loginfrom": "H5",
+                  "paytype": payType,
+                  "UserId": this.shareFn.getUserId(),
+                  "SecurityCode": this.shareFn.getSecurityCode()
+                };
+                console.log(JSON.stringify(godata))
+                that.$http.post(
+                  Common.baseURI().host + "/weixin/tradepay",
+                  JSON.stringify(godata)
+                ).then(function(res){
+                  console.log(res.data);
+                  if(res.data.Code == "0000"){
+                    var data = JSON.parse(res.data.WxPara);
+                    if(payType == 13){
+                      this.wxShow = true;
+                      this.wxUrl = data.code_url+`&redirect_url=http://www.jingcaishuo.com/chinese/jcs-app/dist/#/articledetail/?id=${this.articleId.toString()}`
+                      console.log(this.wxUrl)
+                    } else {
+                      if (typeof WeixinJSBridge == "undefined"){
+                        if( document.addEventListener ){
+                          document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                        }else if (document.attachEvent){
+                          document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                          document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                        }
+                      }else{
+                        onBridgeReady();
+                      }
+                      function onBridgeReady(){
+                        console.log(data.code_url)
+                        WeixinJSBridge.invoke(
+                          'getBrandWCPayRequest',
+                          JSON.parse(data.code_url),
+                          function(res){
+                            showMessage(res.err_msg);
+                          });
+                      }
                     }
+
+                  }
                 },function(res){
-                    console.log(res.data)
+                  console.log(res.data)
                 })
+              }
+
             }else if(s == 'ali'){
 
             }
         },
+        custmorPost(payType,ID){
+        this.$http.post(
+          Common.baseURI().host + "/dlb/tradepay",
+          {
+            "Language":"M",
+            "UserId":this.shareFn.getUserId(),
+            "CommodityId":ID,
+            "SecurityCode":this.shareFn.getSecurityCode(),
+            "CommodityType":payType,
+            "source":"1_2_7"
+          },{
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8",
+            }
+          }
+        ).then(function (res) {
+          if(res.data.Code == '0000'){
+            var resultStr = res.data.DLBPara;
+
+            this.config = {
+              value: resultStr,
+              filter: '#FFFFFF',
+              fillType: '',
+              background: '#fff',
+              imagePath: require('../../common/img/jcslog.png')
+            }
+            this.wxDialog=true;
+          }else if(res.data.Code == 3008){
+            alert("您已经购买过了");
+          }else if(res.data.Code == '2006'||res.data.Code == '2005'){
+            layer.open({
+              content: '<p style="text-align:center;">您已在其他设备登录，确定要重新登录吗？</p >',
+              btn: ['确定','取消'],
+              shadeClose:null,
+              yes: function (index) {
+                $('#PayInit').hide();
+                layer.close(index);
+                needLogin();
+                $.removeCookie('NikeName');
+              }
+            });
+          }
+        },function (err) {
+          console.log(err)
+        })
+      },
         setWx(){
             this.wxShow = false;
         },
@@ -244,7 +317,7 @@ export default {
         }
     },
     components:{
-        mainHeader
+        mainHeader, VueQArt
     }
 }
 </script>

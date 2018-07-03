@@ -1,6 +1,6 @@
 <template>
     <div class="art-list" :class="{artlistnomargin:topMargin}" id="art-list">
-        <div class="listcon" v-for="item in articleDataList" @click="goarticle(item)">
+        <div class="listcon" v-for="item in articleDataList" v-if="item.otype == 1 || item.otype == undefined" @click="goarticle(item)">
             <div class="txtbox">
                 <dl @click.stop="goauthor(item.author_id)" :author_id="item.author_id">
                     <dt>
@@ -22,98 +22,98 @@
                 <span>{{timeformat(item.matches[0].start_time)}} #</span>
             </div>
         </div>
+        <!--<guess-list-->
+          <!--v-else-if="item.otype == 4"-->
+          <!--@guessTeamClick="guessTeamClick"-->
+          <!--:item="item">-->
+        <!--</guess-list>-->
 
     </div>
 </template>
 <script type="text/javascript">
 import shareFn from 'common/js/sharefn'
+import guessList from 'base/guesslist/guesslist'
 export default{
     props:{
-        articleDataList: {
-            type: Array,
-            default: []
-        },
-        topMargin: {
-            type: Boolean,
-            default: false
-        },
-        matchShow: {
-            type: Boolean,
-            default: true
-        }
+      articleDataList: {
+          type: Array,
+          default: []
+      },
+      topMargin: {
+          type: Boolean,
+          default: false
+      },
+      matchShow: {
+          type: Boolean,
+          default: true
+      }
     },
     data() {
-        return {
+      return {
 
-        }
+      }
     },
     created(){
 
     },
     mounted(){
-        this.$nextTick(function(){
-            //console.log(this.articleDataList)
-        })
-
+      this.$nextTick(function (){
+          console.log(this.articleDataList)
+      })
     },
     components: {
-
+      guessList
     },
     methods: {
-        goauthor(Id){
-            this.$router.push({
-                path: `/author/?id=${Id}`
-            })
-        },
-        goarticle(item){
-            this.$emit('goarticle',item)
-            /*this.$router.push({
-                path: `/articledetail/?id=${item.id}`,
-                props: {id: item.id}
-            })*/
-        },
-        gomatch(Id){
-            this.$router.push({
-              path: `/matchdetail/?entryId=${Id}`
-            })
-        },
-        timeformat(s){
-            return shareFn.setTime(s);
-        },
-        tabView(item){
-            var str = '';
-            if(!item.tabView){
-                return '';
-            }
-            if(item.chargeable) {
-                str += '<i class="vip">VIP</i>'+item.tabView;
-                if(item.singleUnlock && item.price>0){
-                    str += '<span class="list-Price">'+item.price+'精彩币</span>';
-                }else if(!item.singleUnlock){
-                    str += '<span class="list-Price">(VIP用户专享)</span>';
-                }
-                return str;
-            }else{
-                return item.tabView;
-            }
-        },
-        setPrice(val){
-            if(val.price == 0 && !val.chargeable && (val.authorLevels != undefined && val.authorLevels.length <= 0)){
-                return '查看观点'
-            }else if(val.chargeable && (val.authorLevels != undefined && val.authorLevels.length > 0) && (val.price == undefined || val.price == 0)){
-                return 'VIP专属'
-            }else{
-                return '￥'+val.price+'解锁'
-            }
-        }
+      guessTeamClick (team,val) {
+        console.log(team)
+        console.log(val)
+      },
+      goauthor(Id){
+          this.$router.push({
+              path: `/author/?id=${Id}`
+          })
+      },
+      goarticle(item){
+          this.$emit('goarticle',item)
+      },
+      gomatch(Id){
+          this.$router.push({
+            path: `/matchdetail/?entryId=${Id}`
+          })
+      },
+      timeformat(s){
+          return shareFn.setTime(s);
+      },
+      tabView(item){
+          var str = '';
+          if(!item.tabView){
+              return '';
+          }
+          if(item.chargeable) {
+              str += '<i class="vip">VIP</i>'+item.tabView;
+              if(item.singleUnlock && item.price>0){
+                  str += '<span class="list-Price">'+item.price+'精彩币</span>';
+              }else if(!item.singleUnlock){
+                  str += '<span class="list-Price">(VIP用户专享)</span>';
+              }
+              return str;
+          }else{
+              return item.tabView;
+          }
+      },
+      setPrice(val){
+          if(val.price == 0 && !val.chargeable && (val.authorLevels != undefined && val.authorLevels.length <= 0)){
+              return '查看观点'
+          }else if(val.chargeable && (val.authorLevels != undefined && val.authorLevels.length > 0) && (val.price == undefined || val.price == 0)){
+              return 'VIP专属'
+          }else{
+              return '￥'+val.price+'解锁'
+          }
+      }
     },
     watch: {
-        articleDataList: {
-            handler: function(val,oldval){
 
-            },
-            deep: true
-        }
     }
 }
 

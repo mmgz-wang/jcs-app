@@ -16,57 +16,109 @@
       <div ref="scrollWraper" class="msg-list">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
-          <section v-for="item in msgData" :id="item.messageId"
-                   :class="{
-                            left:item.isLecturer||userName!=item.userName,
-                            right:!item.isLecturer&&userName==item.userName,
-                            te_left:item.isLecturer
-                        }">
-            <div v-if="item.isSystem" class="award-section">
-              <span v-html="item.content"></span>
-            </div>
-            <div v-else>
-              <div
-                :class="{
-                                pic:item.isLecturer||userName!=item.userName,
-                                rpic:!item.isLecturer&&userName==item.userName
-                            }">
+          <template v-for="item in msgData">
+            <section v-if="item.type != 2" :id="item.messageId"
+                     :class="{
+                              left:item.isLecturer||userName!=item.userName,
+                              right:!item.isLecturer&&userName==item.userName,
+                              te_left:item.isLecturer
+                          }">
+              <div v-if="item.isSystem" class="award-section">
+                <span v-html="item.content"></span>
+              </div>
+
+              <div v-else>
+                <div
+                  :class="{
+                                  pic:item.isLecturer||userName!=item.userName,
+                                  rpic:!item.isLecturer&&userName==item.userName
+                              }">
+                  <img :src="item.userPic" alt="">
+                </div>
+                <div
+                  :class="{
+                              msg:item.isLecturer||userName!=item.userName,
+                              rmsg:!item.isLecturer&&userName==item.userName
+                          }">
+                  <p
+                    :class="{
+                                  tim:item.isLecturer||userName!=item.userName,
+                                  rtim:!item.isLecturer&&userName==item.userName
+                              }">{{item.userName}} {{setTime(item.createTime)}}</p>
+                  <div v-if="item.content.indexOf('jmsgimg')>0"
+                       @click.stop="preview"
+                       :class="{
+                                      dialog:item.isLecturer || userName != item.userName,
+                                      rdialog:!item.isLecturer && userName==item.userName,
+                                      imgdialog:item.content.indexOf('jmsgimg')>0
+                                  }" v-html="item.content">
+                  </div>
+                  <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
+                       :class="{
+                                      dialog:item.isLecturer||userName!=item.userName,
+                                      rdialog:!item.isLecturer&&userName==item.userName
+                                  }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
+                                                          src="../../common/img/lop.png">
+                  </div>
+                  <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
+                       class="dialog dialog-close">
+                    <span class="close-lock"></span>
+                    <p>推荐锦囊：{{item.price}} 精彩币解锁</p>
+                  </div>
+                </div>
+              </div>
+
+            </section>
+            <section v-if="item.type == 2" id="8194" class="left guess-section G405">
+              <div class="pic" @click="goauthor(item.userId)">
                 <img :src="item.userPic" alt="">
               </div>
-              <div
-                :class="{
-                            msg:item.isLecturer||userName!=item.userName,
-                            rmsg:!item.isLecturer&&userName==item.userName
-                        }">
-                <p
-                  :class="{
-                                tim:item.isLecturer||userName!=item.userName,
-                                rtim:!item.isLecturer&&userName==item.userName
-                            }">{{item.userName}} {{setTime(item.createTime)}}</p>
-                <div v-if="item.content.indexOf('jmsgimg')>0"
-                     @click.stop="preview"
-                     :class="{
-                                    dialog:item.isLecturer || userName != item.userName,
-                                    rdialog:!item.isLecturer && userName==item.userName,
-                                    imgdialog:item.content.indexOf('jmsgimg')>0
-                                }" v-html="item.content">
-                </div>
-                <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
-                     :class="{
-                                    dialog:item.isLecturer||userName!=item.userName,
-                                    rdialog:!item.isLecturer&&userName==item.userName
-                                }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
-                                                        src="../../common/img/lop.png">
-                </div>
-                <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
-                     class="dialog dialog-close">
-                  <span class="close-lock"></span>
-                  <p>推荐锦囊：{{item.price}} 精彩币解锁</p>
+              <div class="msg">
+                <p class="tim">{{item.userName}} {{item.createTime.substr(5,11)}}</p>
+                <div class="dialog">
+                  <dl class="teams" :class="{'teams-over': JSON.parse(item.content).status == 3 || JSON.parse(item.content).status == 4}">
+                    <dt>
+                      <img src="../../common/img/d_cup.png" alt="">
+                    </dt>
+                    <dd>
+                    <div class="cup-name">{{JSON.parse(item.content).match_teams}}</div>
+                      <div class="cup-tim">【{{JSON.parse(item.content).match_league}}】{{JSON.parse(item.content).end_time.substr(5,11)}}</div>
+                      <div v-if="JSON.parse(item.content).value1_purper != undefined" class="guess-goal">
+                        <span>{{JSON.parse(item.content).handicap_name }}</span>
+                        <span>{{JSON.parse(item.content).handicap_plan}}</span>
+                        <span>({{JSON.parse(item.content).value1_name }}</span>
+                        <span>{{ parseInt(JSON.parse(item.content).value1_purper)}}%,</span>
+                        <span>{{JSON.parse(item.content).value2_name}}</span>
+                        <span>{{parseInt(JSON.parse(item.content).value2_purper)}}%)</span>
+                      </div>
+                      <div v-else class="guess-goal">{{JSON.parse(item.content).handicap_name}} {{JSON.parse(item.content).handicap_plan}}</div>
+                    </dd>
+                  </dl>
+                  <div class="guess-item">
+                    <template v-if="JSON.parse(item.content).status==1">
+                      <p>
+                        <span @click="TeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name)">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
+                        <span @click="TeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name)">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
+                      </p>
+                    </template>
+                    <template v-if="JSON.parse(item.content).status==2">
+                      <p class="onlyline">水位变化，暂停投注</p>
+                    </template>
+                    <template v-if="JSON.parse(item.content).status==3">
+                      <p class="onlyline">投注停止</p>
+                    </template>
+                    <template v-if="JSON.parse(item.content).status==4">
+                      <p class="result onlyline">结果：<span>{{JSON.parse(item.content).match_rdesc}}</span></p>
+                    </template>
+                  </div>
+                  <div class="me-val"
+                       v-if="JSON.parse(item.content).guessingPlanSaleList != undefined && JSON.parse(item.content).guessingPlanSaleList.length>0"
+                       v-html="jointStr(JSON.parse(item.content))">
+                  </div>
                 </div>
               </div>
-            </div>
-
-          </section>
+            </section>
+          </template>
         </div>
       </div>
       <p class="newmsg_in" @click="newMsgClick()" v-show="newMsg">您有新消息</p>
@@ -87,7 +139,14 @@
         :btns="dialogData.btns"
         :tit="dialogData.tit"
         :yesFn="dialogData.yesFn"
-        :noFn="dialogData.noFn"></pay-dialog>
+        :noFn="dialogData.noFn">
+      </pay-dialog>
+      <guessDialog
+        v-show="gusDialogShow"
+        @subGuess="subGuess"
+        @gusDialogHide="gusDialogShow=false"
+        :integral="userIntergral.toString()">
+      </guessDialog>
       <div class="award-mask" v-show="awardShow">
         <div class="award-dialog">
           <div class="award-hd">
@@ -130,6 +189,7 @@
   import DialogZ from 'common/js/jcs_dialoga.js'
   import payDialog from 'base/paydialog/paydialog'
   import previewImg from 'base/previewimg/preview-img'
+  import guessDialog from 'base/guessdialog/guessdialog'
   import 'common/js/jcs_dialoga.css'
   import VueQArt from 'vue-qart'
   export default {
@@ -185,7 +245,12 @@
         config: null,
         wxDialog: false,
         loadPcShow: false,
-        newsId: ''
+        newsId: '',
+        userIntergral: 0,
+        curGuessId: 0,
+        curTeam: '',
+        gusDialogShow: false,
+        roomIntegral: 0
       }
     },
     created() {
@@ -218,7 +283,7 @@
         this.loadMsg();
       }
     },
-    computed: {},
+    computed: {  },
     methods: {
       coding(str){
         return unescape(str.replace(/&#x/g,'%u').replace(/;/g,''));
@@ -263,15 +328,21 @@
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
+          that.roomIntegral = data.room_integral;
           that.roomPic = data.userPic;
           that.userMoney = data.userMoney;
           that.userName = data.userName;
           that.lecturerName = that.$router.currentRoute.query.lecturerName;
+          that.userIntergral = data.userIntergral==undefined?0:data.userIntergral;
           if (data.code == 999) {
             if(that.shareFn.isLogin()){
               that.dialogShow = true;
+              var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
+              if (data.roomPrice == 0 && data.room_integral > 0) {
+                tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${data.room_integral}</span>积分</p>`;
+              }
               that.dialogData = {
-                tit: `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`,
+                tit: tit,
                 btns: ['确认购买', '返回列表'],
                 yesFn: that.firstYesFn,
                 noFn: that.firstNoFn
@@ -353,8 +424,7 @@
             var mainH = that.$refs.scrollWraper.offsetHeight;
             var innerH = that.$refs.roomMain.offsetHeight;
             var scrollH = innerH - mainH;
-
-            if(that.$refs.scrollWraper.scrollTop != scrollH){
+            if(that.$refs.scrollWraper.scrollTop <= scrollH-15){
               that.newMsg = true;
             }else{
               that.scrollTo();
@@ -530,8 +600,8 @@
           Common.baseURI().roomMsgurls + '/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
           that.toData,
           function (res) {
+            console.log(res.data)
             if (res.status == 200) {
-
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
                 setTimeout(function () {
@@ -575,6 +645,7 @@
           yes: function (index) {
             if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
                 that.custmorPost(7,id.toString());
+              console.log(index)
                 layer.close(index)
             }else{
               that.custmorJsonp(
@@ -611,6 +682,43 @@
       },
       firstYesFn() {
         var that = this;
+        if (this.ackData.roomPrice == 0 && this.ackData.room_integral > 0) {
+          this.integralWay();
+        } else {
+          this.jcbPay();
+        }
+      },
+      integralWay () {
+        var that = this;
+        that.custmorJsonp(
+          Common.baseURI().host + '/Purchase/PurchaseChatRoom',
+          {
+            UserId: that.userId,
+            Language: 'M',
+            RoomId: that.roomId,
+            SecurityCode: this.shareFn.getSecurityCode(),
+            purchaseType: 15
+          },function (res) {
+            var texts = "购买成功！"
+            if (res.data.Code == '3006') {
+              texts = "余额不足请充值！";
+              layer.open({
+                content: texts,
+                skin: 'msg',
+                time: 2
+              });
+              return;
+            } else if (res.data.Code == '0000') {
+              that.roomConnect();
+              that.isOver = false;
+              that.GetRoomMsg();
+            }
+          },function () {}
+        );
+        that.dialogShow = false;
+      },
+      jcbPay () {
+        var that = this;
         if (this.ackData.userMoney < this.ackData.roomPrice) {
           if(Common.getDeviceinfo().type == 'pc'){
             that.custmorPost(6,this.roomId);
@@ -629,41 +737,41 @@
             }
           }
         } else {
-            this.dialogData = {
-              tit: `<p>您确定要支付<span class="pay-dialog-price">${that.ackData.roomPrice}</span>精彩币购买门票吗？</p>`,
-              btns: ['确定', '取消'],
-              yesFn: function () {
-                that.custmorJsonp(
-                  Common.baseURI().host + '/Purchase/PurchaseChatRoom',
-                  {
-                    UserId: that.userId,
-                    Language: 'M',
-                    RoomId: that.roomId,
-                    SecurityCode: this.shareFn.getSecurityCode()
-                  },function (res) {
-                    var texts = "购买成功！"
-                    if (res.data.Code == '3006') {
-                      texts = "余额不足请充值！";
-                      layer.open({
-                        content: texts,
-                        skin: 'msg',
-                        time: 2
-                      });
-                      return;
-                    } else if (res.data.Code == '0000') {
-                      that.roomConnect();
-                      that.isOver = false;
-                      that.GetRoomMsg();
-                    }
-                  },function () {}
-                );
-                that.dialogShow = false;
-              },
-              noFn: function () {
-                that.back();
-                that.dialogShow = false;
-              }
+          this.dialogData = {
+            tit: `<p>您确定要支付<span class="pay-dialog-price">${that.ackData.roomPrice}</span>精彩币购买门票吗？</p>`,
+            btns: ['确定', '取消'],
+            yesFn: function () {
+              that.custmorJsonp(
+                Common.baseURI().host + '/Purchase/PurchaseChatRoom',
+                {
+                  UserId: that.userId,
+                  Language: 'M',
+                  RoomId: that.roomId,
+                  SecurityCode: this.shareFn.getSecurityCode()
+                },function (res) {
+                  var texts = "购买成功！"
+                  if (res.data.Code == '3006') {
+                    texts = "余额不足请充值！";
+                    layer.open({
+                      content: texts,
+                      skin: 'msg',
+                      time: 2
+                    });
+                    return;
+                  } else if (res.data.Code == '0000') {
+                    that.roomConnect();
+                    that.isOver = false;
+                    that.GetRoomMsg();
+                  }
+                },function () {}
+              );
+              that.dialogShow = false;
+            },
+            noFn: function () {
+              that.back();
+              that.dialogShow = false;
             }
+          }
         }
       },
       firstNoFn() {
@@ -824,6 +932,94 @@
         }
         function eorFn() {}
       },
+      goAward(){
+        if(this.shareFn.isLogin()){
+          this.awardShow = true;
+        }
+      },
+      awardHide(){
+        this.awardShow = false;
+      },
+      visitorFn(){
+        if(!this.shareFn.isLogin()){
+          this.$router.push('enter')
+        }
+      },
+      preview(e){
+        if(e.target.src.indexOf('_s')>0){
+          this.bigImgShow = true;
+          this.imgurl = e.target.src.replace('_s','');
+        }else{
+          this.bigImgShow = true;
+          this.imgurl = e.target.src;
+        }
+      },
+      previewHide(){
+        this.bigImgShow = false;
+      },
+      newMsgClick(){
+        this.newMsg = false;
+        this.scrollTo();
+      },
+      subGuess (s) {
+        console.log(s)
+        var that = this;
+        this.gusDialogShow = false;
+        this.custmorJsonp(
+          Common.baseURI().host + "/assets/purchaseGuessingPlan",
+          {
+            userId: that.shareFn.getUserId(),
+            Language: 'M',
+            token: that.shareFn.getSecurityCode(),
+            guessing_plan_id: that.curGuessId,
+            cost: s,
+            invest_target: that.curTeam
+          },
+          function (data) {
+            console.log(data)
+            if (data.data.code == '0000') {
+              layer.open({
+                content: data.data.msg,
+                time: 2,
+                skin: 'msg',
+                anim: 'scale'
+              });
+              that.userIntergral = that.userIntergral - s;
+            } else {
+              layer.open({
+                content: data.data.msg,
+                time: 2,
+                skin: 'msg',
+                anim: 'scale'
+              });
+            }
+            that.curIntegralVal = 9;
+          },
+          function (data) {
+
+          }
+        )
+      },
+      TeamClick: function () {
+        if(!this.shareFn.isLogin()){
+          layer.open({
+            content: '你还没有登录，请登录！',
+            time: 2,
+            skin: 'msg',
+            anim: 'scale'
+          });
+          try {
+            app.pushLoginView();
+          } catch (err) {
+            console.log(err)
+          }
+          return;
+        }
+        console.log(arguments)
+        this.gusDialogShow = true;
+        this.curGuessId =  arguments[0].id;
+        this.curTeam = arguments[1];
+      },
       custmorJsonp(url,data,sucFn,eorFn){
         this.$nextTick(function () {
           this.$http.jsonp(
@@ -850,7 +1046,7 @@
             "source":"1_2_7"
           },{
             headers: {
-              "contentType": "application/json;charset=UTF-8",
+              "Content-Type": "application/json;charset=UTF-8"
             }
           }
         ).then(function (res) {
@@ -884,34 +1080,19 @@
           console.log(err)
         })
       },
-      goAward(){
-        if(this.shareFn.isLogin()){
-          this.awardShow = true;
+      jointStr (data) {
+        var str = '';
+        for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
+          console.log(i)
+          str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5,11).replace(/-/,"/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
+          if(data.status == 4) {
+            str += `获得 <span>${data.guessingPlanSaleList[i].result}`
+          }else{
+            str += `投注 <span>${data.guessingPlanSaleList[i].cost}`
+          }
+            str += `</span> 积分</p>`
         }
-      },
-      awardHide(){
-        this.awardShow = false;
-      },
-      visitorFn(){
-        if(!this.shareFn.isLogin()){
-          this.$router.push('enter')
-        }
-      },
-      preview(e){
-        if(e.target.src.indexOf('_s')>0){
-          this.bigImgShow = true;
-          this.imgurl = e.target.src.replace('_s','');
-        }else{
-          this.bigImgShow = true;
-          this.imgurl = e.target.src;
-        }
-      },
-      previewHide(){
-        this.bigImgShow = false;
-      },
-      newMsgClick(){
-        this.newMsg = false;
-        this.scrollTo();
+        return str;
       }
     },
     watch: {
@@ -938,7 +1119,7 @@
       }
     },
     components: {
-      mainHeader, payDialog,previewImg,VueQArt
+      mainHeader, payDialog,previewImg,VueQArt, guessDialog
     }
   }
 </script>
@@ -1315,6 +1496,307 @@
       .goaward img{
         width: 19px;
       }
+    }
+    .guess-section {
+      width: 100%;
+      height: auto;
+      float: left;
+    }
+    .guess-section {
+      width: 100%;
+      float: left;
+      margin-top: 15px;
+      font-size: 15px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    .guess-section .pic {
+      float: left;
+      width: 15%;
+      padding-top: 5px;
+    }
+    .guess-section .pic .picwrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      background-image: url('');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .guess-section .msg {
+      float: left;
+      width: 80%;
+    }
+    .guess-section .msg .tim {
+      color: #999;
+      font-size: 13px;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+    .guess-section .msg .dialog {
+      width: 100%;
+      color: #000;
+      position: relative;
+      float: left;
+      text-align: left;
+      border-radius: 10px;
+      padding: 0;
+      font-size: 0;
+      background: #ffffff;
+      overflow: hidden;
+    }
+    .guess-section .msg .dialog:before{
+      border-color: transparent;
+    }
+    .guess-section .msg .dialog .teams {
+      width: 100%;
+      height: auto;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      border-radius: 10px 10px 0 0;
+      padding: 15px 10px;
+      background: -webkit-gradient(linear, left top, right top, from(#ff8d4f), to(#f97757));
+      background: linear-gradient(to right, #ff8d4f, #f97757);
+    }
+
+    .guess-section .msg .dialog .teams dt {
+      margin-right: 10px;
+    }
+    .guess-section .msg .dialog .teams dd {
+      font-size: 0;
+      text-align: center;
+      flex-grow: 1;
+    }
+    .guess-section .msg .dialog .teams dd div {
+      font-size: 14px;
+      color: #fff;
+    }
+    .guess-section .msg .dialog .teams dd .cup-tim {
+      font-size: 10px;
+    }
+    .guess-section .msg .dialog .teams dd .guess-goal {
+      color: #ba2c00;
+      font-size: 11px;
+    }
+    .guess-section .msg .dialog .teams dd .cup-name {
+
+    }
+    .guess-section .msg .dialog .teams img {
+      width: 35px;
+    }
+    .guess-section .msg .dialog .teams-over {
+      background: -webkit-gradient(linear, left top, right top, from(#b3babf), to(#92969c));
+      background: linear-gradient(to right, #b3babf, #92969c);
+    }
+    .guess-section .msg .dialog .teams-over dd .guess-goal {
+      color: #4f5154;
+    }
+    .guess-section .msg .dialog .guess-item {
+      width: 100%;
+      background: #fff;
+      padding: 0 20px;
+      color: rgba(173,173,173,0.678);
+    }
+    .guess-item p{
+
+      font-size: 15px;
+    }
+    .guess-section .msg .dialog .guess-item p:nth-child(1) {
+      padding: 14px 0 14px 0;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+      justify-content: space-between;
+    }
+    .guess-section .msg .dialog .guess-item p:nth-child(1) span {
+      background: #f97757;
+      height: 28px;
+      font-size: 13px;
+      color: #fff;
+      text-align: center;
+      padding: 0 22px;
+      border-radius: 50px;
+      line-height: 28px;
+    }
+    .guess-section .msg .dialog .guess-item p:nth-child(2) {
+      font-size: 12px;
+      text-align: center;
+      padding-bottom: 15px;
+    }
+    .guess-section .msg .dialog .guess-item .onlyline {
+      display: block !important;
+      text-align: center;
+    }
+    .guess-section .msg .dialog .guess-item .result {
+      text-align: center;
+      color: #fa7b56;
+      font-size: 16px;
+      -ms-flex-pack: distribute;
+      justify-content: space-around;
+    }
+    .guess-section .msg .dialog .me-val {
+      width: 100%;
+      float: left;
+      background: #f1f1f1;
+      color: #666;
+      font-size: 12px;
+      position: relative;
+      padding-left: 0px;
+      border-radius: 0 0 10px 10px;
+      padding-bottom: 14px;
+    }
+    .guess-section .msg .dialog .me-val:before {
+      height: 1px;
+      content: '';
+      width: 100%;
+      border-top: 1px solid #e0e0e0;
+      position: absolute;
+      top: -1px;
+      right: 0;
+      transform: scaleY(0.5);
+      -webkit-transform: scaleY(0.5);
+      z-index: 9999;
+    }
+    .guess-section .msg .dialog .me-val p {
+      padding-top: 10px;
+      line-height: 1;
+      text-align: center;
+    }
+    .guess-section .msg .dialog .me-val p i {
+      color: #999;
+      font-style: normal;
+    }
+    .guess-section .msg .dialog .me-val p span {
+      color: #f97757;
+    }
+    .guess-section .msg .jmsgimg {
+      width: 100px;
+      height: auto;
+      float: left;
+      min-height: 100px;
+      border-radius: 3px;
+    }
+
+
+    .guess{
+      font-size: 0.15rem;
+      color: #DDDDDD;
+      padding: 0 15px;
+      background: #333333;
+      margin-bottom: 10px;
+    }
+    .guess-top{
+      position:relative;
+    }
+    .guess-top:before{
+      height: 1px;
+      content: '';
+      border-top: 1px solid #434343;
+      position: absolute;
+      bottom: -1px;
+      right: -15px;
+      left: 0px;
+      transform: scaleY(0.5);
+      -webkit-transform: scaleY(0.5);
+      z-index: 9999;
+    }
+    .guess-top p:nth-child(1){
+      font-size: 11px;
+      color: #999999;
+      line-height: 1;
+      padding-top: 18px;
+    }
+    .guess-top p:nth-child(2){
+      padding: 7px 0 18px 0;
+    }
+    .guess-top p:nth-child(2) span{
+      line-height: 1;
+      padding: 2px 10px;
+      border: 1px solid #ffd842;
+      color: #ffd842;
+      display: inline-block;
+      border-radius: 20px;
+      font-size: 10px;
+      float: right;
+    }
+    .guess-top p .over_guess{
+      border-color: #666666 !important;
+      color: #666666 !important;
+    }
+    .guess-logo{
+      width: 26px;
+      height: 25px;
+      position: absolute;
+      right: 15px;
+      top: 0;
+      background-image: url("../../common/img/guess_b.png");
+      background-repeat: no-repeat;
+      background-size: 26px 25px;
+    }
+    .gary{
+      width: 26px;
+      height: 25px;
+      position: absolute;
+      right: 15px;
+      top: 0;
+      background-image: url("../../common/img/over.png");
+      background-repeat: no-repeat;
+      background-size: 26px 25px;
+    }
+    .guess-center{
+      height: 54px;
+      line-height: 54px;
+      position: relative;
+      font-size: 14px;
+    }
+    .guess-center:before{
+      height: 1px;
+      content: '';
+      border-top: 1px solid #434343;
+      position: absolute;
+      bottom: -1px;
+      right: -15px;
+      left: 0px;
+      transform: scaleY(0.5);
+      -webkit-transform: scaleY(0.5);
+      z-index: 9999;
+    }
+    .guess-center i{
+      font-size: 14px;
+      color: #888888;
+      font-style: normal;
+      float: right;
+    }
+    .guess-center span{
+      font-size: 13px;
+      display: inline-block;
+      height: 24px;
+      line-height: 24px;
+      background: #ffd842;
+      color: #000000;
+      padding: 0 15px;
+      border-radius: 3px;
+      float: right;
+      margin-top: 15px;
+    }
+    .guess-center span:nth-child(1){
+      margin-left:  15px;
+    }
+    .guess-bottom{
+      font-size: 11px;
+      color: #99863b;
+      line-height: 1;
+      padding-bottom: 9px;
+    }
+    .guess-bottom p{
+      padding-top: 9px;
     }
   }
 

@@ -3,7 +3,7 @@
         <main-header :headerData="headerData"></main-header>
         <div ref="scrollWraper" class="msg-list">
             <div ref="roomMain" class="room-main">
-                <section id="233782" v-for="item in msgData" :class="{left:item.flag=='from',right:item.flag=='to'}">
+                <section v-for="item in msgData" :id="item.id" :class="{left:item.flag=='from',right:item.flag=='to'}">
                     <div onclick="goauthor(353)" :class="{pic:item.flag=='from',rpic:item.flag=='to'}">
                         <img :src="item.flag=='from'?teachPic:userPic" alt="">
                     </div>
@@ -114,8 +114,9 @@ export default {
                         content: that.$refs.msgInput.value,
                         flag: "to",
                         id: 'null',
-                        timestamp: this.shareFn.setTime('send')
+                        timestamp: that.shareFn.setTime('send')
                     })
+                    console.log(that.msgData)
                     that.$refs.msgInput.value = '';
                 }
             }
@@ -151,14 +152,11 @@ export default {
         scrollTo(){
             var that = this;
             setTimeout(function(){
-                //console.log(that.$refs.scrollWraper.offsetHeight)
                 var mainH = that.$refs.scrollWraper.offsetHeight;
                 var innerH = that.$refs.roomMain.offsetHeight;
-                //console.log(mainH+':'+innerH)
                 var scrollH = innerH - mainH;
                 that.$refs.scrollWraper.scrollTop = scrollH;
             },50)
-
         },
         showMeaage: function (msg) {
             layer.open({

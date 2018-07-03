@@ -22,8 +22,4 @@ Vue.use(VueLazyLoad,{
 
 Vue.use(vueResource);
 Vue.use(vueSwiper);
-//Vue.use(Weui);
-//Vue.use(io,'http://123.206.88.92:80');
-//Vue.use(axios,VueAxios);
-//Vue.prototype.$ajax = Axios;
 

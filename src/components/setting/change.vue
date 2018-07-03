@@ -126,11 +126,9 @@ import Common from 'common/js/common'
 			custmorAjax(opt){
 				var data = null;
 				this.$nextTick(function(){
-					this.$http.jsonp(
+					this.$http.post(
 						opt.url,
-						{
-							params:	opt.data
-						}
+						opt.data
 					).then(function(res){
 						opt.callback(res.data);
 					})

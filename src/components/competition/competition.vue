@@ -205,7 +205,6 @@
       },
       getData() {
         var that = this;
-        console.log(this.nowTime())
         var getTime = this.nowTime();
         if (this.IS_PAGEUP === '') {
           getTime = this.nowTime();
@@ -244,7 +243,6 @@
                   this.downTime = this.matchListData[0].startTime2;
                   this.upTime = this.matchListData[this.matchListData.length - 1].startTime2;
                 }
-                console.log(this.isOpen)
                 this.$nextTick(function () {
                   if (!this.isOpen) {
                     var firstLi = document.querySelectorAll('ul[matchlist]>li')[0],
@@ -273,7 +271,6 @@
                 that.cupNameArr.push(obj);
               }
               if (this.IS_PAGEUP === true) {
-                console.log('scrollToId');
                 this.$nextTick(function () {
                   setTimeout(function () {
                     that.$refs.Scroll.scrollTo(0, that.$refs.Scroll.scroll.maxScrollY - that.oldScrollH, 200)
@@ -441,7 +438,6 @@
           all_chos.className = "all-chos";
         }
         for (var i = 0; i < selectCupName.length; i++) {
-          console.log(selectCupName[i].querySelector('i').innerHTML)
           this.count += selectCupName[i].querySelector('i').innerHTML * 1;
         }
       },
@@ -449,8 +445,6 @@
         var selectLi = document.querySelectorAll('.searchMain li'),
           selectCupName = document.querySelectorAll('.searchMain li .on');
         this.searchWrapShow = false;
-        //console.log(selectCupName)
-        //console.log(selectLi.length)
         if (selectCupName.length == selectLi.length || selectCupName.length == 0) {
           return;
         } else {
@@ -502,7 +496,6 @@
         if (openBtn.className == 'open') {
           artWrap.style.height = 'auto';
           openBtn.className = 'open ing';
-          console.log(that)
           that.$refs.Scroll.scrollToElement(openBtn, 0, 0, -110);
         } else {
           artWrap.style.height = 0;
@@ -526,7 +519,6 @@
       },
       setMenu: function (name) {
         var menu = document.querySelector('#menus');
-        console.log(menu.className)
         if (menu.className == 'menus show') {
           menu.className = 'menus';
         }

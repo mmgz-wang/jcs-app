@@ -171,25 +171,12 @@ export default {
 	mounted(){
 
 	},
-	/*beforeRouteEnter(to, from, next) {
-		console.log(to)
-		console.log(from)
-	    if(from.name == 'articledetail'){
-	        to.meta.iskeep=true;
-	    }
-	    if(from.name == 'home'){
-	        to.meta.iskeep=false;
-	    }
-	    next();
-	},*/
 	activated() {
-		//if(){
 			this.articleData = null;
 			this.getData();
-		//}
 	},
 	deactivated() {
-		//console.log("我是第一个页面的 deactivated 方法");
+
 	},
 	components: {
 		payDialog,loading
@@ -221,6 +208,7 @@ export default {
 						this.cardId = this.articleData.omnCardId;
 						this.loadingShow = false;
 						this.payForWay(res.data);
+						document.querySelector('title').innerHTML = this.articleData.digest;
 					}else if(res.data.code == '0003'){
 						layer.open({
 							content: '登录过期，请重新登录！',
