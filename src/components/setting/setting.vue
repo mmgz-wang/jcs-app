@@ -5,6 +5,10 @@
   			<div class="menulist">
   		    	<div class="menu-wrap">
   		    		<ul>
+						<li @click="setClick('remind')" id="mode">
+							<span class="txt">消息推送设置</span>
+							<span class="rico"><img src="../../common/img/r_ico.png"></span>
+  		    			</li>
   		    			<li @click="setClick('mode')" id="mode">
   		    				<span class="txt">修改登录密码</span>
   		    				<span class="rico"><img src="../../common/img/r_ico.png"></span>
@@ -38,7 +42,7 @@ export default {
 				ele: '设置',
 				name: 'setting'
 			},
-      loginfrom: 'H5'
+      		loginfrom: 'H5'
 		}
 
 	},
@@ -58,34 +62,33 @@ export default {
       if (Common.getDeviceinfo().type=="pc") {
         this.loginfrom = 'PC'
       } else if (Common.getDeviceinfo().app=='weixin') {
-        this.loginfrom = 'WEIXIN'
+        this.loginfrom = 'weixin'
       } else if ( Common.getDeviceinfo().type=="android" || Common.getDeviceinfo().type=="ios") {
 		    this.loginfrom = 'H5'
-      }
+	  }
 			this.$nextTick(function(){
-					this.$http.post(
-						Common.baseURI().host + '/user/logout',
-						{
-								"userId": that.shareFn.getUserId(),
-								"loginfrom": that.loginfrom
-            }
-					).then(function(res){
-						if(res.data.Code === '0000'){
-							this.bunceIn('成功退出！')
-							setCookie('jsonLog',null,1);
-              setCookie('telephone','',1);
-							function setCookie(c_name,value,expiredays){
-								var exdate=new Date();
-								exdate.setDate(exdate.getDate()+expiredays);
-								document.cookie=c_name+ "=" +escape(value)+
-								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
-							}
-							this.$router.back();
-							location.reload();
+				this.$http.post(
+					Common.baseURI().host + '/user/logout',{
+						"userId": that.shareFn.getUserId(),
+						"loginfrom": that.loginfrom
+					}
+				).then(function(res){
+					if(res.data.Code === '0000'){
+						this.bunceIn('成功退出！')
+						setCookie('jsonLog',null,1);
+			setCookie('telephone','',1);
+						function setCookie(c_name,value,expiredays){
+							var exdate=new Date();
+							exdate.setDate(exdate.getDate()+expiredays);
+							document.cookie=c_name+ "=" +escape(value)+
+							((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 						}
-					},function(){
-						console.log('请求失败请检查网络')
-					})
+						this.$router.back();
+						location.reload();
+					}
+				},function(){
+					console.log('请求失败请检查网络')
+				})
 			})
 		},
 		setClick(s){
@@ -103,6 +106,8 @@ export default {
 				this.$router.push({name:'change'})
 			}else if(s == 'about'){
 				this.$router.push({name: 'our'})
+			}else if(s == 'remind'){
+				this.$router.push({name: 'remind'})
 			}
 		},
 		enterClick(){

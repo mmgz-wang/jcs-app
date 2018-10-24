@@ -33,7 +33,7 @@ import Common from 'common/js/common'
 					name: 'enter-in',
 					ele: '登录精彩说'
 				},
-        loginfrom: 'H5'
+        		loginfrom: 'H5'
 			}
 		},
 		created(){
@@ -61,7 +61,9 @@ import Common from 'common/js/common'
 			sendLogin(){
         if(Common.getDeviceinfo().type=="pc"){
 			    this.loginfrom = 'PC'
-        }else if(Common.getDeviceinfo().app=='weixin' || Common.getDeviceinfo().type=="android" || Common.getDeviceinfo().type=="android"){
+        } else if (Common.getDeviceinfo().app=='weixin'){
+          this.loginfrom = 'weixin'
+        } else if (Common.getDeviceinfo().app=='weixin' || Common.getDeviceinfo().type=="android" || Common.getDeviceinfo().type=="android"){
           this.loginfrom = 'H5'
         }
 

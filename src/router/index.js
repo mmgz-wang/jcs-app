@@ -44,6 +44,8 @@ import Register from '../components/register/register'
 import EnterIn from '../components/register/enter'
 import Forget from '../components/register/Forget'
 import Service from '../components/service/service'
+import Download from '../components/download/download'
+import Remind from '../components/setting/remind'
 
 Vue.use(Router)
 
@@ -147,7 +149,8 @@ export default new Router({
                 children: [
                     { path: 'modifi', name: 'modifi', component: Modification },
                     { path: 'change', name: 'change', component: Change },
-                    { path: 'our', name: 'our', component: Our }
+                    { path: 'our', name: 'our', component: Our },
+                    { path: 'remind', name: 'remind', component: Remind }
                 ]
             }
         ],
@@ -183,6 +186,7 @@ export default new Router({
     { path: '/register', name: 'register', component: Register },
     { path: '/enter', name: 'enter', component: EnterIn },
     { path: '/forget', name: 'forget', component: Forget },
+    { path: '/download', name: 'download', component: Download }
   ],
   scrollBehavior(to, from, savedPosition){
 

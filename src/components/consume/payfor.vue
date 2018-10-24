@@ -22,9 +22,9 @@
                                     <i>{{msgData.Money}}</i>精彩币
                                 </span>
                             </li>
-                            <li @click="TrueClick('we')" id="weixinpay" style="">
-                                <img src="../../common/img/wei.png" alt="" class="img">
-                                <span class="txt">微信支付</span>
+                            <li @click="TrueClick('we')" id="weixinpay" >
+                                <img src="../../common/bgs-09c.png" alt="" class="w-img">
+                                <span class="txt">哆啦宝支付</span>
                                 <span class="rico"></span>
                             </li>
                             <li @click="TrueClick('ali')" id="aliplay" style="display:none">
@@ -62,11 +62,11 @@
             <div class="mask-wx">
               <div class="dialog-wx">
                 <div class="titles">
-                  <p>微信支付</p>
+                  <p>哆啦宝支付</p>
                 </div>
                 <div class="main">
                   <vue-q-art v-if="config!=null" :config="config"></vue-q-art>
-                  <a>微信扫码支付</a>
+                  <a>微信或支付宝扫码支付</a>
                   <a class="cancle_pay" @click="wxDialog=false" href="javascript:;">取消</a>
                 </div>
               </div>
@@ -96,7 +96,7 @@ export default {
         headerData:{
             name: 'payfor',
             ele: '支付',
-            r_ele: '充值'
+            r_ele: ''//'充值'
         },
         msgData: null,
         CommodityType: 0,
@@ -164,6 +164,21 @@ export default {
                 payType = 12;
             }
             if(s == 'jcs'){
+                if (this.msgData.Price>this.msgData.Money) {
+                    layer.open({
+                        content: '你的精彩币余额不足！网页版暂只支持一种支付方式，请下载<span style="color: #e9311d"> 精彩说官方APP</span> 。<p>查看更多<span style="color:#e9311d">精彩推荐！</span></p>',
+                        btn: ['确定','取消'],
+                        yes: function (index) {
+                            layer.close(index);
+                            //that.$router.push('download');
+                            window.location.href = 'http://www.jingcaishuo.com/activity/download/'
+                        },
+                        no: function () {
+
+                        }
+                    })
+                    return false
+                }
                 layer.open({
                     content: '您确认要余额支付'+this.msgData.Price+'精彩币吗？',
                     btn: ['确定','取消'],
@@ -205,9 +220,93 @@ export default {
               if(Common.getDeviceinfo().type == 'pc'){
                 console.log(Common.getDeviceinfo().type)
                 that.custmorPost(0,this.articleId.toString());
-
+                console.log(99999999)
               }else{
-                var godata = {
+                that.custmorPost(0,this.articleId.toString());
+              }
+
+            }else if(s == 'ali'){
+
+            }
+        },
+        custmorPost(payType,ID){
+            this.$http.post(
+            Common.baseURI().host + "/dlb/tradepay",
+            {
+                "Language":"M",
+                "UserId":this.shareFn.getUserId(),
+                "CommodityId":ID,
+                "SecurityCode":this.shareFn.getSecurityCode(),
+                "CommodityType":payType,
+                "source":"1_2_7"
+            },{
+                headers: {
+                "Content-Type": "application/json;charset=UTF-8",
+                }
+            }
+            ).then(function (res) {
+            if(res.data.Code == '0000'){
+                var resultStr = res.data.DLBPara;
+                if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+                    window.location.href = resultStr;
+                } else {
+                    this.config = {
+                        value: resultStr,
+                        filter: '#FFFFFF',
+                        fillType: '',
+                        background: '#fff',
+                        imagePath: require('../../common/img/jcslog.png')
+                    }
+                    this.wxDialog=true;
+                }
+                
+            }else if(res.data.Code == 3008){
+                alert("您已经购买过了");
+            }else if(res.data.Code == '2006'||res.data.Code == '2005'){
+                layer.open({
+                    content: '<p style="text-align:center;">您已在其他设备登录，确定要重新登录吗？</p >',
+                    btn: ['确定','取消'],
+                    shadeClose:null,
+                    yes: function (index) {
+                        $('#PayInit').hide();
+                        layer.close(index);
+                        needLogin();
+                        $.removeCookie('NikeName');
+                    }
+                });
+            }
+            },function (err) {
+                console.log(err)
+            })
+        },
+        setWx(){
+            this.wxShow = false;
+        },
+        setMsg(){
+            this.$router.push('recharge');
+        },
+        DLBpay () {
+            var godata = {
+                    "language": "M",
+                    "chargeType": payType,
+                    "money": this.price.toString(),
+                    "priceType": this.id.toString(),
+                    "userId": this.shareFn.getUserId()*1,
+                    "securityCode": this.shareFn.getSecurityCode(),
+                    "CommodityId":ID,
+                };
+                that.$http.jsonp(
+                    Common.baseURI().host + "/charge/chargeRealMoney",
+                    {
+                        params: godata
+                    }
+                ).then(function(res){
+            
+                })
+        },
+        jiudaima () {//微信支付
+            //h5
+            var godata = {
                   "Language": "M",
                   "CommodityId": this.articleId.toString(),
                   "CommodityType": this.CommodityType,
@@ -257,63 +356,10 @@ export default {
                 },function(res){
                   console.log(res.data)
                 })
-              }
-
-            }else if(s == 'ali'){
-
-            }
-        },
-        custmorPost(payType,ID){
-        this.$http.post(
-          Common.baseURI().host + "/dlb/tradepay",
-          {
-            "Language":"M",
-            "UserId":this.shareFn.getUserId(),
-            "CommodityId":ID,
-            "SecurityCode":this.shareFn.getSecurityCode(),
-            "CommodityType":payType,
-            "source":"1_2_7"
-          },{
-            headers: {
-              "Content-Type": "application/json;charset=UTF-8",
-            }
-          }
-        ).then(function (res) {
-          if(res.data.Code == '0000'){
-            var resultStr = res.data.DLBPara;
-
-            this.config = {
-              value: resultStr,
-              filter: '#FFFFFF',
-              fillType: '',
-              background: '#fff',
-              imagePath: require('../../common/img/jcslog.png')
-            }
-            this.wxDialog=true;
-          }else if(res.data.Code == 3008){
-            alert("您已经购买过了");
-          }else if(res.data.Code == '2006'||res.data.Code == '2005'){
-            layer.open({
-              content: '<p style="text-align:center;">您已在其他设备登录，确定要重新登录吗？</p >',
-              btn: ['确定','取消'],
-              shadeClose:null,
-              yes: function (index) {
-                $('#PayInit').hide();
-                layer.close(index);
-                needLogin();
-                $.removeCookie('NikeName');
-              }
-            });
-          }
-        },function (err) {
-          console.log(err)
-        })
-      },
-        setWx(){
-            this.wxShow = false;
-        },
-        setMsg(){
-            this.$router.push('recharge');
+            //pc
+            console.log(Common.getDeviceinfo().type)
+            that.custmorPost(9,this.articleId.toString());
+            console.log(99999999)
         }
     },
     components:{
@@ -449,7 +495,20 @@ export default {
         background-size:5px 10px;
         margin-right: 15px;
     }
-    .img{width:22px;height:22px;float:left;margin-top:14px;margin-right:10px;}
+    .img{
+        width:22px;
+        height:22px;
+        float:left;
+        margin-top:14px;
+        margin-right:10px;
+    }
+    .w-img{
+        width:25px;
+        height:30px;
+        float:left;
+        margin-top:5px;
+        margin-right:14px;
+    }
     .balance{color:@reds;font-size: 12px;padding-left:0.5em;float:right;padding-right: 10px}
     .balance i{font-size:@assistsize;}
     .gary_pay{
@@ -531,7 +590,7 @@ export default {
                 font-size:@titsize;
                 p{
                     display:inline-block;
-                    background-image:url('../../common/img/wp.png');
+                    background-image:url('../../common/bgs-09c.png');
                     background-position:left center;
                     background-size:27px auto;
                     background-repeat:no-repeat;

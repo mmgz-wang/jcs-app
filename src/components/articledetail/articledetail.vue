@@ -339,10 +339,12 @@ export default {
 		payForWay (data){
 			var articles = data.Articles,authorLevelList = data.Articles.authorLevelList, authorLevels = data.Articles.authorLevels;
 			var payForWaystr = '';
-			if(articles.chargeable && !articles.articlePurchased && articles.singleUnlock) {
+			if(articles.chargeable && !articles.articlePurchased && articles.singleUnlock && !articles.isNba) {
 				payForWaystr += `<div class="package-item"><p><span>单篇购买 <i>￥${articles.price}</i></span><span class="open-explain">
 				仅解锁当前文章</span></p><button class="open-btn" types="money">解锁</button></div>`
-
+			}else{
+				payForWaystr += `<div class="package-item"><p><span>NBA包天解锁 <i>￥${articles.price}</i></span><span class="open-explain">
+				可查看该老师当天所有NBA文章</span></p><button class="open-btn" types="money">解锁</button></div>`
 			}
 			if('' != articles.omnCardId &&'' != articles.omnCardValue && articles.omnCardId != 0 && articles.omnCardValue != 0&&undefined!=articles.omnCardId&&undefined!=articles.omnCardValue&& articles.singleUnlock) {
 				payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${articles.omnCardValue}精彩币以下</i></span><span class="open-explain">

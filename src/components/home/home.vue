@@ -26,7 +26,7 @@
             <loading></loading>
           </div>
 
-            <banner :bannerData = "banners" @bannerClick="bannerClick"></banner>
+            <banner v-if="banners.length>0" :bannerData = "banners" @bannerClick="bannerClick"></banner>
             <portal @portalClick="portalClick" :portals = "portals"></portal>
             <article-list
               @goarticle="goarticle"

@@ -194,6 +194,22 @@ export default{
         -webkit-box-orient:vertical;
         overflow:hidden;
         color: @maincolor;
+        i{
+            float:left;
+            line-height:1;
+            padding:1px 5px;
+            margin-right:10px;
+            border-radius:3px;
+            font-style:normal;
+            color: @reds;
+            border:1px @reds solid;
+            font-size:10px;
+        }
+        .vip{
+            background: @reds;
+            color:@whites;
+            border-color: @reds;
+        }
     }
     .txt{
         font-size:0.12rem;

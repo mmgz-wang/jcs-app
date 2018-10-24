@@ -73,7 +73,6 @@ export default {
 		}else{
 			return '今天 '+nowHours+':'+nowMinutes;
 		}
-
 	},
 	setParms: function (s) {
 		var url = location.search;

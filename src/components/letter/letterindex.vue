@@ -39,7 +39,7 @@ export default {
         return{
             headerData:{
                 name: 'letter',
-                ele: '聊天室'
+                ele: '私信'
             },
             msgData: [],
             IO: null,
@@ -56,7 +56,14 @@ export default {
 	created(){
         console.log('created')
 	},
-
+    activated () {
+        console.log(99999999999)
+        this.$nextTick(function(){
+            this.GetLetterMsg();
+            this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
+            this.socketConnect();
+        })
+    },
     mounted(){
         console.log('mounted')
         this.$nextTick(function(){
@@ -64,14 +71,12 @@ export default {
             this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
             this.socketConnect();
         })
-
-
     },
     methods:{
         socketConnect(){
             var that=this;
             if('WebSocket' in window){
-                this.websocket = new WebSocket("ws://123.57.59.76:9999/letter");
+                this.websocket = new WebSocket("ws://10.0.0.34:9999/letter");
                 this.websocket.onmessage = function(event){
                     var data = JSON.parse(event.data);
                     console.log(data)

@@ -21,8 +21,8 @@
             <div class="menu">
                 <ul>
                     <li id="weixinpay">
-                        <img src="../../common/img/wei.png" alt="" class="img" />
-                        <span class="txt">微信支付</span>
+                        <img src="../../common/bgs-09c.png" alt="" class="img" />
+                        <span class="txt">哆啦宝支付</span>
                         <span class="rico rico-on"></span>
                     </li>
                     <li id="aliplay" style="display:none;">
@@ -40,13 +40,15 @@
             <div class="mask-wx" @click.stop="setWx" v-show="wxShow">
                 <div class="dialog-wx">
                     <div class="titles">
-                        <p>微信支付</p>
+                        <p>哆啦宝支付</p>
                     </div>
                     <div class="main">
                         <p class="name">充值金额</p>
                         <p class="pay_price">￥{{price}}.00</p>
                     </div>
-                    <a class="wxGo" :href="wxUrl">立即支付</a>
+                    <vue-q-art v-if="config!=null" :config="config"></vue-q-art>
+                    <!-- <a class="wxGo" :href="wxUrl">立即支付</a> -->
+                    <p>微信或支付宝扫码支付</p>
                     <a class="cancle_pay" href="javascript:;">取消</a>
                 </div>
             </div>
@@ -61,6 +63,7 @@ import Common from 'common/js/common'
 import mainHeader from 'base/header/mainheader'
 import 'common/js/layer'
 import 'common/less/layer.css'
+import VueQArt from 'vue-qart'
 export default {
 	name: 'recharge',
     data(){
@@ -74,7 +77,8 @@ export default {
             wxShow: false,
             wxUrl: '',
             price: 0,
-            id: 0
+            id: 0,
+            config: null
         }
     },
     created(){
@@ -133,9 +137,9 @@ export default {
             const PAY_TYPE_GOLD = 3;
             const PAY_TYPE_CARD = 6;
             const PAY_TYPE_SIX=7;
-            var payType = 13;
+            var payType = 9;
             if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
-              payType = 12;
+              //payType = 12;
             }
             var godata = {
                     "language": "M",
@@ -153,25 +157,40 @@ export default {
                     }
                 ).then(function(res){
                     if(res.data.Code == "0000"){
-                        var data = JSON.parse(res.data.WxPara);
-                        console.log(data)
+                      var data = res.data.WxPara;
 
-                      if(payType == 13){
+                      if (payType == 13) {
                         this.wxShow = true;
                         this.wxUrl = data.code_url+`&redirect_url=${location.href}`
-                      }else{
+                      } else if (payType == 9) {
+                          var resultStr = res.data.DLBPara;
+                          if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+                              window.location.href = resultStr;
+                          } else {
+                              that.config = {
+                                rander: 'img',
+                                value: resultStr,
+                                filter: '#FFFFFF',
+                                fillType: 'image/png',
+                                background: '#fff',
+                                imagePath: require('../../common/img/jcslog.png')
+                            }
+                            that.wxShow=true;
+                          }
+                            
+                      } else {
                         if (typeof WeixinJSBridge == "undefined"){
                           if( document.addEventListener ){
                             document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-                          }else if (document.attachEvent){
+                          }else if ( document.attachEvent ){
                             document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
                             document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
                           }
                         }else{
                           onBridgeReady();
                         }
-                        function onBridgeReady(){
-                          console.log(data.code_url)
+                        function onBridgeReady(e){
+                          console.log(e)
                           WeixinJSBridge.invoke(
                             'getBrandWCPayRequest',
                             JSON.parse(data.code_url),
@@ -195,7 +214,7 @@ export default {
         }
     },
     components:{
-        mainHeader
+        mainHeader, VueQArt
     }
 }
 </script>
@@ -323,8 +342,8 @@ export default {
                     background-size:17px;
                 }
                  .img{
-                    width:31px;
-                    height:31px;
+                    width:35px;
+                    height:39px;
                     float: left;
                     margin-top:10px;
                     margin-right:10px;
@@ -413,7 +432,7 @@ export default {
                 font-size:@titsize;
                 p{
                     display:inline-block;
-                    background-image:url('../../common/img/wp.png');
+                    background-image:url('../../common/bgs-09c.png');
                     background-position:left center;
                     background-size:27px auto;
                     background-repeat:no-repeat;
