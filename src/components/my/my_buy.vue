@@ -3,7 +3,9 @@
     <main-header :headerData="headerData"></main-header>
     <scroll class="buy-list" :data="articleDataList">
       <div class="scroll-wrap">
-        <article-list :topMargin="false" :articleDataList = "articleDataList"></article-list>
+        <article-list :topMargin="false" 
+          @goarticle="goarticle"
+          :articleDataList = "articleDataList"></article-list>
         <!-- <div v-for="item in articleDataList">{{item.author_id}}</div> -->
 
       </div>
@@ -65,6 +67,11 @@ export default {
       this.getData(this.bottom,done);
       this.types = 1;
     },
+    goarticle(item){
+        this.$router.push({
+            path: `/articledetail/?id=${item.id}`
+        })
+    },
     getData(id,done) {
       var that = this;
       this.$nextTick(function () {
@@ -83,7 +90,6 @@ export default {
             this.unArtLength = true;
           }
           this.articleDataList = res.data.Articles;
-          console.log(this.articleDataList);
         })
       })
     }
@@ -102,7 +108,7 @@ export default {
   top:0;
   bottom:0px;
   color:#fff;
-  z-index:99;
+  z-index:99999;
   .loading-container,.container{
     width:100%;
     height:100%;

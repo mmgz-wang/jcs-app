@@ -52,14 +52,13 @@
     },
     data(){
       return {
-        isPullingDown: false
+        isPullingDown: false,
+        isPullUpLoad: false,
+        scroll: null
       }
     },
     mounted() {
       this.initScroll();
-      if(this.needRefresh){
-        this.pullingDown();
-      }
     },
     methods: {
       initScroll() {
@@ -88,6 +87,16 @@
             that.scrollIng(opt);
           })
         }
+        // if(this.needRefresh){
+        //   this.pullingDown();
+        // }
+        if (this.pullDownRefresh) {
+          this.pullingDown()
+        }
+
+        if (this.pullUpLoad) {
+          this.pullingUp()
+        }
 
       },
       disable() {
@@ -97,6 +106,7 @@
         this.scroll && this.scroll.enable()
       },
       refresh() {
+        console.log(this.scroll.refresh)
         this.scroll && this.scroll.refresh()
       },
       scrollTo() {
@@ -107,35 +117,58 @@
       },
       pullingDown(){
         var that = this;
-        this.scroll.on('pullingDown',function(){
-          this.isPullingDown = true;
-          if(this.isPullingDown){
-            that.isPullingDown = false;
-            that.pullingDownFn(that);
-          }
+        this.scroll.on('pullingDown',() => {
+          that.isPullingDown = true;
+          that.pullingDownFn(that);
+          //this.$emit('pullingDown')
         })
-        this.scroll.on('pullingUp',function(){
+      },
+      pullingUp () {
+        var that = this;
+        this.scroll.on('pullingUp',() => {
+          this.isPullUpLoad = true
           that.pullingUpFn(that);
-        })
+          //this.$emit('pullingUp')
+        })  
       }
 
     },
     watch: {
       data: {
-        handler: function(){
+        handler: function () {
           var that = this;
+          if (this.pullDownRefresh && this.isPullingDown) {
+            this.isPullingDown = false
+            this.scroll.finishPullDown()
+            this.refresh()
+          } else if (this.pullUpLoad && this.isPullUpLoad) {
+            this.isPullUpLoad = false
+            this.scroll.finishPullUp()
+            this.refresh()
+          } else {
+            this.refresh()
+          }
           setTimeout(() => {
             that.refresh();
-            that.scroll.finishPullDown();
-            that.scroll.finishPullUp();
-          }, 20)
+            console.log(999999)
+          }, 2000)
         },
         deep: true
-
       },
+      // data: {
+      //   handler: function(){
+      //     var that = this;
+      //     setTimeout(() => {
+      //       that.refresh();
+      //       that.scroll.finishPullDown();
+      //       that.scroll.finishPullUp();
+      //     }, 20)
+      //   },
+      //   deep: true
+      // },
       $route: {
         handler: function () {
-          // this.refresh();
+          //this.refresh();
           // console.log(this.$route)
         }
       }

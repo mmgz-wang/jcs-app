@@ -13,6 +13,11 @@
             <p v-show="showName" class="mynickname">{{userData.NickName}}</p>
             <p v-show="isLogin()" id="logintel">{{strReplace(userData.PhoneNumber)}} ID: {{userId}}</p>
             <p v-show="!isLogin()" class="enterPlese">请登录</p>
+            <div class="sign-in" 
+              :class="{'sign-click-already':alreadySign}"
+              @click="signIn" v-if="isLogin()">
+              {{signText}}
+            </div>
           </dd>
         </dl>
       </div>
@@ -23,6 +28,11 @@
       <div class="menulist">
         <div class="menu-wrap">
           <ul>
+            <li @click="myPageClick('wallet')" id="buy">
+              <img src="../../common/img/0.png" alt=""/>
+              <span class="my-txt">我的钱包</span>
+              <img class="my-rico" src="../../common/img/r_ico.png">
+            </li>
             <li @click="myPageClick('buy')" id="buy">
               <img src="../../common/img/1.png" alt=""/>
               <span class="my-txt">我的购买</span>
@@ -60,6 +70,12 @@
       <div class="menulist">
         <div class="menu-wrap">
           <ul>
+            <li id="msg" @click="myPageClick('feedback')">
+              <img class="msg" src="../../common/img/msg.png" alt=""/>
+              <span class="my-txt">我的留言</span>
+              <span id="onlinedot" class="messagereddot" style="display: none;"></span>
+              <img class="my-rico" src="../../common/img/r_ico.png">
+            </li>
             <li @click="myPageClick('onlineservice')" id="onlineservice">
               <img class="tt" src="../../common/img/4.png" alt=""/>
               <span class="my-txt">在线客服</span>
@@ -87,6 +103,32 @@
         </div>
       </div>
     </div>
+    <div class="sign-dialog-mask" v-show="signShow">
+      <div class="sign-dialog">
+        <span class="sign-close" @click="signShow = false"></span>
+        <div class="sign">
+          <img src="../../common/img/signdone.png" class="dialog-log" alt="">
+          <div class="sign-top">
+            恭喜您获得<i>{{userSignInteral}}</i>积分<br>
+            <p>您已连续签到 <span id="numsign">{{signNum}}</span>天</p>
+          </div>
+          <div class="sign-bottom" ref="signB">
+            <div class="day-wrap" id="day-wrap">
+              <dl v-for="item in signNums" 
+                  :ref="'dl'+item.dy"
+                  :class="{signon: item.dy<=signNum}">
+                <dt>+{{item.ig}}</dt>
+                <dd>{{item.dy}}天</dd>
+              </dl>
+            </div>
+            <canvas id="cvs"></canvas>
+          </div>
+          <div class="sign-btn" @click="signShow = false">
+            我知道了
+          </div>
+        </div>
+      </div>
+    </div>
     <router-view @nickBack="nickBack()"></router-view>
   </div>
 </template>
@@ -110,7 +152,21 @@
           InviteCode: ''
         },
         userId: '',
-        showName: false
+        showName: false,
+        signShow: false,
+        signText: '签到领积分',
+        alreadySign: false,
+        signNum: 1,
+        userSignInteral: 10,
+        signNums: [
+          {dy: "1",ig: "10"},
+          {dy: "2",ig: "10"},
+          {dy: "3",ig: "10"},
+          {dy: "4",ig: "20"},
+          {dy: "5",ig: "20"},
+          {dy: "6",ig: "30"},
+          {dy: "7",ig: "50"}
+        ]
       }
 
     },
@@ -143,6 +199,10 @@
               this.userId =  this.shareFn.getUserId();
               if(this.userData.NickName != '' && this.userData.NickName != null && this.userData.NickName != undefined && this.userData.NickName != this.userData.PhoneNumber){
                 this.showName = true;
+              }
+              if(res.data.userSignMsg.indexOf('已签到') > -1){
+                this.signText = res.data.userSignMsg
+                this.alreadySign = true
               }
               setCookie(
                 'telephone',
@@ -183,6 +243,75 @@
           return str;
         }
       },
+      signIn () {
+        let that = this;
+        if (this.alreadySign) {
+          layer.open({
+            content: '您今天已签过到了！',
+            time: 2,
+            skin: 'msg'
+          });
+          return false;
+        }
+        this.signShow = true;
+        this.$http.post(
+					Common.baseURI().nativeHost,
+					{
+            UserId: this.shareFn.getUserId(),
+            SecurityCode: this.shareFn.getSecurityCode(),
+            language: 'M'
+          },
+					{
+						headers: {
+              "x-target": "TrentService.SignIn"
+            }
+					}
+
+				).then(function(res){
+          if (res.data.Code == '0000') {
+            console.log(res.data)
+            that.signText = res.data.msg
+            that.signNum = res.data.userSignMsgCounts
+            that.userSignInteral = res.data.userSignInteral
+            that.alreadySign = true
+            that.drowTimeLine(res.data.userSignMsgCounts)
+          } else {
+            layer.open({
+              content: res.data.Code,
+              time: 2,
+              skin: 'msg'
+            });
+            return false;
+          }
+          
+				},function(){
+					this.bunceIn('请求失败请检查网络')
+				})
+      },
+      drowTimeLine (s) {
+        
+        var cvs = document.querySelector('#cvs');
+        var ctx = cvs.getContext('2d');
+        var steep1 = this.$refs.dl1[0].offsetLeft,
+            steep2 = this.$refs.dl2[0].offsetLeft,
+            steep = steep2 - steep1;
+
+        cvs.width = this.$refs.signB.clientWidth;
+        cvs.height = this.$refs.signB.clientHeight
+        
+        ctx.moveTo(12, 11);
+        ctx.lineTo(this.$refs.signB.clientWidth, 11);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#ebebeb";
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(12, 11);
+        ctx.lineTo(steep * (s - 1), 11);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#ffd842";
+        ctx.stroke();
+      },
       nickBack(){
         this.getData();
       },
@@ -190,8 +319,13 @@
         return this.shareFn.isLogin();
       },
       myPageClick(s) {
-
-        if (s == 'buy') {
+        if (s == 'wallet') {
+          if (!this.isLogin()) {
+            this.$router.push({name: 'enter'});
+            return;
+          }
+          this.$router.push({name: 'my_wallet'})
+        } else if (s == 'buy') {
           if (!this.isLogin()) {
             this.$router.push({name: 'enter'});
             return;
@@ -209,6 +343,12 @@
             return;
           }
           this.$router.push({name: 'mypresent'})
+        }  else if (s == 'feedback') {
+          if (!this.isLogin()) {
+            this.$router.push({name: 'enter'});
+            return;
+          }
+          this.$router.push({path: '/my/mymsg?NickName='+this.userData.NickName})
         } else if (s == 'mesasge') {
           if (!this.isLogin()) {
             this.$router.push({name: 'enter'});
@@ -286,7 +426,7 @@
         height: 105px;
         position: relative;
         color: @maincolor;
-        padding: 0 15px;
+        padding-left: 15px;
         dl {
           font-size: 0.14rem;
           display: flex;
@@ -301,6 +441,7 @@
             margin-top: -3px;
             font-size: 0.11rem;
             color: @garycolor;
+            flex-grow: 1;
             .setName{
               width: 73px;
               height: 20px;
@@ -313,16 +454,25 @@
               margin-bottom: 5px;
             }
             .toenter{
-              font-size: 0.15rem;
+              font-size: 15px;
               color: @namecolor;
             }
             .mynickname{
-              font-size: 0.17rem;
+              font-size: 17px;
               color: @maincolor;
             }
             .enterPlese{
-              font-size: 0.16rem;
+              font-size: 15px;
               color: @namecolor;
+            }
+            .sign-in{
+              position: absolute;right: 10px;top: 50%;line-height: 27px;
+              background: #fe8300;border-radius: 14px;transform: translateY(-50%);
+              -webkit-transform: translateY(-50%);color: #ffffff;font-size: 14px;
+              padding: 0 8px;background: linear-gradient(to right,#fe8300 , #ff6845); 
+            }
+            .sign-click-already{
+              background: transparent;border: 1px solid #e9311d;color: #e9311d;
             }
           }
         }
@@ -403,6 +553,10 @@
                 float: left;
                 margin: 16px 10px 0 0;
               }
+              .msg{
+                height: 15px;
+                margin-top: 18px;
+              }
               .my-txt {
                 font-size: 0.14rem;
                 color: @maincolor;
@@ -429,6 +583,11 @@
                 top: 20px;
                 margin: 0;
               }
+            }
+            a{
+              .border-bottom;
+              position: relative;
+              display: block;
             }
           }
         }
@@ -487,5 +646,149 @@
         background-position: -20px 0;
       }
     }
+    .sign-dialog-mask{
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      background: rgba(0,0,0,0.3);
+    }
+    .sign-dialog{
+      width: 90%;
+      height: auto;
+      position: fixed;
+      left: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      -webkit-transform: translateY(-50%);
+      background: #ffffff;
+      border-radius: 10px;
+    }
+    .sign{
+      width: 100%;
+      height: auto;
+      font-size: 0.14rem;
+    }
+    .dialog-log{
+      width: 134px;
+      height: 101px;
+      position: absolute;
+      left: 50%;
+      top: -40px;
+      transform: translateX(-50%);
+      -webkit-transform: translateX(-50%);
+    }
+    .sign-top{
+      color: #333333;
+      font-size: 18px;
+      text-align: center;
+      padding: 20px 15px 0px 22px;
+      margin-top: 61px;
+    }
+    .sign-top i{
+      font-style: normal;
+      color: #e9311d;
+    }
+    .sign-top p{
+      font-size: 14px;
+      color: #999999;
+    }
+    .my-integral span{
+      color: #ffd842;
+    }
+
+
+    .sign-bottom{
+      display: -webkit-box;
+      display: flex;
+      display: -webkit-flex;
+      justify-content: space-between;
+      margin: 20px;
+      position: relative;
+    }
+    .day-wrap{
+        width: 100%;
+        display: -webkit-box;
+        display: flex;
+        display: -webkit-flex;
+        justify-content: space-between;
+    }
+
+    .sign-bottom dl{
+      text-align: center;
+      z-index: 9;
+    }
+    .sign-bottom dl dt{
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 24px;
+      word-spacing: 0;
+      font-size: 10px;
+      background: #ebebeb;
+      color: #bbbbbb;
+      margin: 0 auto;
+    }
+
+    .sign-bottom dl dt:after{
+      content: '';
+
+    }
+
+    .sign-bottom dl dd{
+      font-size: 9px;
+      color: #bbbbbb;
+      line-height: 1;
+      padding-top: 5px;
+    }
+    #cvs{
+      position: absolute;
+        left: 0;
+        top: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+    }
+
+    .sign-btn{
+      height: 37px;
+      width: 80%;
+      background: #ffd842;
+      line-height: 37px;
+      text-align: center;
+      border-radius: 2px;
+      margin: 20px 0 20px 10%;
+    }
+
+    .sign-close{
+      width: 14px;
+      height: 14px;
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      background: url("../../common/img/close2.png") no-repeat;
+      background-size: 14px;
+    }
+
+    .signon dt{
+      background: url("../../common/img/signb.png") no-repeat !important;
+      background-size: 24px !important;
+      color: #ff7e00 !important;
+    }
+    .signon dd{
+      color: ;
+    }
+
+    .picaudit{
+      font-size: 10px;
+      color: #666666 !important;
+      padding-top: 5px;
+      display: none;
+      text-align: left !important;
+    }
+
   }
 </style>

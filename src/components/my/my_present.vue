@@ -10,7 +10,7 @@
        <div class="right">{{item.count}}篇</div>
       </section>
     </div>
-    <div class="unpresent" v-show="unCardLength">
+    <div class="unpresent" v-show="Omnipotence.length==0">
       <dl>
        <dt><img src="../../common/img/unpresent.png"></dt>
        <dd>
@@ -65,10 +65,7 @@ export default {
             }
           }
         ).then(function(res) {
-          if(res.data.Omnipotence.length!=0){
-            this.unCardLength = true;
-          }
-          this.Omnipotence=[];//res.data.Omnipotence;
+          this.Omnipotence=res.data.Omnipotence;//res.data.Omnipotence;
         })
       })
     }
@@ -86,7 +83,7 @@ export default {
   top:0;
   bottom:0px;
   color:@maincolor;
-  z-index:99;
+  z-index:9999;
   .pre-main{
     width:100%;
     position:absolute;

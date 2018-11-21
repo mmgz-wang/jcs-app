@@ -26,7 +26,7 @@ export default {
 	},
 	name: 'publickheader',
 	created(){
-		console.log(this.headerData)
+		//console.log(this.headerData)
 	},
 	methods: {
 		back: function(){

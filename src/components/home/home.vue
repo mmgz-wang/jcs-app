@@ -107,7 +107,6 @@ export default {
             }
           }
         ).then(function(res) {
-          console.log(res.data)
           if(res.data.result.data.Banner != undefined){
             this.banners = res.data.result.data.Banner;
           }
@@ -116,7 +115,7 @@ export default {
           }
 
           if(this.types){
-            this.articleDataList = this.articleDataList.concat(res.data.result.artileList);
+            this.articleDataList = this.articleDataList.concat(res.data.result.artileList.Articles);
             this.pullUpText = '上拉加载更多！';
           }else{
             this.articleDataList = res.data.result.artileList;

@@ -573,7 +573,8 @@
                 params: {
                   language: 'M',
                   userId: this.shareFn.getUserId(),
-                  roomId: this.roomId
+                  roomId: this.roomId,
+                  subscribeType: '-1'
                 }
               }
             )
@@ -587,7 +588,8 @@
                 params: {
                   language: 'M',
                   userId: this.shareFn.getUserId(),
-                  roomId: this.roomId
+                  roomId: this.roomId,
+                  subscribeType: '0'
                 }
               }
             )
@@ -612,7 +614,7 @@
                 that.msgData = res.data.messages;
                 that.scrollTo();
               }
-              res.data.isMsgDescriber ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
+              res.data.isMsgDescriber == 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
               if(that.isPullDown && res.data.messages.length == 0){
                 layer.open({
                   content: '已无更多历史消息！',

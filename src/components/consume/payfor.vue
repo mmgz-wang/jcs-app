@@ -22,7 +22,8 @@
                                     <i>{{msgData.Money}}</i>精彩币
                                 </span>
                             </li>
-                            <li @click="TrueClick('we')" id="weixinpay" >
+                            <li @click="TrueClick('we')" id="weixinpay" 
+                                v-if="new Date().getHours() > 9 && new Date().getHours() <21">
                                 <img src="../../common/bgs-09c.png" alt="" class="w-img">
                                 <span class="txt">哆啦宝支付</span>
                                 <span class="rico"></span>
@@ -218,18 +219,18 @@ export default {
                 })
             } else if(s == 'we') {
               if(Common.getDeviceinfo().type == 'pc'){
-                console.log(Common.getDeviceinfo().type)
-                that.custmorPost(0,this.articleId.toString());
-                console.log(99999999)
-              }else{
-                that.custmorPost(0,this.articleId.toString());
+                that.custmorPost(0,this.articleId.toString(),'PC');
+              } else if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
+                  that.custmorPost(0,this.articleId.toString(),'WEIXIN');
+              } else if(Common.getDeviceinfo().type == 'ios' || Common.getDeviceinfo().type == 'android'){
+                that.custmorPost(0,this.articleId.toString(),'H5');
               }
 
             }else if(s == 'ali'){
 
             }
         },
-        custmorPost(payType,ID){
+        custmorPost(payType,ID,source){
             this.$http.post(
             Common.baseURI().host + "/dlb/tradepay",
             {
@@ -238,7 +239,7 @@ export default {
                 "CommodityId":ID,
                 "SecurityCode":this.shareFn.getSecurityCode(),
                 "CommodityType":payType,
-                "source":"1_2_7"
+                "source": source
             },{
                 headers: {
                 "Content-Type": "application/json;charset=UTF-8",

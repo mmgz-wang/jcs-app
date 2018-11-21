@@ -21,8 +21,13 @@ import Attention from '../components/attention/attention'
 
 import My from '../components/my/my'
     import MyPresent from '../components/my/my_present'
+    import myWallet from '../components/my/my_wallet'
+        import exchange from '../components/my/integral-exchange'
+        import giftExchange from '../components/my/gift-exchange'
     import MyCollect from '../components/my/my_collect'
     import MyBuy from '../components/my/my_buy'
+    import MyMsg from '../components/my/my_msg'
+    import CanMsg from '../components/my/can_message'
     import Help from '../components/my/help'
     import Setting from '../components/setting/setting'
         import Change from '../components/setting/change'
@@ -36,10 +41,12 @@ import Result from '../components/author/result'
 
 import Esports from '../components/portal/e-sports'
 import Article from '../components/articledetail/articledetail'
+import leaveMessage from '../components/leavemessage/leaveMessage'
 
 import PayFor from '../components/consume/payfor'
 import Recharge from '../components/consume/recharge'
 import ConsumeRecord from '../components/consume/consumerecord'
+import ConsumeList from '../components/consume/consume-list'
 import Register from '../components/register/register'
 import EnterIn from '../components/register/enter'
 import Forget from '../components/register/Forget'
@@ -141,8 +148,17 @@ export default new Router({
     { path: '/my', name: 'my', component: My,
         children: [
             { path: 'mypresent', name: 'mypresent', component: MyPresent },
-            { path: 'myCollect', name: 'myCollect', component: MyCollect },
+            { path: 'myCollect', name: 'myCollect', component: MyCollect},
             { path: 'myBuy', name: 'my_buy', component: MyBuy },
+            { 
+                path: 'myWallet', name: 'my_wallet', component: myWallet,
+                children: [
+                    { path: 'exchange', name: 'exchange', component: exchange },
+                    { path: 'giftExchange', name: 'giftExchange', component: giftExchange }
+                ]
+            },
+            { path: 'mymsg', name: 'mymsg', component: MyMsg },
+            { path: 'canmsg', name: 'canmsg', component: CanMsg },
             { path: 'help', name:'help', component: Help },
             { path: 'nickname', name:'nickName', component: NickName},
             { path: 'setting', name:'setting', component: Setting,
@@ -171,7 +187,9 @@ export default new Router({
             isback: false
         }
     },
+    { path: '/leavemessage', name: 'leavemessage', component: leaveMessage},
     { path: '/payfor', name: 'payfor', component: PayFor },
+    { path: '/ConsumeList', name: 'ConsumeList', component: ConsumeList },
     { path: '/recharge', name: 'recharge', component: Recharge,
         children: [
             {path: 'consumerecord', name: 'consumerecord' ,component: ConsumeRecord}

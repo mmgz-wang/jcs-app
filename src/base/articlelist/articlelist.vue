@@ -27,7 +27,6 @@
           <!--@guessTeamClick="guessTeamClick"-->
           <!--:item="item">-->
         <!--</guess-list>-->
-
     </div>
 </template>
 <script type="text/javascript">
@@ -75,6 +74,7 @@ export default{
           })
       },
       goarticle(item){
+          console.log(item)
           this.$emit('goarticle',item)
       },
       gomatch(Id){

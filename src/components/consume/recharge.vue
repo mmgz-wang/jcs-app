@@ -20,11 +20,12 @@
            <div class="menulist">
             <div class="menu">
                 <ul>
-                    <li id="weixinpay">
+                    <li id="weixinpay" v-if="new Date().getHours() > 9 && new Date().getHours() <21">
                         <img src="../../common/bgs-09c.png" alt="" class="img" />
                         <span class="txt">哆啦宝支付</span>
                         <span class="rico rico-on"></span>
                     </li>
+                    <li v-if="new Date().getHours() < 9 || new Date().getHours() >21">哆啦宝充值时间为（09:00~21:00）</li>
                     <li id="aliplay" style="display:none;">
                         <img src="../../common/img/zhi.png" alt="" class="img" />
                         <span class="txt">支付宝支付</span>
