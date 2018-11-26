@@ -267,7 +267,7 @@
       if (!this.$route.meta.iskeep) {
         this.msgData = [];
         //if (this.isLogin) {
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !this.inXCX){
           this.$refs.msgInput.placeholder = '点此登录后方可发言！';
           this.$refs.msgInput.disabled = true;
           this.reseteRoomStatus();
@@ -298,7 +298,7 @@
       reseteRoomStatus(){
         this.IO = io.connect(Common.baseURI().ioUrl);
         this.roomScoket();
-        this.userId = this.shareFn.getUserId();
+        this.userId = this.userId;
         this.roomId = this.$router.currentRoute.query.roomId;
         this.roomName = this.$router.currentRoute.query.roomName;
         this.roomPrice = this.$router.currentRoute.query.roomPrice;
@@ -331,7 +331,6 @@
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
-          alert(JSON.stringify(data))
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
@@ -567,7 +566,7 @@
         that.scrollTo();
       },
       setMsg(s) {
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !inXCX){
           this.$router.push('enter');
           return ;
         }
@@ -950,7 +949,7 @@
         this.awardShow = false;
       },
       visitorFn(){
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !inXCX){
           this.$router.push('enter')
         }
       },
