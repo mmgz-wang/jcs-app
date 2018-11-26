@@ -87,9 +87,6 @@
             that.scrollIng(opt);
           })
         }
-        // if(this.needRefresh){
-        //   this.pullingDown();
-        // }
         if (this.pullDownRefresh) {
           this.pullingDown()
         }
@@ -106,7 +103,6 @@
         this.scroll && this.scroll.enable()
       },
       refresh() {
-        console.log(this.scroll.refresh)
         this.scroll && this.scroll.refresh()
       },
       scrollTo() {
@@ -150,8 +146,7 @@
           }
           setTimeout(() => {
             that.refresh();
-            console.log(999999)
-          }, 2000)
+          }, 200)
         },
         deep: true
       },

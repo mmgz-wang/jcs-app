@@ -2,7 +2,7 @@
   <transition name="slide">
     <div class="roomindex">
       <img style="width: 0;height: 0;opacity: 0;display: none;" src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
-      <main-header @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
+      <main-header v-show="!inXCX" @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
       <div class="room-nav">
         <ul class="selector">
           <li @click="selector('all')" class="all" :class="{on:onData.isAll}">查看全部</li>
@@ -222,6 +222,8 @@
         roomName: this.$router.currentRoute.query.roomName,
         roomPrice: this.$router.currentRoute.query.roomPrice,
         lecturerName: this.$router.currentRoute.query.lecturerName,
+        userId: this.shareFn.getUserId(),
+        token: this.shareFn.getSecurityCode(),
         userMoney: 0,
         ackData: {},
         toData: {
@@ -250,11 +252,16 @@
         curGuessId: 0,
         curTeam: '',
         gusDialogShow: false,
-        roomIntegral: 0
+        roomIntegral: 0,
+        inXCX: false
       }
     },
     created() {
-
+      if(window.__wxjs_environment === 'miniprogram'){
+        this.inXCX = true
+        this.userId = this.$router.currentRoute.query.userId
+        this.token = this.$router.currentRoute.query.token
+      }
     },
     activated() {
       if (!this.$route.meta.iskeep) {
@@ -305,9 +312,9 @@
         }
         this.toData = {
           limit: 30,
-          userId: this.shareFn.getUserId(),
+          userId: this.userId,
           range: 0,
-          token: this.shareFn.getSecurityCode()
+          token: this.token
         };
 
       },
@@ -318,13 +325,13 @@
           //链接成功
           var jsonObject = {
             roomId: that.roomId,
-            userId: that.shareFn.getUserId(),
-            token: that.shareFn.getSecurityCode()
+            userId: that.userId,
+            token: that.token
           };
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
-          console.log(data)
+          alert(JSON.stringify(data))
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
@@ -382,7 +389,7 @@
                   "http://123.206.88.92:8080/Room/SubscribeRoom",
                   {
                     language: 'M',
-                    userId: that.shareFn.getUserId(),
+                    userId: that.token,
                     roomId: data.roomId
                   },function (res) {
 
@@ -453,9 +460,9 @@
       roomConnect: function () {
         var that = this;
         var jsonObject = {
-          userId: this.shareFn.getUserId(),
+          userId: this.token,
           roomId: that.roomId,
-          token: this.shareFn.getSecurityCode()
+          token: this.token
         };
         this.IO.emit('login', jsonObject);
       },
@@ -480,7 +487,7 @@
         //推送给其他人
         var jsonObject = {
           roomId: that.$router.currentRoute.query.roomId,
-          userId: that.shareFn.getUserId(),
+          userId: that.token,
           content: that.$refs.msgInput.value
         };
         this.IO.emit('chatevent', jsonObject);
@@ -495,9 +502,9 @@
         if (s == 'all') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 0,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: true,
@@ -511,9 +518,9 @@
         } else if (s == 'teach') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 1,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
 
           }
           that.onData = {
@@ -527,9 +534,9 @@
         } else if (s == 'own') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 2,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: false,
@@ -542,9 +549,9 @@
         } else if (s == 'recommend') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 3,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: false,
@@ -572,7 +579,7 @@
               {
                 params: {
                   language: 'M',
-                  userId: this.shareFn.getUserId(),
+                  userId: this.userId,
                   roomId: this.roomId,
                   subscribeType: '-1'
                 }
@@ -587,7 +594,7 @@
               {
                 params: {
                   language: 'M',
-                  userId: this.shareFn.getUserId(),
+                  userId: this.userId,
                   roomId: this.roomId,
                   subscribeType: '0'
                 }
@@ -602,7 +609,6 @@
           Common.baseURI().roomMsgurls + '/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
           that.toData,
           function (res) {
-            console.log(res.data)
             if (res.status == 200) {
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
@@ -625,7 +631,9 @@
             } else {
               console.log('请求失败')
             }
-            that.messageIds = that.msgData[0].messageId;
+            if(that.msgData.length != 0){
+              that.messageIds = that.msgData[0].messageId;
+            }
             var downDom = document.querySelector('.custmor-pullDown');
             that.loadPcShow = false;
             if (downDom != null) {
@@ -647,7 +655,6 @@
           yes: function (index) {
             if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
                 that.custmorPost(7,id.toString());
-              console.log(index)
                 layer.close(index)
             }else{
               that.custmorJsonp(
@@ -964,21 +971,19 @@
         this.scrollTo();
       },
       subGuess (s) {
-        console.log(s)
         var that = this;
         this.gusDialogShow = false;
         this.custmorJsonp(
           Common.baseURI().host + "/assets/purchaseGuessingPlan",
           {
-            userId: that.shareFn.getUserId(),
+            userId: that.userId,
             Language: 'M',
-            token: that.shareFn.getSecurityCode(),
+            token: that.token,
             guessing_plan_id: that.curGuessId,
             cost: s,
             invest_target: that.curTeam
           },
           function (data) {
-            console.log(data)
             if (data.data.code == '0000') {
               layer.open({
                 content: data.data.msg,
@@ -1017,7 +1022,6 @@
           }
           return;
         }
-        console.log(arguments)
         this.gusDialogShow = true;
         this.curGuessId =  arguments[0].id;
         this.curTeam = arguments[1];
@@ -1041,9 +1045,9 @@
           Common.baseURI().host + "/dlb/tradepay",
           {
             "Language":"M",
-            "UserId":this.shareFn.getUserId(),
+            "UserId":this.userId,
             "CommodityId":ID,
-            "SecurityCode":this.shareFn.getSecurityCode(),
+            "SecurityCode":this.token,
             "CommodityType":payType,
             "source":"1_2_7"
           },{
@@ -1085,7 +1089,6 @@
       jointStr (data) {
         var str = '';
         for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
-          console.log(i)
           str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5,11).replace(/-/,"/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
           if(data.status == 4) {
             str += `获得 <span>${data.guessingPlanSaleList[i].result}`
@@ -1115,7 +1118,6 @@
         handler: function (old,news) {
           if(this.$route.name == 'roomlist'){
             this.IO.emit('leaveroomevent');
-            console.log('leaveroomevent')
           }
         }
       }

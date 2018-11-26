@@ -45,7 +45,7 @@
 import Scroll from 'base/scroll/scroll'
 import loading from 'base/loading/loading'
 import banner from 'base/banner/banner'
-import portal from '../home/portal'
+import portal from './portal'
 import Common from 'common/js/common'
 import articleList from 'base/articlelist/articlelist'
 import guessDialog from 'base/guessdialog/guessdialog'
@@ -157,7 +157,7 @@ export default {
         })
       }else if(item.name == "免费") {
         this.$router.push({
-          path: `worldcup?sportType=免费`
+          path: `freelist?sportType=免费`
         })
       }else if(item.name == "世界杯") {
         this.$router.push({
@@ -167,6 +167,10 @@ export default {
         this.$router.push({
           path: `worldcup`
         })
+      }else if(item.name == "晒战绩") {
+        this.$router.push({
+          path: `basketball?sportType=晒战绩`
+        })
       }
     },
     goarticle(item){
@@ -175,7 +179,6 @@ export default {
         })
     },
     bannerClick(item){
-      console.log(item)
       if(item.target_type == 'article'){
         this.$router.push({
           path: `/articledetail/?id=${item.target_id}`,

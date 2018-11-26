@@ -14,7 +14,7 @@
         <div class="loading-container" v-show="!roomListData.length">
           <loading></loading>
         </div>
-				<div class="list" v-for="item in roomListData" v-if="item.lecturerId!=281" :id="item.roomId" @click="gooRoom(item)">
+				<div class="list" v-for="item in roomListData" v-if="item.lecturerId!=0" :id="item.roomId" @click="gooRoom(item)">
 					<div class="room-pic">
 						<img :src="item.roomPic" alt="">
 					</div>
@@ -186,7 +186,7 @@ export default {
             }
           }
 				).then(function(res){
-					// console.log(res.data)
+					console.log(res.data)
 					// console.log(this.types)
 					if(res.status == 200 && res.data.length > 0){
 						if(this.types){

@@ -32,8 +32,8 @@
       return {
         articleDataList: [],
         headerData: {
-          ele: '<h1>篮球</h1>',
-          name: 'basketball',
+          ele: '<h1>免费</h1>',
+          name: 'freeList',
           isShow: false
         },
         types: 0,
@@ -54,7 +54,6 @@
       //this.getData();
     },
     beforeRouteEnter(to, from, next) {
-      console.log(from)
       if(from.name=='articledetail'){
         to.meta.iskeep=true;
       }
@@ -82,7 +81,6 @@
       if(this.$route.name == 'home'){
         this.$refs.scroll.scrollTo(0,0,0);
       }
-      console.log("我是第一个页面的 deactivated 方法");
     },
     methods: {
       pullingDownFn(scroll){
@@ -100,17 +98,16 @@
       getData() {
         this.$nextTick(function () {
           this.$http.jsonp(
-            'http://www.jingcaishuo.com/article/list/subType?time=' + Math.random(),
+            'http://www.jingcaishuo.com/article/list/freeArticles/?time=' + Math.random(),
             {
               params:{
                 language: 'M',
                 articleId: this.lastArticleId,
-                type:this.sportType
+                type:2
               }
             }
           ).then(function(res) {
-            console.log(res.data);
-            if(res.data.Code == '0000'){
+            if(res.data.code == '0000'){
               if(this.types){
                 this.articleDataList = this.articleDataList.concat(res.data.articleList);
                 this.pullUpText = '上拉加载更多！';
@@ -119,7 +116,6 @@
                 this.pullDownText = '下拉刷新！';
               }
               this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id;
-              console.log(this.lastArticleId)
             }else{
               layer.open({
                 content: `网络出错，请稍后再试${res.data.Code}`,

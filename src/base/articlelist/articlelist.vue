@@ -57,7 +57,7 @@ export default{
     },
     mounted(){
       this.$nextTick(function (){
-          console.log(this.articleDataList)
+          
       })
     },
     components: {
@@ -65,8 +65,7 @@ export default{
     },
     methods: {
       guessTeamClick (team,val) {
-        console.log(team)
-        console.log(val)
+        
       },
       goauthor(Id){
           this.$router.push({
@@ -74,7 +73,6 @@ export default{
           })
       },
       goarticle(item){
-          console.log(item)
           this.$emit('goarticle',item)
       },
       gomatch(Id){

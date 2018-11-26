@@ -54,7 +54,6 @@ export default {
     //this.getData();
 	},
   beforeRouteEnter(to, from, next) {
-    console.log(from)
     if(from.name=='articledetail'){
         to.meta.iskeep=true;
     }
@@ -72,7 +71,7 @@ export default {
         this.headerData.ele = '<h1>篮球</h1>'
       }else{
         this.sportType=2;
-        this.headerData.ele = '<h1>免费</h1>'
+        this.headerData.ele = '<h1>晒战绩</h1>'
       }
       this.getData();
     }
@@ -83,7 +82,6 @@ export default {
       if(this.$route.name == 'home'){
           this.$refs.scroll.scrollTo(0,0,0);
       }
-      console.log("我是第一个页面的 deactivated 方法");
   },
   methods: {
      pullingDownFn(scroll){
@@ -118,7 +116,7 @@ export default {
               this.articleDataList = res.data.articleList;
               this.pullDownText = '下拉刷新！';
             }
-            this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id;
+            this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id-1;
           }else{
             layer.open({
               content: `网络出错，请稍后再试${res.data.Code}`,

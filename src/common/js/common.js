@@ -17,7 +17,7 @@ module.exports = {
 		}, !1), o();
 	},
   baseURI: function () {
-    if(process.env.NODE_ENV == "development"){
+    if(process.env.NODE_ENV != "development"){
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",

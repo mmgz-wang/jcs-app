@@ -651,6 +651,10 @@ export default {
     $route() {
       //alert('变化')
       //this.getData();
+      //console.log(this.$router)
+      if(this.$router.history.current.name=='articledetail'){
+        this.getData();
+      }
       this.loadingShow = true;
     }
   }
