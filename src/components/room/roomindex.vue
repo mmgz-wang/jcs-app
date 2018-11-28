@@ -13,7 +13,7 @@
         </ul>
       </div>
 
-      <div ref="scrollWraper" class="msg-list">
+      <div ref="scrollWraper" class="msg-list" :class="{inwxxcx:inXCX}">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
@@ -260,7 +260,7 @@
       if(window.__wxjs_environment === 'miniprogram'){
         this.inXCX = true
         this.userId = this.$router.currentRoute.query.userId
-        this.token = this.$router.currentRoute.query.token
+        this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
       }
     },
     activated() {
@@ -338,10 +338,10 @@
           that.roomPic = data.userPic;
           that.userMoney = data.userMoney;
           that.userName = data.userName;
-          that.lecturerName = that.$router.currentRoute.query.lecturerName;
+          that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
           that.userIntergral = data.userIntergral==undefined?0:data.userIntergral;
           if (data.code == 999) {
-            if(that.shareFn.isLogin()){
+            if(that.shareFn.isLogin() || that.inXCX){
               that.dialogShow = true;
               var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
               if (data.roomPrice == 0 && data.room_integral > 0) {
@@ -364,7 +364,11 @@
                   that.$router.push('enter');
                 },
                 no: function (index) {
-                  that.$router.back();
+                  if(that.inXCX){
+                    wx.miniProgram.navigateBack()
+                  }else{
+                    that.back();
+                  }
                   layer.close(index);
                 }
               });
@@ -381,14 +385,18 @@
               shadeClose: false,
               yes: function (index) {
                 layer.close(index);
-                that.$router.back();
+                if(that.inXCX){
+                  wx.miniProgram.navigateBack()
+                }else{
+                  that.back();
+                }
               },
               no: function (index) {
                 that.custmorJsonp(
                   "http://123.206.88.92:8080/Room/SubscribeRoom",
                   {
                     language: 'M',
-                    userId: that.token,
+                    userId: that.userId,
                     roomId: data.roomId
                   },function (res) {
 
@@ -459,7 +467,7 @@
       roomConnect: function () {
         var that = this;
         var jsonObject = {
-          userId: this.token,
+          userId: this.userId,
           roomId: that.roomId,
           token: this.token
         };
@@ -486,7 +494,7 @@
         //推送给其他人
         var jsonObject = {
           roomId: that.$router.currentRoute.query.roomId,
-          userId: that.token,
+          userId: that.userId,
           content: that.$refs.msgInput.value
         };
         this.IO.emit('chatevent', jsonObject);
@@ -663,7 +671,7 @@
                   Language: 'M',
                   payable: true,
                   MsgId: id,
-                  SecurityCode: that.shareFn.getSecurityCode()
+                  SecurityCode: that.token
                 },function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
@@ -704,7 +712,7 @@
             UserId: that.userId,
             Language: 'M',
             RoomId: that.roomId,
-            SecurityCode: this.shareFn.getSecurityCode(),
+            SecurityCode: that.token,
             purchaseType: 15
           },function (res) {
             var texts = "购买成功！"
@@ -739,7 +747,11 @@
                 that.dialogShow = false;
               },
               noFn: function () {
-                that.back();
+                if(that.inXCX){
+                  wx.miniProgram.navigateBack()
+                }else{
+                  that.back();
+                }
                 that.dialogShow = false;
               }
             }
@@ -755,7 +767,7 @@
                   UserId: that.userId,
                   Language: 'M',
                   RoomId: that.roomId,
-                  SecurityCode: this.shareFn.getSecurityCode()
+                  SecurityCode: that.token
                 },function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
@@ -776,14 +788,22 @@
               that.dialogShow = false;
             },
             noFn: function () {
-              that.back();
+              if(that.inXCX){
+                wx.miniProgram.navigateBack()
+              }else{
+                that.back();
+              }
               that.dialogShow = false;
             }
           }
         }
       },
       firstNoFn() {
-        this.back();
+        if(this.inXCX){
+          wx.miniProgram.navigateBack()
+        }else{
+          this.back();
+        }
         this.dialogShow = false;
       },
       loadMsg: function () {
@@ -832,7 +852,7 @@
               messageId: that.messageIds,
               userId: that.userId,
               range: that.range,
-              token: that.shareFn.getSecurityCode()
+              token: that.token
             }
             that.GetRoomMsg();
             movey = 0;
@@ -850,7 +870,7 @@
               messageId: that.messageIds,
               userId: that.userId,
               range: that.range,
-              token: that.shareFn.getSecurityCode()
+              token: that.token
             }
             that.GetRoomMsg();
           }
@@ -921,7 +941,7 @@
               Language: 'M',
               UserId: that.shareFn.getUserId(),
               RoomId: that.roomId,
-              SecurityCode: that.shareFn.getSecurityCode(),
+              SecurityCode: that.token,
               GoldCoin: that.awardNum,
               sign: new Date().getTime()
             },function (res) {
@@ -1057,7 +1077,6 @@
         ).then(function (res) {
           if(res.data.Code == '0000'){
             var resultStr = res.data.DLBPara;
-
             this.config = {
               value: resultStr,
               filter: '#FFFFFF',
@@ -1416,6 +1435,9 @@
         white-space:nowrap;
       }
       .award-section i{color: #f97757;font-style: normal;}
+    }
+    .inwxxcx{
+      top: 40px;
     }
 
     .newmsg_in{background:@reds;height:30px;line-height:30px;position:absolute;right:0;bottom:65px;color:#fff;

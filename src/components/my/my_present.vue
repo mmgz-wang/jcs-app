@@ -1,7 +1,7 @@
 <template>
   <div id="my_present">
-    <main-header :headerData="headerData"></main-header>
-    <div class="pre-main">
+    <main-header v-if="!inXCX" :headerData="headerData"></main-header>
+    <div class="pre-main" :class="{inxcx: inXCX}">
       <section class="pre-list" v-for="item in Omnipotence">
        <div class="left">
           <p class="price"><i>{{item.cardValue}}精彩币</i>以下文章</p>
@@ -41,14 +41,25 @@ export default {
         ele: '我的赠送'
       },
       Omnipotence: [],
-      unCardLength: false
+      unCardLength: false,
+      inXCX: false,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode()
     }
   },
 	components: {
 		mainHeader
-	},
+  },
+  activated () {
+    if(window.__wxjs_environment === 'miniprogram'){
+      this.inXCX = true
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+      document.getElementsByTagName("title")[0].innerText = '我的赠送'
+    }
+  },
 	mounted: function() {
-    this.getData();
+   this.getData();
 	},
   methods: {
     getData(id,done) {
@@ -59,8 +70,8 @@ export default {
           {
             params:{
               language: 'M',
-              userId:this.shareFn.getUserId(),
-              token: this.shareFn.getSecurityCode(),
+              userId:this.userId,
+              token: this.token,
               articleId: '0',
             }
           }
@@ -92,6 +103,9 @@ export default {
     background:@backcolor;
     overflow:scroll;
     padding-bottom:20px;
+  }
+  .inxcx{
+    top: 0;
   }
   .pre-list{
     width:90%;

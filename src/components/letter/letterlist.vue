@@ -1,7 +1,7 @@
 <template>
 	<div class="letterlist">
-	  	<main-header :headerData="headerData"></main-header>
-	  	<scroll class="letter-scroll"
+	  	<main-header v-if="!inXCX" :headerData="headerData"></main-header>
+	  	<scroll class="letter-scroll" :class="{inxcx: inXCX}"
         :needRefresh="needRefresh"
         :pullDownRefresh="pullDownRefresh"
         :pullUpLoad="pullUpLoad"
@@ -50,26 +50,29 @@ import lackPage from 'base/lackpage/lackpage'
     data() {
     	return {
     		letterListData: [],
-        headerData: {
-            ele: '私信',
-            name: 'letter'
-        },
-        isEnter: true,
-        types: 0,
-        needRefresh: true,
-        pullDownRefresh: {threshold: 50, stop: 50},
-        pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
-        pullDownText: '下拉刷新！',
-        pullUpText: '上拉加载更多！',
-        lackPageData:{
-            src: require('../../common/img/unenter.png'),
-            titles: '您还没有登录',
-            hint: '登录后才能使用该功能',
-            button: '立即登录',
-            goCallback(){
-                this.$router.push({name: 'enter'})
-            }
-        }
+            headerData: {
+                ele: '私信',
+                name: 'letter'
+            },
+            isEnter: true,
+            types: 0,
+            needRefresh: true,
+            pullDownRefresh: {threshold: 50, stop: 50},
+            pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
+            pullDownText: '下拉刷新！',
+            pullUpText: '上拉加载更多！',
+            lackPageData:{
+                src: require('../../common/img/unenter.png'),
+                titles: '您还没有登录',
+                hint: '登录后才能使用该功能',
+                button: '立即登录',
+                goCallback(){
+                    this.$router.push({name: 'enter'})
+                }
+            },
+            inXCX: false,
+            userId: this.shareFn.getUserId(),
+            token: this.shareFn.getSecurityCode()
     	}
     },
     components: {
@@ -79,12 +82,18 @@ import lackPage from 'base/lackpage/lackpage'
 
     },
     activated() {
-        if(this.shareFn.isLogin()){
+        if(window.__wxjs_environment === 'miniprogram'){
+            this.inXCX = true
+            this.isEnter = false
+            this.userId = this.$router.currentRoute.query.userId
+            this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+            document.getElementsByTagName("title")[0].innerText = '我的私信'
+        }
+        if(this.shareFn.isLogin() || this.inXCX){
             this.$nextTick(function(){
                 this.getData();
                 this.getNews();
             })
-
             this.isEnter = false;
         }
     },
@@ -106,8 +115,8 @@ import lackPage from 'base/lackpage/lackpage'
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId()
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId
                 },
                 headers:{"X-Target":"TrentService.GetLetteredAuthors"},
                 callback: function(data){
@@ -136,8 +145,8 @@ import lackPage from 'base/lackpage/lackpage'
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId()
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId
                 },
                 headers:{"X-Target":"TrentService.CheckLetter"},
                 callback: function(data){
@@ -179,6 +188,13 @@ import lackPage from 'base/lackpage/lackpage'
             },function(){
                 this.bunceIn('请求失败请检查网络')
             })
+        },
+        bunceIn(s) {
+            layer.open({
+                content: s,
+                time: 2,
+                skin: "msg"
+            });
         }
     },
     watch: {
@@ -221,6 +237,9 @@ import lackPage from 'base/lackpage/lackpage'
     	bottom: 0;
         background: @whites;
     	overflow: hidden;
+    }
+    .inxcx{
+        top: 0;
     }
     .teachmsg{
         width:100%;

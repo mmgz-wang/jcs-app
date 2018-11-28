@@ -1,34 +1,39 @@
 <template>
   <div class="competition">
-    <publick-header :headerData="headerData"></publick-header>
-    <div class="tab">
+    <publick-header v-if="!inXCX" :headerData="headerData"></publick-header>
+    <div class="tab" v-if="!inXCX">
       <span :class="{matchliston:!isAll}" @click="wrapShow('little')">推荐</span>
       <span class="search" :class="{matchliston:isAll}" @click="wrapShow('all')">全部</span>
     </div>
-    <!-- <div class="isAllWrap" :class="{matchSelectShow:isAllWrapShow}">
-            <ul @click="isAllChose">
-                <li id="little" class="on">推荐<span class="line"></span></li>
-                <li id="all">全部</li>
-            </ul>
-        </div>
+    <div class="tab-wx" v-if="inXCX">
+      <div class="wxtab-ball"><span @click="wxBallClick">{{isballText}}</span></div>
+      <div class="wxtab-rec"><span @click="wxRecClick">{{isallText}}</span></div>
+      <div class="wxtab-search"><span @click="wxSearchClick">筛选</span></div>
+    </div>
+    <div class="isAllWrap" :class="{matchSelectShow:isAllWrapShow}">
+      <ul @click="isAllChose">
+        <li id="little" class="on">推荐<span class="line"></span></li>
+        <li id="all">全部</li>
+      </ul>
+    </div>
 
-        <div class="searchwrap" :class="{matchSelectShow:searchWrapShow}">
-            <ul class="searchMain" @click="searchChose">
-                <li v-for="item in cupNameArr">
-                    <span class="on" v-for="(m,i) in item" :id="i">{{i}}(<i>{{m.length}}</i>)</span>
-                </li>
-            </ul>
-            <div class="searchfoot">
-                <p class="all">
-                    <span
-                        @click="setAllChoose(allChoose)"
-                        class="all-chos chos_on"
-                        ></span>
-                    全选&nbsp;&nbsp;&nbsp;已选择 <span class="num-chos">{{count}}</span>&nbsp;场
-                </p>
-                <p class="chos-btn" @click="searchSure" id="sure">确定</p>
-            </div>
-        </div> -->
+      <div class="searchwrap" :class="{matchSelectShow:searchWrapShow,inxcx: inXCX}">
+          <ul class="searchMain" @click="searchChose">
+              <li v-for="item in cupNameArr">
+                  <span class="on" v-for="(m,i) in item" :id="i">{{i}}(<i>{{m.length}}</i>)</span>
+              </li>
+          </ul>
+          <div class="searchfoot">
+              <p class="all">
+                  <span
+                      @click="setAllChoose(allChoose)"
+                      class="all-chos chos_on"
+                      ></span>
+                  全选&nbsp;&nbsp;&nbsp;已选择 <span class="num-chos">{{count}}</span>&nbsp;场
+              </p>
+              <p class="chos-btn" @click="searchSure" id="sure">确定</p>
+          </div>
+      </div>
 
     <scroll
       :needRefresh="needRefresh"
@@ -38,6 +43,7 @@
       :pullingUpFn="pullingUpFn"
       ref="Scroll"
       class="com-list-wrap"
+      :class="{inxcx: inXCX}"
       :data="matchListData">
       <div class="com-list-inner" style="float:left;padding-bottom:50px;">
         <p pulldown>{{pullDownText}}</p>
@@ -137,7 +143,10 @@
         isFirstEnter: true,
         loding: null,
         isOpen: false,
-        count: 0
+        count: 0,
+        inXCX: false,
+        isballText: '足球',
+        isallText: '推荐'
       }
     },
     components: {
@@ -160,6 +169,10 @@
       next();
     },
     activated() {
+      if(window.__wxjs_environment === 'miniprogram'){
+        this.inXCX = true
+        document.getElementsByTagName("title")[0].innerText = '赛事'
+      }
       if (!this.$route.meta.iskeep || this.isFirstEnter) {
         this.lodingDom();
         this.$refs.Scroll.refresh();
@@ -185,7 +198,9 @@
     },
     mounted() {
       //this.getData();
-      this.isBallClick();
+      if (!this.inXCX) {
+        this.isBallClick();
+      }
     },
 
     methods: {
@@ -308,6 +323,34 @@
         }
         return Year + '-' + Month + '-' + day + ' ' + hours + ':' + minutes;
       },
+      wxBallClick () {
+        if (this.isballText == '足球') {
+          this.isballText = '篮球'
+          this.isBall = '1'
+          this.IS_PAGEUP = ''
+        } else {
+          this.isballText = '足球'
+          this.isBall = '0'
+          this.IS_PAGEUP = ''
+        }
+        that.cupNameArr = [];
+        that.cupList = [];
+        this.getData()
+      },
+      wxRecClick () {
+        if (this.isallText == '推荐') {
+          this.isAll = true
+          this.isallText = '全部'
+        } else {
+          this.isAll = false
+          this.isallText = '推荐'
+        }
+        this.IS_PAGEUP = ''
+        this.getData();
+      },
+      wxSearchClick () {
+        this.searchWrapShow = true;
+      },
       isBallClick() {
         var that = this;
         let football = document.querySelector('#foot-hd');
@@ -346,7 +389,6 @@
             that.$refs.Scroll.scrollTo(0, 0, 0, 0)
           })
           that.setMenu();
-
         };
       },
       setMatchStatus(s) {
@@ -530,15 +572,23 @@
         });
       },
       gomatch(Id) {
-        this.$router.push({
-          path: `/matchdetail/?id=${Id}`
-        })
+        if (this.inXCX) {
+          wx.miniProgram.navigateTo({url: '/pages/match/matchdetail/matchdetail?id=' + Id})
+        } else {
+          this.$router.push({
+            path: `/matchdetail/?id=${Id}`
+          })
+        }
       },
       goarticle(item) {
-        this.$router.push({
-          path: `/articledetail/?id=${item.id}`,
-          props: {id: item.id}
-        })
+        if (this.inXCX) {
+          wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+        } else {
+          this.$router.push({
+            path: `/articledetail/?id=${item.id}`,
+            props: {id: item.id}
+          })
+        }
       }
     },
     watch: {}
@@ -648,6 +698,39 @@
         }
       }
     }
+    .tab-wx{
+      font-size: 15px;
+      width: 100%;
+      height: 44px;
+      background: @whites;
+      padding: 10px 0;
+      position: relative;
+      color: #666666;
+      .border-bottom;
+      display: flex;
+      text-align: center;
+      .wxtab-ball,.wxtab-rec{
+        width: 45%;
+        span{
+          display: inline-block;
+          background: url('../../common/img/cut2.png') no-repeat right center;
+          background-size: 14px;
+          padding-right: 19px;
+        }
+      }
+      .wxtab-rec,.wxtab-search{
+        .border-left;position: relative;
+      }
+      .wxtab-search{
+        width: 30%;
+        span{
+          display: inline-block;
+          background: url('../../common/img/choose2.png') no-repeat left center;
+          background-size: 13px 14px;
+          padding-left: 18px;
+        }
+      }
+    }
     .isAllWrap, .searchwrap {
       width: 100%;
       font-size: 0.15rem;
@@ -701,6 +784,10 @@
           text-align: center;
           line-height: 32px;
           margin-top: 20px;
+          margin-right: 5%;
+          &:nth-child(3n+3) {
+            margin-right: 0;
+          }
           span {
             display: inline-block;
             width: 100%;
@@ -772,6 +859,9 @@
       bottom: 0;
       right: 0;
       overflow: hidden;
+    }
+    .inxcx{
+      top: 44px;
     }
     .com-list-inner {
       min-height: 100%;

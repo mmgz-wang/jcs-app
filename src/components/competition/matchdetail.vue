@@ -1,10 +1,10 @@
 <template>
 	<div class="matchdetail">
 		<div ref="matchinfo" class="match_info" v-if="matchScore!=null"
-		:class="{over_match:matchScore.matchStatus==-1,future_match:matchScore.matchStatus==0}"
+		:class="{over_match:matchScore.matchStatus==-1,future_match:matchScore.matchStatus==0,'wx-style': inXCX}"
 		id="div">
 			<div class="matchdetail_head" v-if="matchMsg!=null">
-				<span @click="back" class="back"></span>
+				<span @click="back" class="back" v-if="!inXCX"></span>
 				<p class="match-tim">
 					{{matchMsg.match_id}}
 					{{matchMsg.cup_name}}
@@ -27,7 +27,7 @@
 			<span @click="tabClick('art')" :class="{auton:isart}">赛事分析</span>
 			<span @click="tabClick('room')"  :class="{auton:!isart}">赔率</span>
 		</div>
-		<div class="match-detail-wrap" :class="{roomActive:!isart,roomLeave:isart}">
+		<div class="match-detail-wrap" :class="{roomActive:!isart,roomLeave:isart,'wxmatch-detail-wrap': inXCX}">
 			<scroll class="matchdetail-list" :data="articleList">
 				<article-list
 					:topMargin='false'
@@ -104,261 +104,292 @@
 	</div>
 </template>
 <script type="text/javascript">
-import Scroll from "base/scroll/scroll"
-import Common from "common/js/common"
-import articleList from 'base/articlelist/articlelist'
+import Scroll from "base/scroll/scroll";
+import Common from "common/js/common";
+import articleList from "base/articlelist/articlelist";
 export default {
-	data(){
-		return {
-			isart: true,
-			show: false,
-			url: Common.baseURI().host + '/match/detail',
-			start_articleid: 0,
-			articleList: [],
-			oddsData: [],
-			matchMsg: null,
-			matchScore: null,
-			loding: null,
-			sportType: 0,
-			scoutMatchId: 0,
-			AsianOdds: null,
-			EuropeOdds: null,
-			SizeOdds: null,
-			matchShow: false
-		}
-	},
-	created(){
-		this.loding = layer.open({
-			type: 2,
-			content: '加载中'
-		});
-		console.log('created')
-	},
-	mounted(){
-
-		//this.getData();
-		console.log('mounted')
-	},
-	activated() {
-		this.resetData();
-	    this.getData();
-	    console.log('activated')
-	},
-	methods: {
-		resetData(){
-			this.loding = layer.open({
-				type: 2,
-				content: '加载中'
-			});
-			this.start_articleid =  0;
-			this.articleList =  [];
-			this.oddsData =  [];
-			this.matchMsg =  null;
-			this.matchScore =  null;
-			this.isart = true;
-			this.url = Common.baseURI().host + '/match/detail';
-		},
-		tabClick(s){
-			if(s == 'art'){
-				this.url = Common.baseURI().host + '/match/detail';
-				this.isart = true;
-				this.show = false;
-				if(this.articleList.length>0){
-					return;
-				}
-				this.getData();
-			}else{
-				this.url = Common.baseURI().host + '/match/odds';
-				this.isart = false;
-				this.show = true;
-				if(this.oddsData.length>0){
-					return;
-				}
-				this.getData();
-			}
-		},
-		getData(){
-			this.$nextTick(function(){
-				this.$http.jsonp(
-					this.url,
-					{
-						params: {
-							language: 'M',
-							matchId: this.$router.currentRoute.query.id,
-							articleId: this.start_articleid,
-							sportType: this.sportType,
-							scoutMatchId: this.scoutMatchId,
-							lotteryEntryId: this.$router.currentRoute.query.entryId
-						}
-					}
-				).then(function(res){
-					if(this.url.indexOf('odds')>0){
-						if(res.data.code == '0000'){
-							this.oddsData = res.data.data
-							if(this.sportType == 0){
-								this.AsianOdds = res.data.data.fbAsianOdds;
-								this.EuropeOdds = res.data.data.fbEuropeOdds;
-								this.SizeOdds = res.data.data.fbSizeOdds;
-							}else{
-								this.AsianOdds = res.data.data.bbAsianOdds;
-								this.EuropeOdds = res.data.data.bbEuropeOdds;
-								this.SizeOdds = res.data.data.bbSizeOdds;
-							}
-
-						}else{
-							this.oddsData = [];
-						}
-
-					}else{
-						this.matchMsg = res.data.match;
-						this.matchScore = JSON.parse(res.data.matchScore);
-						this.articleList = res.data.Articles;
-						this.sportType = res.data.sportType;
-						this.scoutMatchId = res.data.scoutMatchId;
-					}
-					console.log(this.matchScore);
-					layer.close(this.loding);
-				})
-			})
-		},
-		goarticle(item){
-			console.log(item)
-			this.$router.push({
-			  path: `/articledetail/?id=${item.id}`
-			})
-		},
-		back(){
-			this.$router.back();
-		}
-	},
-	components: {
-		Scroll,articleList
-	},
-	watch: {
-
+  data() {
+    return {
+      isart: true,
+      show: false,
+      url: Common.baseURI().host + "/match/detail",
+      start_articleid: 0,
+      articleList: [],
+      oddsData: [],
+      matchMsg: null,
+      matchScore: null,
+      loding: null,
+      sportType: 0,
+      scoutMatchId: 0,
+      AsianOdds: null,
+      EuropeOdds: null,
+      SizeOdds: null,
+      matchShow: false,
+      inXCX: false
+    };
+  },
+  created() {
+    this.loding = layer.open({
+      type: 2,
+      content: "加载中"
+    });
+    console.log("created");
+  },
+  mounted() {
+    //this.getData();
+    console.log("mounted");
+  },
+  activated() {
+	if(window.__wxjs_environment === 'miniprogram'){
+		this.inXCX = true
+		document.getElementsByTagName("title")[0].innerText = '赛事详情'
 	}
-}
+    this.resetData();
+    this.getData();
+    console.log("activated");
+  },
+  methods: {
+    resetData() {
+      this.loding = layer.open({
+        type: 2,
+        content: "加载中"
+      });
+      this.start_articleid = 0;
+      this.articleList = [];
+      this.oddsData = [];
+      this.matchMsg = null;
+      this.matchScore = null;
+      this.isart = true;
+      this.url = Common.baseURI().host + "/match/detail";
+    },
+    tabClick(s) {
+      if (s == "art") {
+        this.url = Common.baseURI().host + "/match/detail";
+        this.isart = true;
+        this.show = false;
+        if (this.articleList.length > 0) {
+          return;
+        }
+        this.getData();
+      } else {
+        this.url = Common.baseURI().host + "/match/odds";
+        this.isart = false;
+        this.show = true;
+        if (this.oddsData.length > 0) {
+          return;
+        }
+        this.getData();
+      }
+    },
+    getData() {
+      this.$nextTick(function() {
+        this.$http
+          .jsonp(this.url, {
+            params: {
+              language: "M",
+              matchId: this.$router.currentRoute.query.id,
+              articleId: this.start_articleid,
+              sportType: this.sportType,
+              scoutMatchId: this.scoutMatchId,
+              lotteryEntryId: this.$router.currentRoute.query.entryId
+            }
+          })
+          .then(function(res) {
+            if (this.url.indexOf("odds") > 0) {
+              if (res.data.code == "0000") {
+                this.oddsData = res.data.data;
+                if (this.sportType == 0) {
+                  this.AsianOdds = res.data.data.fbAsianOdds;
+                  this.EuropeOdds = res.data.data.fbEuropeOdds;
+                  this.SizeOdds = res.data.data.fbSizeOdds;
+                } else {
+                  this.AsianOdds = res.data.data.bbAsianOdds;
+                  this.EuropeOdds = res.data.data.bbEuropeOdds;
+                  this.SizeOdds = res.data.data.bbSizeOdds;
+                }
+              } else {
+                this.oddsData = [];
+              }
+            } else {
+              this.matchMsg = res.data.match;
+              this.matchScore = JSON.parse(res.data.matchScore);
+              this.articleList = res.data.Articles;
+              this.sportType = res.data.sportType;
+              this.scoutMatchId = res.data.scoutMatchId;
+            }
+            console.log(this.matchScore);
+            layer.close(this.loding);
+          });
+      });
+    },
+    goarticle(item) {
+      	if (this.inXCX) {
+			wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+		} else {
+			this.$router.push({
+			path: `/articledetail/?id=${item.id}`,
+			props: {id: item.id}
+			})
+		}
+    },
+    back() {
+      this.$router.back();
+    }
+  },
+  components: {
+    Scroll,
+    articleList
+  },
+  watch: {}
+};
 </script>
 <style type="text/css" lang="less">
-@import '../../common/less/base.less';
-.matchdetail{
-	width:100%;
-	height:100%;
-	background:@backcolor;
-	.back{
-	    width:50px;
-	    height:100%;
-	    position:absolute;
-	    left:15px;
-	    height:50px;
-	    background:url('../../common/img/wback.png') no-repeat left center;
-	    color:transparent;
-	    background-size:8px 17px;
-	    z-index:999;
-	}
-	.match-tab{
-		width:100%;
-		height:44px;
-		background:@whites;
-		border-bottom:1px solid @bordercolor;
-		display:flex;
-		justify-content:space-around;
-		line-height:44px;
-		text-align:center;
-		span{
-			width:25%;
-			font-size:@mainsize;
-			border-bottom:3px solid transparent;
-		}
-		.auton{
-			color:@reds;
-			border-color:@reds;
-		}
-	}
-	.match_info{
-		width:100%;
-		height:110px;
-		background-image: url('../../common/img/matchc.png');
-		background-repeat: no-repeat;
-		background-size: cover;
-		padding:0 15px;
-		.matchdetail_head{
-			height:50px;
-			line-height:50px;
-			font-size:0.12rem;
-			color:@whites;
-			text-align:center;
-		}
-		.match_team_msg{
-			text-align:center;
-			font-size:@mainsize;
-			color:@whites;
-			h3{
-				font-weight:400;
-			}
-		}
-	}
-	.future_match{
-		background-image: url('../../common/img/matcha.png');
-	}
-	.over_match{
-		background-image: url('../../common/img/matchb.png');
-	}
-	.match-detail-wrap{
-		position:absolute;
-		top:154px;
-		bottom:0;
-		width:200%;
-		.matchdetail-list{
-			width:50%;
-			position:absolute;
-			bottom:0;
-			top:0;
-			overflow:hidden;
-		}
-		.odds_wrap{
-			width:50%;
-			position:absolute;
-			bottom:0;
-			top:0;
-			left:50%;
-			overflow-y:scroll;
-			font-size:@mainsize;
-			color:@maincolor;
-			background:@whites;
-			padding-bottom:30px;
-			ul{
-				width:90%;
-				margin-left:5%;
-				margin-top:20px;
-				border:1px solid @bordercolor;
-				li{
-					height:35px;
-					line-height:35px;
-					border-bottom:1px solid @bordercolor;
-					display:flex;
-					text-align:center;
-					&:last-child{
-						border:none;
-					}
-					span{
-						border-right:1px solid @bordercolor;
-						flex-grow:1;
-						&:last-child{
-							border:none;
-						}
-					}
-				}
-			}
-		}
-	}
-	.roomActive{
-		transform:translateX(-50%);
-		transition: all 0.6s ease;
-	}
-	.roomLeave{
-		transform:translateX(0);
-		transition: all 0.6s ease;
-	}
+@import "../../common/less/base.less";
+.matchdetail {
+  width: 100%;
+  height: 100%;
+  background: @backcolor;
+  .back {
+    width: 50px;
+    height: 100%;
+    position: absolute;
+    left: 15px;
+    height: 50px;
+    background: url("../../common/img/wback.png") no-repeat left center;
+    color: transparent;
+    background-size: 8px 17px;
+    z-index: 999;
+  }
+  .match-tab {
+    width: 100%;
+    height: 44px;
+    background: @whites;
+    border-bottom: 1px solid @bordercolor;
+    display: flex;
+    justify-content: space-around;
+    line-height: 44px;
+    text-align: center;
+    span {
+      width: 25%;
+      font-size: @mainsize;
+      border-bottom: 3px solid transparent;
+    }
+    .auton {
+      color: @reds;
+      border-color: @reds;
+    }
+  }
+  .match_info {
+    width: 100%;
+    height: 110px;
+    background-image: url("../../common/img/matchc.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 0 15px;
+    .matchdetail_head {
+      height: 50px;
+      line-height: 50px;
+      font-size: 0.12rem;
+      color: @whites;
+      text-align: center;
+    }
+    .match_team_msg {
+      text-align: center;
+      font-size: @mainsize;
+      color: @whites;
+      h3 {
+        font-weight: 400;
+      }
+    }
+  }
+  .wx-style{
+    width: 100%;
+    height: auto;
+    background-image: url("../../common/img/matchc.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding: 0 15px;
+    .matchdetail_head {
+      height: 20px;
+      line-height: 20px;
+      font-size: 12px;
+      color: @whites;
+      text-align: center;
+    }
+    .match_team_msg {
+      text-align: center;
+      font-size: @mainsize;
+      color: @whites;
+      h3 {
+        font-weight: 400;
+        font-size: 15px;
+      }
+    }
+  }
+  .future_match {
+    background-image: url("../../common/img/matcha.png");
+  }
+  .over_match {
+    background-image: url("../../common/img/matchb.png");
+  }
+  .match-detail-wrap {
+    position: absolute;
+    top: 154px;
+    bottom: 0;
+    width: 200%;
+    .matchdetail-list {
+      width: 50%;
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      overflow: hidden;
+    }
+    .odds_wrap {
+      width: 50%;
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      left: 50%;
+      overflow-y: scroll;
+      font-size: @mainsize;
+      color: @maincolor;
+      background: @whites;
+      padding-bottom: 30px;
+      ul {
+        width: 90%;
+        margin-left: 5%;
+        margin-top: 20px;
+        border: 1px solid @bordercolor;
+        li {
+          height: 35px;
+          line-height: 35px;
+          border-bottom: 1px solid @bordercolor;
+          display: flex;
+          text-align: center;
+          &:last-child {
+            border: none;
+          }
+          span {
+            border-right: 1px solid @bordercolor;
+            flex-grow: 1;
+            &:last-child {
+              border: none;
+            }
+          }
+        }
+      }
+    }
+  }
+  .wxmatch-detail-wrap{
+    top: 105px;
+  }
+  .roomActive {
+    transform: translateX(-50%);
+    transition: all 0.6s ease;
+  }
+  .roomLeave {
+    transform: translateX(0);
+    transition: all 0.6s ease;
+  }
 }
 </style>
