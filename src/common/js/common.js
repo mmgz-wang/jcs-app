@@ -21,7 +21,7 @@ module.exports = {
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",
-        // nativeHost: 'http://apm.jingcaishuo.net',
+        nativeHost: 'http://apm.jingcaishuo.net',
         // ioUrl: 'http://182.18.76.155:8080/',
         // roomMsgurls: 'http://182.18.76.155:8822',
         // matchListversion: '1.1.5',

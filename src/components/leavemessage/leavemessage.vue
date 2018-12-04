@@ -1,6 +1,6 @@
 <template>
     <div class="leave-message">
-       <main-header :headerData="headerData"></main-header>
+       <main-header v-show="!inXCX" :headerData="headerData"></main-header>
        <div class="top">
            <dl class="teach-infor">
                 <dt>
@@ -42,13 +42,21 @@ export default {
       feedList: [],
       authorInfo: {},
       content: "",
-      myScore: 0
+      myScore: 0,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode(),
+      inXCX: false
     };
   },
   created() {
 
   },
   activated() {
+    if(window.__wxjs_environment === 'miniprogram'){
+      this.inXCX = true
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+    }
     this.getAuthor();
   },
   mounted() {
@@ -70,9 +78,9 @@ export default {
           .jsonp(Common.baseURI().host + "/Author/GetAuhorInfo", {
             params: {
               language: "M",
-              userId: this.shareFn.getUserId(),
+              userId: this.userId,
               authorId: this.$router.currentRoute.query.authorId,
-              token: this.shareFn.getSecurityCode(),
+              token: this.token,
               articleId: 0
             }
           })
@@ -108,14 +116,14 @@ export default {
         this.$http
           .post(Common.baseURI().host + "/feedback/add", {
             language: "M",
-            userId: this.shareFn.getUserId(),
-            securityCode: this.shareFn.getSecurityCode(),
+            userId: this.userId,
+            securityCode: this.token,
             targetId: this.$router.currentRoute.query.id,
             comment: this.content,
             score: this.myScore
           })
           .then(function(res) {
-            console.log(res.data);
+            alert(JSON.stringify(res.data));
             if (res.data.code == "0000") {
               layer.open({
                 content: "留言成功，感谢您的评价！",
@@ -123,14 +131,19 @@ export default {
                 shadeClose: false,
                 yes: function(index) {
                   layer.close(index);
-                  that.myScore = 0
-                  that.content = ''
-                  that.$router.back();
+                  if(that.inXCX){
+                    wx.miniProgram.navigateBack()
+                  }else{
+                    that.myScore = 0
+                    that.content = ''
+                    that.$router.back();
+                  }
                 }
               });
             } else if (res.data.code == "0003") {
+              alert(res.data.code)
             } else {
-              console.log("请求失败");
+              alert(res.data.code);
             }
           });
       });

@@ -166,9 +166,13 @@ import lackPage from 'base/lackpage/lackpage'
             this.custmorAjax(opt);
         },
     	letterIndex(item){
-    	  this.$router.push({
-    	    path: `/letterindex?id=${item.id}&name=${encodeURI(item.nickname)}`
-    	  })
+            if (this.inXCX) {
+                wx.miniProgram.navigateTo({url: `/pages/letterindex/letterindex?id=${item.id}&name=${item.nickname}`})
+            } else {
+                this.$router.push({
+                    path: `/letterindex?id=${item.id}&name=${encodeURI(item.nickname)}`
+                })
+            }
     	},
     	setTime(str){
     		return this.shareFn.setTime(str);

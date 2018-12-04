@@ -83,9 +83,14 @@ export default {
       this.types = 1;
     },
     goarticle(item){
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+      } else {
         this.$router.push({
-            path: `/articledetail/?id=${item.id}`
+          path: `/articledetail/?id=${item.id}`,
+          props: {id: item.id}
         })
+      }
     },
     getData(id,done) {
       var that = this;

@@ -1,6 +1,6 @@
 <template>
   <div class="consume_list">
-    <main-header :headerData="headerData"></main-header>
+    <main-header :headerData="headerData" v-if="!inXCX"></main-header>
     <div class="tab">
       <span :class="{matchliston:isGold}" @click="wrapShow('gold')">精彩币</span>
       <span class="search" :class="{matchliston:!isGold}" @click="wrapShow('integral')">积分</span>
@@ -13,45 +13,40 @@
       :pullingDownFn="pullingDownFn"
       ref="Scroll"
       class="com-list-wrap"
-      :data="scrollData">
+      :class="{inxcx: inXCX}"
+      :data="scrollData"
+    >
       <div class="com-list-inner" style="float:left;padding-bottom:50px;">
         <p pulldown>{{pullDownText}}</p>
         <div class="gold-wrap" v-if="isGold">
-            <div class="item" v-for="item in goldList">
-                <div class="item-l">
-                    <template v-if="item.typeFlag == 1">
-                        {{item.data.Author}}
-                    </template>
-                    <template v-else-if="item.typeFlag == 2">
-                        {{item.data.TypeName}}
-                    </template>
-                    <p>{{item.data.Date.substr(6,11)}}</p>
-                </div>
-                <div class="item-r">
-                    <span v-if="item.typeFlag == 1" style="color: #1da479;">-{{item.data.Money}}</span>
-                    <span v-else  style="color: #e9311d;">+{{item.data.Money}}</span><br>
-                    <template v-if="item.typeFlag == 1">
-                        {{item.data.Author}}的{{item.data.PurchaseName}}
-                    </template>
-                    <template v-else-if="item.typeFlag == 2">
-                        {{item.data.MainTypeName}}
-                    </template>
-                    
-                </div>
+          <div class="item" v-for="item in goldList">
+            <div class="item-l">
+              <template v-if="item.typeFlag == 1">{{item.data.Author}}</template>
+              <template v-else-if="item.typeFlag == 2">{{item.data.TypeName}}</template>
+              <p>{{item.data.Date.substr(6,11)}}</p>
             </div>
+            <div class="item-r">
+              <span v-if="item.typeFlag == 1" style="color: #1da479;">-{{item.data.Money}}</span>
+              <span v-else style="color: #e9311d;">+{{item.data.Money}}</span>
+              <br>
+              <template v-if="item.typeFlag == 1">{{item.data.Author}}的{{item.data.PurchaseName}}</template>
+              <template v-else-if="item.typeFlag == 2">{{item.data.MainTypeName}}</template>
+            </div>
+          </div>
         </div>
-        <div class="integral-wrap"  v-if="!isGold">
-            <div class="item" v-for="item in integralList">
-                <div class="item-l">
-                    {{typeArr[item.type]}}
-                    <p>{{getLocalTime(item.udate)}}</p>
-                </div>
-                <div class="item-r">
-                    <span v-if="item.turnover == 1" style="color: #1da479;">-{{item.disburse}}</span>
-                    <span v-else  style="color: #e9311d;">+{{item.inflow}}</span><br>
-                    {{item.comment}}
-                </div>
+        <div class="integral-wrap" v-if="!isGold">
+          <div class="item" v-for="item in integralList">
+            <div class="item-l">
+              {{typeArr[item.type]}}
+              <p>{{getLocalTime(item.udate)}}</p>
             </div>
+            <div class="item-r">
+              <span v-if="item.turnover == 1" style="color: #1da479;">-{{item.disburse}}</span>
+              <span v-else style="color: #e9311d;">+{{item.inflow}}</span>
+              <br>
+              {{item.comment}}
+            </div>
+          </div>
         </div>
         <p pullup>{{pullUpText}}</p>
       </div>
@@ -83,9 +78,19 @@ export default {
       loding: null,
       maxaddMoney: "",
       maxsubMoney: "",
-      maxIconId: '',
-      typeArr: { "1": "黑单送积分", "2": "充值送积分", "3": "文章兑换", "4": "新用户送积分", "5": "其他",
-        "6": "锦囊兑换", "7": "门票兑换"}
+      maxIconId: "",
+      typeArr: {
+        "1": "黑单送积分",
+        "2": "充值送积分",
+        "3": "文章兑换",
+        "4": "新用户送积分",
+        "5": "其他",
+        "6": "锦囊兑换",
+        "7": "门票兑换"
+      },
+      inXCX: false,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode()
     };
   },
   components: {
@@ -95,7 +100,17 @@ export default {
   created() {
     this.lodingDom();
   },
-  activated() {},
+  activated() {
+    if (window.__wxjs_environment === "miniprogram") {
+      this.inXCX = true;
+      this.userId = this.$router.currentRoute.query.userId;
+      this.token = this.shareFn.wxGetUserT(
+        this.userId,
+        this.$router.currentRoute.query.token
+      );
+      document.getElementsByTagName("title")[0].innerText = "账户流水";
+    }
+  },
   deactivated() {},
   mounted() {
     this.getData();
@@ -103,68 +118,72 @@ export default {
 
   methods: {
     pullingDownFn(scroll) {
-        console.log('pulling down and load data')
-        this.IS_PAGEUP = false;
-        this.maxsubMoney = '';
-        this.maxaddMoney = '';
-        this.maxIconId = '';
-        this.pullDownText = "释放加载 ...";
-        if(this.isGold){
-            this.getData();
-        }else{
-            this.getIntegralData();
-        }
+      console.log("pulling down and load data");
+      this.IS_PAGEUP = false;
+      this.maxsubMoney = "";
+      this.maxaddMoney = "";
+      this.maxIconId = "";
+      this.pullDownText = "释放加载 ...";
+      if (this.isGold) {
+        this.getData();
+      } else {
+        this.getIntegralData();
+      }
     },
     pullingUpFn(scroll) {
-        console.log('pulling up and load data')
-        this.IS_PAGEUP = true;
-        this.pullUpText = "努力加载中 ...";
-        if(this.isGold){
-            this.getData();
-        }else{
-            this.getIntegralData();
-        }
+      console.log("pulling up and load data");
+      this.IS_PAGEUP = true;
+      this.pullUpText = "努力加载中 ...";
+      if (this.isGold) {
+        this.getData();
+      } else {
+        this.getIntegralData();
+      }
     },
     getData() {
       let that = this;
-      this.$nextTick(function () {
+      this.$nextTick(function() {
         this.$http
-            .post(
+          .post(
             Common.baseURI().nativeHost,
             {
-                language: "M",
-                UserId: that.shareFn.getUserId(),
-                SecurityCode: that.shareFn.getSecurityCode(),
-                Type: 3,
-                Id: that.maxsubMoney,
-                chargeMaxId: that.maxaddMoney
+              language: "M",
+              UserId: that.userId,
+              SecurityCode: that.token,
+              Type: 3,
+              Id: that.maxsubMoney,
+              chargeMaxId: that.maxaddMoney
             },
             {
-                headers: { "X-Target": "TrentService.GetUserCapitalDetails" }
+              headers: { "X-Target": "TrentService.GetUserCapitalDetails" }
             }
-            )
-            .then(
+          )
+          .then(
             function(res) {
-                if (res.data.Code == "0000") {
-                    if(that.IS_PAGEUP){
-                        that.goldList = that.goldList.concat(res.data.Details);
-                        res.data.Details.length == 0?that.pullUpText = "已是全部数据 ...":"上拉加载更多 ..."
-                    }else{
-                        that.goldList = res.data.Details;
-                    }
-                    that.scrollData = that.goldList;
-                    that.maxsubMoney = res.data.Details[res.data.Details.length-1].data.Id
-                    that.maxaddMoney = res.data.Details[res.data.Details.length-1].data.Id
-                    layer.close(this.loding);
-                    that.$refs.Scroll.refresh();
+              if (res.data.Code == "0000") {
+                if (that.IS_PAGEUP) {
+                  that.goldList = that.goldList.concat(res.data.Details);
+                  res.data.Details.length == 0
+                    ? (that.pullUpText = "已是全部数据 ...")
+                    : "上拉加载更多 ...";
+                } else {
+                  that.goldList = res.data.Details;
                 }
-                console.log(res.data);
+                that.scrollData = that.goldList;
+                that.maxsubMoney =
+                  res.data.Details[res.data.Details.length - 1].data.Id;
+                that.maxaddMoney =
+                  res.data.Details[res.data.Details.length - 1].data.Id;
+                layer.close(this.loding);
+                that.$refs.Scroll.refresh();
+              }
+              console.log(res.data);
             },
             function() {
-                this.bunceIn("请求失败请检查网络");
+              this.bunceIn("请求失败请检查网络");
             }
-            );
-      })
+          );
+      });
     },
     getIntegralData() {
       var that = this;
@@ -172,62 +191,62 @@ export default {
         this.$http
           .jsonp(Common.baseURI().host + "/User/IntegralLists", {
             params: {
-              userId: that.shareFn.getUserId(),
-              token: that.shareFn.getSecurityCode(),
+              userId: that.userId,
+              token: that.token,
               maxId: that.maxIconId,
               language: "M"
             }
           })
           .then(function(res) {
-                console.log(res.data)
-                if (res.data.code == '0000') {
-                    if(that.IS_PAGEUP){
-                        that.integralList = that.integralList.concat(res.data.Details);
-                        res.data.Details.length == 0?that.pullUpText = "已是全部数据 ...":"上拉加载更多 ..."
-                    }else{
-                        that.integralList = res.data.Details;
-                    }
-                    that.scrollData = that.integralList;
-                    that.maxIconId =  res.data.Details[ res.data.Details.length-1].id
-                    that.$refs.Scroll.refresh();
-                    console.log(that.$refs.Scroll)
-                }
-                
+            console.log(res.data);
+            if (res.data.code == "0000") {
+              if (that.IS_PAGEUP) {
+                that.integralList = that.integralList.concat(res.data.Details);
+                res.data.Details.length == 0
+                  ? (that.pullUpText = "已是全部数据 ...")
+                  : "上拉加载更多 ...";
+              } else {
+                that.integralList = res.data.Details;
+              }
+              that.scrollData = that.integralList;
+              that.maxIconId = res.data.Details[res.data.Details.length - 1].id;
+              that.$refs.Scroll.refresh();
+              console.log(that.$refs.Scroll);
+            }
           });
       });
     },
-    getLocalTime (nS) {
-
-        var now = new Date(parseInt(nS));
-        var year = now.getYear();
-        var month = now.getMonth() + 1;
-        var date = now.getDate();
-        var hour = now.getHours();
-        if (hour < 10) {
-            hour = '0' + hour;
-        }
-        var minute = now.getMinutes();
-        if (minute < 10) {
-            minute = '0' + minute;
-        }
-        var second = now.getSeconds();
-        return month + "-" + date + " " + hour + ":" + minute;
+    getLocalTime(nS) {
+      var now = new Date(parseInt(nS));
+      var year = now.getYear();
+      var month = now.getMonth() + 1;
+      var date = now.getDate();
+      var hour = now.getHours();
+      if (hour < 10) {
+        hour = "0" + hour;
+      }
+      var minute = now.getMinutes();
+      if (minute < 10) {
+        minute = "0" + minute;
+      }
+      var second = now.getSeconds();
+      return month + "-" + date + " " + hour + ":" + minute;
     },
     wrapShow(s) {
-        this.maxsubMoney = '';
-        this.maxaddMoney = '';
-        this.maxIconId = '';
-        if (s == "gold") {
-            this.IS_PAGEUP = "";
-            this.isGold = true;
-            this.isAllText = "精彩币";
-            this.getData();
-        } else {
-            this.IS_PAGEUP = "";
-            this.isGold = false;
-            this.isAllText = "积分";
-            this.getIntegralData();
-        }
+      this.maxsubMoney = "";
+      this.maxaddMoney = "";
+      this.maxIconId = "";
+      if (s == "gold") {
+        this.IS_PAGEUP = "";
+        this.isGold = true;
+        this.isAllText = "精彩币";
+        this.getData();
+      } else {
+        this.IS_PAGEUP = "";
+        this.isGold = false;
+        this.isAllText = "积分";
+        this.getIntegralData();
+      }
     },
     back: function() {
       this.$router.back();
@@ -254,7 +273,8 @@ export default {
   bottom: 0px;
   color: @whites;
   background: @backcolor;
-  font-size: 15px;color: #333333;
+  font-size: 15px;
+  color: #333333;
   p[pulldown] {
     width: 100%;
     height: 50px;
@@ -331,7 +351,6 @@ export default {
     height: 0;
     overflow: hidden;
   }
-
   .matchSelectShow {
     height: auto;
   }
@@ -345,27 +364,39 @@ export default {
     overflow: hidden;
     background: #ffffff;
   }
+  .inxcx {
+    top: 44px;
+  }
   .com-list-inner {
     min-height: 100%;
     width: 100%;
     box-sizing: content-box;
   }
-  .item{
-      display: flex;display: -webkit-flex;justify-content: space-between;
-      width: 97%;margin-left: 3%;padding: 15px;padding-left: 0;
-      .border-bottom;
-      .item-l{
-          text-align: left;
-          p{
-              font-size: 12px;color: #999999;
-          }
+  .item {
+    display: flex;
+    display: -webkit-flex;
+    justify-content: space-between;
+    width: 97%;
+    margin-left: 3%;
+    padding: 15px;
+    padding-left: 0;
+    .border-bottom;
+    .item-l {
+      text-align: left;
+      p {
+        font-size: 12px;
+        color: #999999;
       }
-      .item-r{
-          text-align: right;font-size: 12px;color: #999999;
-          span{
-              font-size: 15px;color: #333333;
-          }
+    }
+    .item-r {
+      text-align: right;
+      font-size: 12px;
+      color: #999999;
+      span {
+        font-size: 15px;
+        color: #333333;
       }
+    }
   }
 }
 </style>
