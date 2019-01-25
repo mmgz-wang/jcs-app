@@ -53,6 +53,7 @@ import Forget from '../components/register/Forget'
 import Service from '../components/service/service'
 import Download from '../components/download/download'
 import Remind from '../components/setting/remind'
+import PublicPage from '../components/portal/publicpage'
 
 Vue.use(Router)
 
@@ -84,6 +85,11 @@ export default new Router({
         iskeep:false
       }
     },
+    { path: '/PublicPage', name: 'PublicPage', component: PublicPage,
+      meta: {
+        iskeep:false
+      }
+    },
     { path: '/e-sports', name: 'e-sports', component: Esports,
       meta: {
         iskeep:false
@@ -91,6 +97,8 @@ export default new Router({
     },
     { path: '/live_articlelist', name: 'live_articlelist', component: Live_articlelist},//portal直播
     { path: '/recordlist', name: 'recordlist', component: RecordList},//portal红人榜
+    { path: '/portal_feed', name: 'portal_feed', 
+        component: resolve => require(['../components/portal/poratl-feed'], resolve)},//portal留言墙
 
     //首页TAB
         //聊天室

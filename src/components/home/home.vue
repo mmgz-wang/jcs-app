@@ -171,6 +171,14 @@ export default {
         this.$router.push({
           path: `basketball?sportType=晒战绩`
         })
+      }else if(item.name == "全部") {
+        this.$router.push({
+          path: `PublicPage/?name=全部`
+        })
+      } else if(item.name == "留言墙") {
+        this.$router.push({
+          path: `portal_feed`
+        })
       }
     },
     goarticle(item){

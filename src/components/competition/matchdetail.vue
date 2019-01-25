@@ -140,7 +140,7 @@ export default {
     console.log("mounted");
   },
   activated() {
-	if(window.__wxjs_environment === 'miniprogram'){
+	if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
 		this.inXCX = true
 		document.getElementsByTagName("title")[0].innerText = '赛事详情'
 	}

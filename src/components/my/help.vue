@@ -1,6 +1,6 @@
 <template>
 	<div class="help">	
-		<main-header :headerData="headerData"></main-header>
+		<main-header v-if="!inXCX" :headerData="headerData"></main-header>
 		<div class="help-service">
 			<h3>客服</h3>
 			<p>如需帮助，请联系客服</p>
@@ -27,11 +27,22 @@ export default {
 			headerData:{
 				ele: '客服与帮助',
 				name: 'help'
-			}
+			},
+			inXCX: false,
 		}
 	},
 	components:{
 		mainHeader
+	},
+	activated() {
+        if(window.__wxjs_environment === 'miniprogram'){
+
+            this.inXCX = true
+            this.isEnter = false
+            this.userId = this.$router.currentRoute.query.userId
+            this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+            document.getElementsByTagName("title")[0].innerText = '客服与帮助'
+		}
 	}
 }
 </script>

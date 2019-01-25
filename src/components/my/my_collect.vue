@@ -55,7 +55,7 @@ export default {
 		articleList,Scroll,loading,mainHeader,lackPage
   },
   activated () {
-    if(window.__wxjs_environment === 'miniprogram'){
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
       this.inXCX = true
       this.userId = this.$router.currentRoute.query.userId
       this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)

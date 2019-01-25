@@ -257,10 +257,11 @@
       }
     },
     created() {
-      if(window.__wxjs_environment === 'miniprogram'){
+      if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
         this.inXCX = true
         this.userId = this.$router.currentRoute.query.userId
         this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+        document.getElementsByTagName("title")[0].innerText = "聊天室";
       }
     },
     activated() {
@@ -728,6 +729,12 @@
               that.roomConnect();
               that.isOver = false;
               that.GetRoomMsg();
+            } else {
+              layer.open({
+                content: JSON.stringify(res.data),
+                skin: 'msg',
+                time: 2
+              });
             }
           },function () {}
         );

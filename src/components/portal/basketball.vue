@@ -61,7 +61,7 @@ export default {
     next();
   },
   activated() {
-    if(window.__wxjs_environment === 'miniprogram'){
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
       this.inXCX = true
     }
     if(!this.$route.meta.iskeep || this.isFirstEnter){
@@ -137,10 +137,14 @@ export default {
       })
     },
     goarticle(item){
-      this.$router.push({
-        path: `/articledetail/?id=${item.id}`,
-        props: {id: item.id}
-      })
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+      } else {
+        this.$router.push({
+          path: `/articledetail/?id=${item.id}`,
+          props: {id: item.id}
+        })
+      }
     },
 
   }

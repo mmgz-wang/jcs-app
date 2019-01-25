@@ -35,7 +35,7 @@
         :hint="lackPageData.hint"
         :button="lackPageData.button"
         :goCallback="lackPageData.goCallback"
-        v-show="isEnter || letterListData.length<=0"></lack-page>
+        v-show="isEnter"></lack-page>
         <router-view></router-view>
 	</div>
 </template>
@@ -83,6 +83,7 @@ import lackPage from 'base/lackpage/lackpage'
     },
     activated() {
         if(window.__wxjs_environment === 'miniprogram'){
+
             this.inXCX = true
             this.isEnter = false
             this.userId = this.$router.currentRoute.query.userId
@@ -107,7 +108,6 @@ import lackPage from 'base/lackpage/lackpage'
         pullingUpFn(scroll){
             this.types = 1;
             this.pullUpText = '努力加载中 ...';
-            console.log(this.queryString);
             this.getData(this.queryString);
         },
     	getData: function(data){
@@ -115,8 +115,8 @@ import lackPage from 'base/lackpage/lackpage'
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.token,
-                    "UserId" : this.userId
+                    "SecurityCode" : that.token,
+                    "UserId" : that.userId
                 },
                 headers:{"X-Target":"TrentService.GetLetteredAuthors"},
                 callback: function(data){
@@ -129,7 +129,7 @@ import lackPage from 'base/lackpage/lackpage'
                                 hint: '多和老师交流才能进步哦！',
                                 button: '找个老师聊聊',
                                 goCallback(){
-                                    this.$router.push({name: 'export'})
+                                    that.$router.push({name: 'export'})
                                 }
                             }
                         }
@@ -145,8 +145,8 @@ import lackPage from 'base/lackpage/lackpage'
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.token,
-                    "UserId" : this.userId
+                    "SecurityCode" : that.token,
+                    "UserId" : that.userId
                 },
                 headers:{"X-Target":"TrentService.CheckLetter"},
                 callback: function(data){
@@ -167,7 +167,7 @@ import lackPage from 'base/lackpage/lackpage'
         },
     	letterIndex(item){
             if (this.inXCX) {
-                wx.miniProgram.navigateTo({url: `/pages/letterindex/letterindex?id=${item.id}&name=${item.nickname}`})
+                wx.miniProgram.navigateTo({url: `/pages/letterindex/letterindex?id=${item.id}&name=${encodeURIComponent(item.nickname)}`})
             } else {
                 this.$router.push({
                     path: `/letterindex?id=${item.id}&name=${encodeURI(item.nickname)}`
@@ -186,7 +186,6 @@ import lackPage from 'base/lackpage/lackpage'
                 {
                     headers: opt.headers
                 }
-
             ).then(function(res){
                 opt.callback(res.data);
             },function(){

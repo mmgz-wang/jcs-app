@@ -4,8 +4,9 @@
     <div class="pre-main" :class="{inxcx: inXCX}">
       <section class="pre-list" v-for="item in Omnipotence">
        <div class="left">
-          <p class="price"><i>{{item.cardValue}}精彩币</i>以下文章</p>
-            <p class="vip">请到vip文章列表解锁查看</p>
+          <p class="price" v-if="item.cardValue>999999"><i>任意价格</i>下文章</p>
+          <p class="price" v-else><i>{{item.cardValue}}精彩币</i>以下文章</p>
+          <p class="vip">请到vip文章列表解锁查看</p>
        </div>
        <div class="right">{{item.count}}篇</div>
       </section>
@@ -51,7 +52,7 @@ export default {
 		mainHeader
   },
   activated () {
-    if(window.__wxjs_environment === 'miniprogram'){
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
       this.inXCX = true
       this.userId = this.$router.currentRoute.query.userId
       this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)

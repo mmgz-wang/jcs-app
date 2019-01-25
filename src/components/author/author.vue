@@ -197,7 +197,7 @@ export default {
     next();
   },
   activated() {
-    if(window.__wxjs_environment === 'miniprogram'){
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
       this.inXCX = true
       if(this.$router.currentRoute.query.userId == '' || this.$router.currentRoute.query.userId == undefined 
       || this.$router.currentRoute.query.code == '' || this.$router.currentRoute.query.code == undefined){

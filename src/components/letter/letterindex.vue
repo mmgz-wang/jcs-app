@@ -93,12 +93,6 @@ export default {
                     if(data.user_id != that.$router.currentRoute.query.id){
                         return ;
                     }
-                    console.log({
-                        content: event.data.text,
-                        flag: "from",
-                        id: 'null',
-                        timestamp: this.shareFn.setTime('send')
-                    })
                     that.msgData.push({
                         content: data.text,
                         flag: "from",
@@ -118,8 +112,8 @@ export default {
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.userId,
-                    "UserId" : this.token,
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId,
                     "AuthorId" : that.$router.currentRoute.query.id,
                     "Contents" : that.$refs.msgInput.value
                 },
