@@ -2,7 +2,7 @@
   <transition name="slide">
     <div class="roomindex">
       <img style="width: 0;height: 0;opacity: 0;display: none;" src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
-      <main-header @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
+      <main-header v-show="!inXCX" @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
       <div class="room-nav">
         <ul class="selector">
           <li @click="selector('all')" class="all" :class="{on:onData.isAll}">查看全部</li>
@@ -13,7 +13,7 @@
         </ul>
       </div>
 
-      <div ref="scrollWraper" class="msg-list">
+      <div ref="scrollWraper" class="msg-list" :class="{inwxxcx:inXCX}">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
@@ -222,6 +222,8 @@
         roomName: this.$router.currentRoute.query.roomName,
         roomPrice: this.$router.currentRoute.query.roomPrice,
         lecturerName: this.$router.currentRoute.query.lecturerName,
+        userId: this.shareFn.getUserId(),
+        token: this.shareFn.getSecurityCode(),
         userMoney: 0,
         ackData: {},
         toData: {
@@ -250,17 +252,23 @@
         curGuessId: 0,
         curTeam: '',
         gusDialogShow: false,
-        roomIntegral: 0
+        roomIntegral: 0,
+        inXCX: false
       }
     },
     created() {
-
+      if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+        this.inXCX = true
+        this.userId = this.$router.currentRoute.query.userId
+        this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+        document.getElementsByTagName("title")[0].innerText = "聊天室";
+      }
     },
     activated() {
       if (!this.$route.meta.iskeep) {
         this.msgData = [];
         //if (this.isLogin) {
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !this.inXCX){
           this.$refs.msgInput.placeholder = '点此登录后方可发言！';
           this.$refs.msgInput.disabled = true;
           this.reseteRoomStatus();
@@ -291,7 +299,7 @@
       reseteRoomStatus(){
         this.IO = io.connect(Common.baseURI().ioUrl);
         this.roomScoket();
-        this.userId = this.shareFn.getUserId();
+        this.userId = this.userId;
         this.roomId = this.$router.currentRoute.query.roomId;
         this.roomName = this.$router.currentRoute.query.roomName;
         this.roomPrice = this.$router.currentRoute.query.roomPrice;
@@ -305,9 +313,9 @@
         }
         this.toData = {
           limit: 30,
-          userId: this.shareFn.getUserId(),
+          userId: this.userId,
           range: 0,
-          token: this.shareFn.getSecurityCode()
+          token: this.token
         };
 
       },
@@ -318,13 +326,12 @@
           //链接成功
           var jsonObject = {
             roomId: that.roomId,
-            userId: that.shareFn.getUserId(),
-            token: that.shareFn.getSecurityCode()
+            userId: that.userId,
+            token: that.token
           };
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
-          console.log(data)
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
@@ -332,10 +339,10 @@
           that.roomPic = data.userPic;
           that.userMoney = data.userMoney;
           that.userName = data.userName;
-          that.lecturerName = that.$router.currentRoute.query.lecturerName;
+          that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
           that.userIntergral = data.userIntergral==undefined?0:data.userIntergral;
           if (data.code == 999) {
-            if(that.shareFn.isLogin()){
+            if(that.shareFn.isLogin() || that.inXCX){
               that.dialogShow = true;
               var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
               if (data.roomPrice == 0 && data.room_integral > 0) {
@@ -358,7 +365,11 @@
                   that.$router.push('enter');
                 },
                 no: function (index) {
-                  that.$router.back();
+                  if(that.inXCX){
+                    wx.miniProgram.navigateBack()
+                  }else{
+                    that.back();
+                  }
                   layer.close(index);
                 }
               });
@@ -375,14 +386,18 @@
               shadeClose: false,
               yes: function (index) {
                 layer.close(index);
-                that.$router.back();
+                if(that.inXCX){
+                  wx.miniProgram.navigateBack()
+                }else{
+                  that.back();
+                }
               },
               no: function (index) {
                 that.custmorJsonp(
                   "http://123.206.88.92:8080/Room/SubscribeRoom",
                   {
                     language: 'M',
-                    userId: that.shareFn.getUserId(),
+                    userId: that.userId,
                     roomId: data.roomId
                   },function (res) {
 
@@ -453,9 +468,9 @@
       roomConnect: function () {
         var that = this;
         var jsonObject = {
-          userId: this.shareFn.getUserId(),
+          userId: this.userId,
           roomId: that.roomId,
-          token: this.shareFn.getSecurityCode()
+          token: this.token
         };
         this.IO.emit('login', jsonObject);
       },
@@ -480,7 +495,7 @@
         //推送给其他人
         var jsonObject = {
           roomId: that.$router.currentRoute.query.roomId,
-          userId: that.shareFn.getUserId(),
+          userId: that.userId,
           content: that.$refs.msgInput.value
         };
         this.IO.emit('chatevent', jsonObject);
@@ -495,9 +510,9 @@
         if (s == 'all') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 0,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: true,
@@ -511,9 +526,9 @@
         } else if (s == 'teach') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 1,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
 
           }
           that.onData = {
@@ -527,9 +542,9 @@
         } else if (s == 'own') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 2,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: false,
@@ -542,9 +557,9 @@
         } else if (s == 'recommend') {
           that.toData = {
             limit: 20,
-            userId: this.shareFn.getUserId(),
+            userId: this.userId,
             range: 3,
-            token: this.shareFn.getSecurityCode()
+            token: this.token
           }
           that.onData = {
             isAll: false,
@@ -560,7 +575,7 @@
         that.scrollTo();
       },
       setMsg(s) {
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !inXCX){
           this.$router.push('enter');
           return ;
         }
@@ -572,7 +587,7 @@
               {
                 params: {
                   language: 'M',
-                  userId: this.shareFn.getUserId(),
+                  userId: this.userId,
                   roomId: this.roomId,
                   subscribeType: '-1'
                 }
@@ -587,7 +602,7 @@
               {
                 params: {
                   language: 'M',
-                  userId: this.shareFn.getUserId(),
+                  userId: this.userId,
                   roomId: this.roomId,
                   subscribeType: '0'
                 }
@@ -602,7 +617,6 @@
           Common.baseURI().roomMsgurls + '/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
           that.toData,
           function (res) {
-            console.log(res.data)
             if (res.status == 200) {
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
@@ -625,7 +639,9 @@
             } else {
               console.log('请求失败')
             }
-            that.messageIds = that.msgData[0].messageId;
+            if(that.msgData.length != 0){
+              that.messageIds = that.msgData[0].messageId;
+            }
             var downDom = document.querySelector('.custmor-pullDown');
             that.loadPcShow = false;
             if (downDom != null) {
@@ -647,7 +663,6 @@
           yes: function (index) {
             if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
                 that.custmorPost(7,id.toString());
-              console.log(index)
                 layer.close(index)
             }else{
               that.custmorJsonp(
@@ -657,7 +672,7 @@
                   Language: 'M',
                   payable: true,
                   MsgId: id,
-                  SecurityCode: that.shareFn.getSecurityCode()
+                  SecurityCode: that.token
                 },function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
@@ -698,7 +713,7 @@
             UserId: that.userId,
             Language: 'M',
             RoomId: that.roomId,
-            SecurityCode: this.shareFn.getSecurityCode(),
+            SecurityCode: that.token,
             purchaseType: 15
           },function (res) {
             var texts = "购买成功！"
@@ -714,6 +729,12 @@
               that.roomConnect();
               that.isOver = false;
               that.GetRoomMsg();
+            } else {
+              layer.open({
+                content: JSON.stringify(res.data),
+                skin: 'msg',
+                time: 2
+              });
             }
           },function () {}
         );
@@ -733,7 +754,11 @@
                 that.dialogShow = false;
               },
               noFn: function () {
-                that.back();
+                if(that.inXCX){
+                  wx.miniProgram.navigateBack()
+                }else{
+                  that.back();
+                }
                 that.dialogShow = false;
               }
             }
@@ -749,7 +774,7 @@
                   UserId: that.userId,
                   Language: 'M',
                   RoomId: that.roomId,
-                  SecurityCode: this.shareFn.getSecurityCode()
+                  SecurityCode: that.token
                 },function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
@@ -770,14 +795,22 @@
               that.dialogShow = false;
             },
             noFn: function () {
-              that.back();
+              if(that.inXCX){
+                wx.miniProgram.navigateBack()
+              }else{
+                that.back();
+              }
               that.dialogShow = false;
             }
           }
         }
       },
       firstNoFn() {
-        this.back();
+        if(this.inXCX){
+          wx.miniProgram.navigateBack()
+        }else{
+          this.back();
+        }
         this.dialogShow = false;
       },
       loadMsg: function () {
@@ -826,7 +859,7 @@
               messageId: that.messageIds,
               userId: that.userId,
               range: that.range,
-              token: that.shareFn.getSecurityCode()
+              token: that.token
             }
             that.GetRoomMsg();
             movey = 0;
@@ -844,7 +877,7 @@
               messageId: that.messageIds,
               userId: that.userId,
               range: that.range,
-              token: that.shareFn.getSecurityCode()
+              token: that.token
             }
             that.GetRoomMsg();
           }
@@ -915,7 +948,7 @@
               Language: 'M',
               UserId: that.shareFn.getUserId(),
               RoomId: that.roomId,
-              SecurityCode: that.shareFn.getSecurityCode(),
+              SecurityCode: that.token,
               GoldCoin: that.awardNum,
               sign: new Date().getTime()
             },function (res) {
@@ -943,7 +976,7 @@
         this.awardShow = false;
       },
       visitorFn(){
-        if(!this.shareFn.isLogin()){
+        if(!this.shareFn.isLogin() && !inXCX){
           this.$router.push('enter')
         }
       },
@@ -964,21 +997,19 @@
         this.scrollTo();
       },
       subGuess (s) {
-        console.log(s)
         var that = this;
         this.gusDialogShow = false;
         this.custmorJsonp(
           Common.baseURI().host + "/assets/purchaseGuessingPlan",
           {
-            userId: that.shareFn.getUserId(),
+            userId: that.userId,
             Language: 'M',
-            token: that.shareFn.getSecurityCode(),
+            token: that.token,
             guessing_plan_id: that.curGuessId,
             cost: s,
             invest_target: that.curTeam
           },
           function (data) {
-            console.log(data)
             if (data.data.code == '0000') {
               layer.open({
                 content: data.data.msg,
@@ -1017,7 +1048,6 @@
           }
           return;
         }
-        console.log(arguments)
         this.gusDialogShow = true;
         this.curGuessId =  arguments[0].id;
         this.curTeam = arguments[1];
@@ -1041,9 +1071,9 @@
           Common.baseURI().host + "/dlb/tradepay",
           {
             "Language":"M",
-            "UserId":this.shareFn.getUserId(),
+            "UserId":this.userId,
             "CommodityId":ID,
-            "SecurityCode":this.shareFn.getSecurityCode(),
+            "SecurityCode":this.token,
             "CommodityType":payType,
             "source":"1_2_7"
           },{
@@ -1054,7 +1084,6 @@
         ).then(function (res) {
           if(res.data.Code == '0000'){
             var resultStr = res.data.DLBPara;
-
             this.config = {
               value: resultStr,
               filter: '#FFFFFF',
@@ -1085,7 +1114,6 @@
       jointStr (data) {
         var str = '';
         for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
-          console.log(i)
           str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5,11).replace(/-/,"/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
           if(data.status == 4) {
             str += `获得 <span>${data.guessingPlanSaleList[i].result}`
@@ -1115,7 +1143,6 @@
         handler: function (old,news) {
           if(this.$route.name == 'roomlist'){
             this.IO.emit('leaveroomevent');
-            console.log('leaveroomevent')
           }
         }
       }
@@ -1415,6 +1442,9 @@
         white-space:nowrap;
       }
       .award-section i{color: #f97757;font-style: normal;}
+    }
+    .inwxxcx{
+      top: 40px;
     }
 
     .newmsg_in{background:@reds;height:30px;line-height:30px;position:absolute;right:0;bottom:65px;color:#fff;

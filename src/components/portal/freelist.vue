@@ -1,7 +1,7 @@
 <template>
   <div id="freelist">
-    <publick-header :headerData="headerData"></publick-header>
-    <scroll class="basketball-list-wrap"
+    <publick-header v-if="!inXCX" :headerData="headerData"></publick-header>
+    <scroll class="basketball-list-wrap" :class="{inxcx: inXCX}"
             :needRefresh="needRefresh"
             :pullDownRefresh="pullDownRefresh"
             :pullUpLoad="pullUpLoad"
@@ -32,8 +32,8 @@
       return {
         articleDataList: [],
         headerData: {
-          ele: '<h1>篮球</h1>',
-          name: 'basketball',
+          ele: '<h1>免费</h1>',
+          name: 'freeList',
           isShow: false
         },
         types: 0,
@@ -44,6 +44,7 @@
         pullDownText: '下拉刷新！',
         pullUpText: '上拉加载更多！',
         lastArticleId: 0,
+        inXCX: false
       }
     },
     components: {
@@ -54,24 +55,29 @@
       //this.getData();
     },
     beforeRouteEnter(to, from, next) {
-      console.log(from)
       if(from.name=='articledetail'){
         to.meta.iskeep=true;
       }
       next();
     },
     activated() {
+      if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+        this.inXCX = true
+      }
       if(!this.$route.meta.iskeep || this.isFirstEnter){
         this.articleDataList = [];// 把数据清空，可以稍微避免让用户看到之前缓存的数据
         this.lastArticleId = 0;
         if(this.$router.currentRoute.query.sportType == '足球'){
           this.sportType = 0
-          this.headerData.ele = '<h1>足球</h1?'
+          this.headerData.ele = '<h1>足球</h1>'
+          document.getElementsByTagName("title")[0].innerText = '足球'
         }else if(this.$router.currentRoute.query.sportType == '篮球'){
           this.sportType=1
-          this.headerData.ele = '<h1>篮球</h1?'
+          this.headerData.ele = '<h1>篮球</h1>'
+          document.getElementsByTagName("title")[0].innerText = '篮球'
         }else{
           this.sportType=2;
+          document.getElementsByTagName("title")[0].innerText = '免费'
         }
         this.getData();
       }
@@ -82,7 +88,7 @@
       if(this.$route.name == 'home'){
         this.$refs.scroll.scrollTo(0,0,0);
       }
-      console.log("我是第一个页面的 deactivated 方法");
+      document.getElementsByTagName("title")[0].innerText = '精彩说'
     },
     methods: {
       pullingDownFn(scroll){
@@ -100,17 +106,16 @@
       getData() {
         this.$nextTick(function () {
           this.$http.jsonp(
-            'http://www.jingcaishuo.com/article/list/subType?time=' + Math.random(),
+            'http://www.jingcaishuo.com/article/list/freeArticles/?time=' + Math.random(),
             {
               params:{
                 language: 'M',
                 articleId: this.lastArticleId,
-                type:this.sportType
+                type:2
               }
             }
           ).then(function(res) {
-            console.log(res.data);
-            if(res.data.Code == '0000'){
+            if(res.data.code == '0000'){
               if(this.types){
                 this.articleDataList = this.articleDataList.concat(res.data.articleList);
                 this.pullUpText = '上拉加载更多！';
@@ -119,7 +124,6 @@
                 this.pullDownText = '下拉刷新！';
               }
               this.lastArticleId = this.articleDataList[this.articleDataList.length-1].id;
-              console.log(this.lastArticleId)
             }else{
               layer.open({
                 content: `网络出错，请稍后再试${res.data.Code}`,
@@ -176,6 +180,9 @@
       top:44px;
       bottom:0;
       overflow:hidden;
+    }
+    .inxcx{
+      top: 0;
     }
     header{
       height:50px;

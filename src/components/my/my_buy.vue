@@ -1,7 +1,7 @@
 <template>
   <div id="my_buy">
-    <main-header :headerData="headerData"></main-header>
-    <scroll class="buy-list" :data="articleDataList">
+    <main-header v-if="!inXCX" :headerData="headerData"></main-header>
+    <scroll class="buy-list" :data="articleDataList" :class="{inxcx: inXCX}">
       <div class="scroll-wrap">
         <article-list :topMargin="false" 
           @goarticle="goarticle"
@@ -48,16 +48,31 @@ export default {
           goCallback(){
               this.$router.push({name: 'vip'})
           }
-      }
+      },
+      inXCX: false,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode()
     }
   },
 	components: {
 		articleList,Scroll,loading,mainHeader,lackPage
-	},
-	mounted: function() {
+  },
+  activated () {
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+      this.inXCX = true
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+      document.getElementsByTagName("title")[0].innerText = '我的购买'
+    }
     this.top = 0;
+    
+  },
+  deactivated () {
+    
+  },
+	mounted: function() {
     this.getData();
-	},
+  },
   methods: {
     refresh (done) {
       this.getData(this.top,done);
@@ -68,9 +83,14 @@ export default {
       this.types = 1;
     },
     goarticle(item){
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+      } else {
         this.$router.push({
-            path: `/articledetail/?id=${item.id}`
+          path: `/articledetail/?id=${item.id}`,
+          props: {id: item.id}
         })
+      }
     },
     getData(id,done) {
       var that = this;
@@ -80,8 +100,8 @@ export default {
           {
             params:{
               language: 'M',
-              userId:this.shareFn.getUserId(),
-              securityCode:this.shareFn.getSecurityCode(),
+              userId:this.userId,
+              securityCode:this.token,
               articleId: '0'
             }
           }
@@ -121,6 +141,9 @@ export default {
     right:0;
     overflow:hidden;
     background:@backcolor;
+  }
+  .inxcx{
+    top: 0;
   }
 }
 </style>

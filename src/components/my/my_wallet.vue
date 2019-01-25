@@ -1,11 +1,12 @@
 <template>
   <div id="my_wallet" v-if="userInfor != null">
     <div class="w_hd">
-      <div name="my_wallet" class="main-header wallet-hd">
+      <div name="my_wallet" class="main-header wallet-hd" v-if="!inXCX">
         <span class="back" @click="$router.back();"></span> 
         <p>我的钱包</p> 
         <span class="r_ele" @click="consumeList">流水</span>
       </div>
+      <span class="wx_r_ele" @click="consumeList" v-if="inXCX">流水</span>
       <p class="jcb-tit">
         精彩币
       </p>
@@ -24,7 +25,7 @@
       <span :class="{on: isLeft}" @click="tabClick">兑换解锁劵</span>
       <span :class="{on: !isLeft}" @click="tabClick">兑换权益</span>
     </div>
-    <div class="list-wrap" :class="{wrapleft:isLeft,wrapright:!isLeft}">
+    <div class="list-wrap" :class="{wrapleft:isLeft,wrapright:!isLeft,inxcx: inXCX}">
       <div class="list-wrapa">
         <div class="contnelList" @click="goChange(item.rulesId,item.needIntegral,item.card_value)" v-for="item in couponsList">
           <div class="leftView">
@@ -82,13 +83,22 @@ export default {
       giftData: null,
       couponsList: [],
       userInfor: null,
-      isLeft: true
+      isLeft: true,
+      inXCX: false,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode()
     }
   },
 	components: {
 		loading,mainHeader
 	},
 	mounted: function() {
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+      this.inXCX = true
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+      document.getElementsByTagName("title")[0].innerText = '我的钱包'
+    }
     this.getData();
 	},
   methods: {
@@ -99,8 +109,8 @@ export default {
           Common.baseURI().host + '/User/GetUserInfo',
           {
             params:{
-              userId:this.shareFn.getUserId(),
-              token:this.shareFn.getSecurityCode()
+              userId:this.userId,
+              token:this.token
             }
           }
         ).then(function(res) {
@@ -124,8 +134,8 @@ export default {
           Common.baseURI().host + '/assets/list',
           {
             params:{
-              userId:this.shareFn.getUserId(),
-              token:this.shareFn.getSecurityCode(),
+              userId:this.userId,
+              token:this.token,
               language: 'M'
             }
           }
@@ -143,7 +153,11 @@ export default {
         });
         return false;
       }
-      this.$router.push({path: `myWallet/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}`})
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: `/pages/consume/exchange/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}`})
+      } else {
+        this.$router.push({path: `myWallet/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}`})
+      }
     },
     goGift (id,a) {
       if(a>=1){
@@ -157,10 +171,18 @@ export default {
       this.$router.push({path: `myWallet/giftExchange?id=${arguments[0]}`})
     },
     consumeList () {
-      this.$router.push({path: `/ConsumeList`})
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/consume/detail/detail'})
+      } else {
+        this.$router.push({path: `/ConsumeList`})
+      }
     },
     goaRecharge() {
-      this.$router.push('../recharge')
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/recharge/recharge'})
+      } else {
+        this.$router.push('../recharge')
+      }
     },
   }
 }
@@ -191,7 +213,11 @@ export default {
   .w_hd{
     font-size: 15px;line-height: 1;text-align: center;
     background: #f56859 url(../../common/img/w_b.png) no-repeat left bottom;
-    background-size: 100% auto;
+    background-size: 100% auto;position: relative;
+    .wx_r_ele{
+        position:absolute;padding:15px;z-index: 999999;font-size: 12px;
+        position:absolute;right:0px;top:3px;opacity: 0.8;
+    }
     .jcb-tit{
       padding: 20px 0 14px 0;font-size: 12px;opacity: 0.6;
     }
@@ -295,6 +321,9 @@ export default {
       margin-right: 15px;
       margin-top: 3px;
     }
+  }
+  .inxcx{
+    top: 255px;
   }
   .wrapleft{
 		transform:translateX(0);

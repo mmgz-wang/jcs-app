@@ -1,7 +1,7 @@
 <template>
   <div id="my_collect">
-    <main-header :headerData="headerData"></main-header>
-    <scroll class="container" :data="articleDataList">
+    <main-header v-if="!inXCX" :headerData="headerData"></main-header>
+    <scroll class="container" :data="articleDataList" :class="{inxcx: inXCX}">
       <div class="scroll-wrap">
         <article-list :topMargin="false" @goarticle="goarticle" :articleDataList = "articleDataList"></article-list>
         <div class="loading-container" v-show="!articleDataList.length">
@@ -45,14 +45,25 @@ export default {
           goCallback(){
               this.$router.push({name: 'home'})
           }
-      }
+      },
+      inXCX: false,
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode()
     }
   },
 	components: {
 		articleList,Scroll,loading,mainHeader,lackPage
-	},
-	mounted: function() {
+  },
+  activated () {
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+      this.inXCX = true
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+      document.getElementsByTagName("title")[0].innerText = '我的购买'
+    }
     this.top = 0;
+  },
+	mounted: function() {
     this.getData();
 	},
   methods: {
@@ -71,9 +82,9 @@ export default {
           {
             params:{
               language: 'M',
-              userId:this.shareFn.getUserId(),
-              securityCode:this.shareFn.getSecurityCode(),
-              articleId: '0',
+              userId:this.userId,
+              securityCode:this.token,
+              articleId: '0'
             }
           }
         ).then(function(res) {
@@ -85,9 +96,14 @@ export default {
       })
     },
     goarticle(item){
-      this.$router.push({
-        path: `/articledetail?id=${item.id}`
-      })
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + item.id})
+      } else {
+        this.$router.push({
+          path: `/articledetail/?id=${item.id}`,
+          props: {id: item.id}
+        })
+      }
     }
 
   }
@@ -123,6 +139,9 @@ export default {
       height:100%;
       top:50%;
       transform: translateY(-50%);
+  }
+  .inxcx{
+    top: 0;
   }
 }
 </style>

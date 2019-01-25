@@ -7,7 +7,6 @@ export default {
 		if(getCookie('jsonLog') == 'null' || getCookie('jsonLog') == undefined || getCookie('jsonLog') == null){
 			return {"abcde":"","abcd":"",pic:""};
 		}else{
-		  // return this.param;
 			return JSON.parse(getCookie('jsonLog'));
 		}
 		function getCookie(name){
@@ -24,7 +23,10 @@ export default {
 	getUserPic: function () {
 		return this.jsonLog().pic
 	},
-
+	//小程序
+	wxGetUserT: function (u,c) {
+		return _MD5(u+c)
+	},
 	//验证登录
 	isLogin:function () {
 		//console.log(this.getUserId()+' : '+this.getSecurityCode())

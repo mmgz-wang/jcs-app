@@ -1,10 +1,10 @@
 <template>
 	<div class="author">
-		<div class="ht-back">
+		<div class="ht-back" v-show="!inXCX">
 			<span class="back" @click="back()"></span>
 			<p>{{authorName}}</p>
 		</div>
-		<div class="author-tab hd_next_tab" v-show="tabShow">
+		<div class="author-tab hd_next_tab" :class="{wxtab:inXCX}" v-show="tabShow">
 			<span @click="tabClick('art')" :class="{auton:isart == 1}">文章</span>
 			<span @click="tabClick('room')"  :class="{auton:isart == 2}">聊天室</span>
 			<span @click="tabClick('msg')"  :class="{auton:isart==3}">精彩留言</span>
@@ -156,7 +156,11 @@ export default {
       tabShow: false,
       fdId: "",
       FeedbackList: [],
-      stars: ["1", "2", "3", "4", "5"]
+      stars: ["1", "2", "3", "4", "5"],
+      userId: this.shareFn.getUserId(),
+      token: this.shareFn.getSecurityCode(),
+      wxLogin: false,
+      inXCX: false
     };
   },
   created() {
@@ -183,8 +187,6 @@ export default {
     });
   },
   beforeRouteEnter(to, from, next) {
-    console.log(from);
-    console.log(to);
     if (from.name == "home") {
       to.meta.isback = false;
     } else if (from.name == "articledetail") {
@@ -195,6 +197,17 @@ export default {
     next();
   },
   activated() {
+    if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+      this.inXCX = true
+      if(this.$router.currentRoute.query.userId == '' || this.$router.currentRoute.query.userId == undefined 
+      || this.$router.currentRoute.query.code == '' || this.$router.currentRoute.query.code == undefined){
+        this.wxLogin = false
+      }else{
+        this.wxLogin = true
+      }
+      this.userId = this.$router.currentRoute.query.userId
+      this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.code)
+    }
     if (!this.$route.meta.isback || this.isFirstEnter) {
       this.loding = layer.open({
         type: 2,
@@ -205,8 +218,8 @@ export default {
       this.$refs.scroll.scrollTo(0, 0, 0);
       this.getData(this.url, {
         language: "M",
-        userId: this.shareFn.getUserId(),
-        token: this.shareFn.getSecurityCode(),
+        userId: this.userId,
+        token: this.token,
         authorId: this.$router.currentRoute.query.id,
         articleId: this.start_articleid
       });
@@ -228,12 +241,12 @@ export default {
         header.className = "ht-back ht-on";
         header.style.opacity = Math.abs(opt.y / 10) * 0.3;
       }
-      if (Math.abs(opt.y) >= 180) {
-        this.tabShow = true;
-        //tab.className = 'author-tab fixed';
+      if (Math.abs(opt.y) >= 220 && this.inXCX) {
+        this.tabShow = true
+      } else if (Math.abs(opt.y) >= 180 && !this.inXCX) {
+        this.tabShow = true
       } else if (Math.abs(opt.y) <= 180) {
-        this.tabShow = false;
-        //tab.className = 'author-tab';
+        this.tabShow = false
       }
     },
     tabClick(s) {
@@ -246,8 +259,8 @@ export default {
         }
         this.getData(this.url, {
           language: "M",
-          userId: this.shareFn.getUserId(),
-          token: this.shareFn.getSecurityCode(),
+          userId: this.userId,
+          token: this.token,
           authorId: this.$router.currentRoute.query.id,
           articleId: this.start_articleid
         });
@@ -261,8 +274,8 @@ export default {
         }
         this.getData(this.url, {
           language: "M",
-          userId: this.shareFn.getUserId(),
-          token: this.shareFn.getSecurityCode(),
+          userId: this.userId,
+          token: this.token,
           authorId: this.$router.currentRoute.query.id,
           articleId: this.start_articleid
         });
@@ -283,6 +296,7 @@ export default {
       console.log(this.show);
     },
     getData(url, data) {
+      let that = this;
       this.$nextTick(function() {
         this.$http
           .jsonp(url, {
@@ -292,7 +306,6 @@ export default {
             console.log(res.data);
             if (this.url.indexOf("GetRoomList") > 0) {
               this.autRoomList = res.data;
-              console.log(this.autRoomList);
               this.scrollData = this.autRoomList;
             } else if (this.url.indexOf("GetAuhorInfo") > 0) {
               this.authorInfor = res.data.Author;
@@ -303,8 +316,10 @@ export default {
               this.authorInfor.authorFollowed == "true"
                 ? (this.followStr = "已关注")
                 : (this.followStr = "加关注");
-              console.log(this.followStr + this.authorFollowed);
               this.scrollData = this.articleList;
+              if(that.inXCX){
+                document.getElementsByTagName("title")[0].innerText = this.authorName
+              }
             } else if (this.url.indexOf("Feedback") > 0) {
               this.FeedbackList = res.data.data;
               this.scrollData = this.FeedbackList;
@@ -451,23 +466,49 @@ export default {
       return str;
     },
     goarticle(id) {
-      this.$router.push({
-        path: `/articledetail/?id=${id}`
-      });
+      if (this.inXCX) {
+        wx.miniProgram.navigateTo({url: '/pages/art/art?id=' + id})
+      } else {
+        this.$router.push({
+          path: `/articledetail/?id=${id}`,
+          props: {id: id}
+        })
+      }
     },
     gooRoom: function(item) {
-      console.log(item);
-      if (this.shareFn.isLogin()) {
-        this.$router.push({
-          path: `/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(
-            item.lecturerName
-          )}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(
-            item.roomPrice
-          )}&startTime=${item.startTime}`
-        });
-      } else {
-        this.$router.push({ name: "enter" });
+      if (this.inXCX) {
+        let url = ''
+        if (this.wxLogin) {
+          url = `/pages/chartroom/chartroom?roomId=${item.roomId}&lecturerName=${encodeURI(
+              item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${
+                encodeURI(item.roomPrice)}&startTime=${item.startTime}`
+                wx.miniProgram.navigateTo({url: url})
+        } else {
+          url = `/pages/settings/log-in/log-in`
+          layer.open({
+            content: '<p style="text-align:center;">您还没有登录，请登录。</p >',
+            btn: ['去登录','取消'],
+            shadeClose:null,
+            yes: function (index) {
+              wx.miniProgram.redirectTo({url: url})
+              layer.close(index)
+            }
+          });
+        }
+      } else if (!this.inXCX) {
+        if (this.shareFn.isLogin()) {
+          this.$router.push({
+            path: `/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(
+              item.lecturerName
+            )}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(
+              item.roomPrice
+            )}&startTime=${item.startTime}`
+          });
+        } else {
+          this.$router.push({ name: "enter" });
+        }
       }
+      
     },
     goFollow(s) {
       var that = this;
@@ -708,12 +749,16 @@ export default {
     margin: 0;
     z-index: 66666;
   }
+  .wxtab{
+    top: 0;
+  }
   .aut_tab_wrap {
     width: 300%;
     height: auto;
     .aut_art_list_wrap {
       width: 33.33333%;
       height: auto;
+      padding-bottom: 48px;
       .listcon {
         width: 100%;
         background: @whites;
@@ -828,6 +873,7 @@ export default {
       position: absolute;
       left: 33.333333%;
       top: 0;
+      padding-bottom: 48px;
       .aut-room-list {
         display: flex;
         width: 100%;
@@ -942,6 +988,7 @@ export default {
       position: absolute;
       left: 66.666666%;
       top: 0;
+      padding-bottom: 48px;
       .list {
         background: #ffffff;
         margin-top: 10px;

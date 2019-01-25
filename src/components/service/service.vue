@@ -1,7 +1,7 @@
 <template>
     <div class="service">
-        <main-header :headerData="headerData"></main-header>
-        <div ref="scrollWraper" class="msg-list">
+        <main-header :headerData="headerData" v-if="!inXCX"></main-header>
+        <div ref="scrollWraper" class="msg-list" :class="{inxcx: inXCX}">
             <div ref="serviceMain" class="service-main">
                 <section id="233782" v-for="item in msgData" :class="{left:item.flag=='from',right:item.flag=='to'}">
                     <div onclick="goauthor(353)" :class="{pic:item.flag=='from',rpic:item.flag=='to'}">
@@ -44,26 +44,38 @@ export default {
             msgData: [],
             IO: null,
             roomUsers: 0,
+            teachId: 0,
+            websocket: null,
+            teachPic: '',
+            inXCX: false,
             isLogin: this.shareFn.isLogin(),
             userId: this.shareFn.getUserId(),
             userPic: this.shareFn.getUserPic(),
-            teachId: 0,
-            websocket: null,
-            teachPic: ''
+            userId: this.shareFn.getUserId(),
+            token: this.shareFn.getSecurityCode()
 
         }
     },
     created(){
-        //console.log('created')
+        
     },
-
+    activated () {
+        if(window.__wxjs_environment === 'miniprogram'){
+            this.inXCX = true
+            this.isEnter = false
+            this.userId = this.$router.currentRoute.query.userId
+            this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+            document.getElementsByTagName("title")[0].innerText = '在线客服'
+            this.userPic = this.$router.currentRoute.query.pic
+        } else {
+            this.$nextTick(function(){
+                this.GetLetterMsg();
+                this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
+                this.socketConnect();
+            })
+        }
+    },
     mounted(){
-        //console.log('mounted')
-        this.$nextTick(function(){
-            this.GetLetterMsg();
-            this.socketConnect();
-        })
-
 
     },
     methods:{
@@ -73,16 +85,9 @@ export default {
                 this.websocket = new WebSocket("ws://123.57.59.76:9999/letter");
                 this.websocket.onmessage = function(event){
                     var data = JSON.parse(event.data);
-                    console.log(data)
                     if(data.user_id != that.$router.currentRoute.query.id){
                         return ;
                     }
-                    console.log({
-                        content: event.data.text,
-                        flag: "from",
-                        id: 'null',
-                        timestamp: this.shareFn.setTime('send')
-                    })
                     that.msgData.push({
                         content: data.text,
                         flag: "from",
@@ -102,8 +107,8 @@ export default {
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId(),
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId,
                     "AuthorId" : that.$router.currentRoute.query.id,
                     "Contents" : that.$refs.msgInput.value
                 },
@@ -127,14 +132,13 @@ export default {
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId(),
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId,
                     "AuthorId" : that.$router.currentRoute.query.id,
                     "LetterId" : ""
                 },
                 headers:{"X-Target":"TrentService.GetLetteresBetweenAuthors"},
                 callback: function(data){
-                    console.log(data)
                     that.msgData = data.Author;
                     that.teachPic = data.PicPath;
 
@@ -151,10 +155,8 @@ export default {
         scrollTo(){
             var that = this;
             setTimeout(function(){
-                //console.log(that.$refs.scrollWraper.offsetHeight)
                 var mainH = that.$refs.scrollWraper.offsetHeight;
                 var innerH = that.$refs.serviceMain.offsetHeight;
-                //console.log(mainH+':'+innerH)
                 var scrollH = innerH - mainH;
                 that.$refs.scrollWraper.scrollTop = scrollH;
             },50)

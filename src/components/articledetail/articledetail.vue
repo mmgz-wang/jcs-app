@@ -419,6 +419,7 @@ export default {
         }</i></span><span class="open-explain">
 				可查看该老师当天所有NBA文章</span></p><button class="open-btn" types="money">解锁</button></div>`;
       }
+      
       if (
         "" != articles.omnCardId &&
         "" != articles.omnCardValue &&
@@ -428,10 +429,36 @@ export default {
         undefined != articles.omnCardValue &&
         articles.singleUnlock
       ) {
-        payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${
-          articles.omnCardValue
-        }精彩币以下</i></span><span class="open-explain">
-				仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
+        if (articles.omnCardValue>999999) {
+          payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>任意价格</i></span><span class="open-explain">
+            仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
+        } else {
+          payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${
+              articles.omnCardValue
+            }精彩币以下</i></span><span class="open-explain">
+            仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
+        }
+      } else if (
+        "" != articles.omnCardId &&
+        "" != articles.omnCardValue &&
+        articles.omnCardId != 0 &&
+        articles.omnCardValue != 0 &&
+        undefined != articles.omnCardId &&
+        undefined != articles.omnCardValue &&
+        !articles.singleUnlock && 
+        articles.omnCardType == 5 || 
+        articles.omnCardType == 6 || 
+        articles.omnCardType == 1
+      ) {
+        if (articles.omnCardValue>999999) {
+          payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>任意价格</i></span><span class="open-explain">
+            仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
+        } else {
+          payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>${
+              articles.omnCardValue
+            }精彩币以下</i></span><span class="open-explain">
+            仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
+        }
       }
 
       if (authorLevelList != undefined && authorLevels != undefined) {
@@ -651,6 +678,10 @@ export default {
     $route() {
       //alert('变化')
       //this.getData();
+      //console.log(this.$router)
+      if(this.$router.history.current.name=='articledetail'){
+        this.getData();
+      }
       this.loadingShow = true;
     }
   }

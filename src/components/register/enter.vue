@@ -76,9 +76,7 @@ import Common from 'common/js/common'
               loginfrom: this.loginfrom
             }
 					).then(function(res){
-					  console.log(res)
 						if(res.data.Code === '0000'){
-							console.log(res.data)
 							this.$router.back();
 							var jsonLog='{"abc":"'+escape(this.tel)+'","abcd":"'+res.data.UserId+'","abcde":"'+res.data.SecurityKey+'","pic":"'+res.data.PicPath+'"}';
 							setCookie('jsonLog',jsonLog,1);

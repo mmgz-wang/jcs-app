@@ -269,7 +269,6 @@
 
 				).then(function(res){
           if (res.data.Code == '0000') {
-            console.log(res.data)
             that.signText = res.data.msg
             that.signNum = res.data.userSignMsgCounts
             that.userSignInteral = res.data.userSignInteral

@@ -1,7 +1,7 @@
 <template>
     <div class="letterindex">
-        <main-header :headerData="headerData"></main-header>
-        <div ref="scrollWraper" class="msg-list">
+        <main-header :headerData="headerData" v-if="!inXCX"></main-header>
+        <div ref="scrollWraper" class="msg-list" :class="{inxcx: inXCX}">
             <div ref="roomMain" class="room-main">
                 <section v-for="item in msgData" :id="item.id" :class="{left:item.flag=='from',right:item.flag=='to'}">
                     <div onclick="goauthor(353)" :class="{pic:item.flag=='from',rpic:item.flag=='to'}">
@@ -44,25 +44,35 @@ export default {
             msgData: [],
             IO: null,
             roomUsers: 0,
+            teachId: 0,
+            websocket: null,
+            teachPic: '',
+            inXCX: false,
             isLogin: this.shareFn.isLogin(),
             userId: this.shareFn.getUserId(),
             userPic: this.shareFn.getUserPic(),
-            teachId: 0,
-            websocket: null,
-            teachPic: ''
-
+            userId: this.shareFn.getUserId(),
+            token: this.shareFn.getSecurityCode()
         }
     },
 	created(){
         console.log('created')
 	},
     activated () {
-        console.log(99999999999)
-        this.$nextTick(function(){
-            this.GetLetterMsg();
-            this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
-            this.socketConnect();
-        })
+        if(window.__wxjs_environment === 'miniprogram'){
+            this.inXCX = true
+            this.isEnter = false
+            this.userId = this.$router.currentRoute.query.userId
+            this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+            document.getElementsByTagName("title")[0].innerText = this.$router.currentRoute.query.name
+            this.userPic = this.$router.currentRoute.query.pic
+        } else {
+            this.$nextTick(function(){
+                this.GetLetterMsg();
+                this.headerData.ele=decodeURI(this.$router.currentRoute.query.name);
+                this.socketConnect();
+            })
+        }
     },
     mounted(){
         console.log('mounted')
@@ -83,12 +93,6 @@ export default {
                     if(data.user_id != that.$router.currentRoute.query.id){
                         return ;
                     }
-                    console.log({
-                        content: event.data.text,
-                        flag: "from",
-                        id: 'null',
-                        timestamp: this.shareFn.setTime('send')
-                    })
                     that.msgData.push({
                         content: data.text,
                         flag: "from",
@@ -108,8 +112,8 @@ export default {
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId(),
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId,
                     "AuthorId" : that.$router.currentRoute.query.id,
                     "Contents" : that.$refs.msgInput.value
                 },
@@ -134,8 +138,8 @@ export default {
             var opt = {
                 url: Common.baseURI().nativeHost,
                 data: {
-                    "SecurityCode" : this.shareFn.getSecurityCode(),
-                    "UserId" : this.shareFn.getUserId()*1,
+                    "SecurityCode" : this.token,
+                    "UserId" : this.userId,
                     "AuthorId" : that.$router.currentRoute.query.id*1,
                     "LetterId" : ""
                 },
@@ -376,6 +380,9 @@ export default {
                 transform:rotate(45deg);
             }
         }
+    }
+    .inxcx{
+        top: 0;
     }
     .room-foot{
         height:50px;

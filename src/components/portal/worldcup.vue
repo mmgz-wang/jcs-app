@@ -1,7 +1,7 @@
 <template>
   <div id="worldcup">
-    <publick-header :headerData="headerData"></publick-header>
-    <scroll class="basketball-list-wrap"
+    <publick-header v-if="!inXCX" :headerData="headerData"></publick-header>
+    <scroll class="basketball-list-wrap" :class="{inxcx: inXCX}"
             :needRefresh="needRefresh"
             :pullDownRefresh="pullDownRefresh"
             :pullUpLoad="pullUpLoad"
@@ -44,6 +44,7 @@
         pullDownText: '下拉刷新！',
         pullUpText: '上拉加载更多！',
         lastArticleId: 0,
+        inXCX: false
       }
     },
     components: {
@@ -61,13 +62,18 @@
       next();
     },
     activated() {
+      if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+        this.inXCX = true
+      }
       if(!this.$route.meta.iskeep || this.isFirstEnter){
         this.articleDataList = [];// 把数据清空，可以稍微避免让用户看到之前缓存的数据
         this.lastArticleId = 0;
         if(this.$router.currentRoute.query.sportType == '世界杯'){
           this.headerData.ele = '<h1>世界杯</h1>'
           this.urIStr = 'worldcup'
+          document.getElementsByTagName("title")[0].innerText = '世界杯'
         }else if(this.$router.currentRoute.query.sportType == '免费'){
+          document.getElementsByTagName("title")[0].innerText = '免费'
           this.headerData.ele = '<h1>免费</h1>'
           this.urIStr = 'freeArticles'
         }
@@ -80,7 +86,7 @@
       if(this.$route.name == 'home'){
         this.$refs.scroll.scrollTo(0,0,0);
       }
-      console.log("我是第一个页面的 deactivated 方法");
+      document.getElementsByTagName("title")[0].innerText = '精彩说'
     },
     methods: {
       pullingDownFn(scroll){
@@ -173,6 +179,9 @@
       top:44px;
       bottom:0;
       overflow:hidden;
+    }
+    .inxcx{
+      top: 0;
     }
     header{
       height:50px;
