@@ -29,7 +29,7 @@ export default {
         return {
             baseUrl:'http://www.jingcaishuo.com/',
             swiperOption: {
-                autoplay: 1000,
+                autoplay: 3000,
                 loop : true,
                 pagination: '.swiper-pagination',
                 autoplayDisableOnInteraction:false
@@ -48,7 +48,7 @@ export default {
         }
     },
     mounted() {
-        //这边就可以使用swiper这个对象去使用swiper官网中的那些方法
+        //这边就可以使用swiper这个对象
         this.swiper.slideTo(0, 0, true);
     },
     methods: {
@@ -69,7 +69,7 @@ export default {
             console.log('old:'+old.name)
             console.log('news:'+news.name)
             if(old.name == 'Home'){
-              this.$refs.mySwiper.swiper.destroy(true, true)
+              //this.$refs.mySwiper.swiper.destroy(true, true)
             }
           },
           deep: true

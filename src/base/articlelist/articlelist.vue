@@ -14,7 +14,7 @@
                 <p class="txt" v-if="item.tabView" v-html="tabView(item)">
 
                 </p>
-                <span class="list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">VIP</i>{{item.digest}}</span>
+                <span class="list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">黑必退</i>{{item.digest}}</span>
             </div>
             <div class="artlist-match" v-if="item.matches!=undefined && item.matches.length>0 && matchShow" @click.stop="gomatch(item.matches[0].entry_id)">
                 <span># {{item.matches[0].cup_name}}</span>
@@ -89,7 +89,7 @@ export default{
               return '';
           }
           if(item.chargeable) {
-              str += '<i class="vip">VIP</i>'+item.tabView;
+              str += '<i class="vip">黑必退</i>'+item.tabView;
               if(item.singleUnlock && item.price>0){
                   str += '<span class="list-Price">'+item.price+'精彩币</span>';
               }else if(!item.singleUnlock){

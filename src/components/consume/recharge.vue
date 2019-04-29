@@ -20,22 +20,29 @@
            <div class="menulist">
             <div class="menu">
                 <ul>
-                    <li id="weixinpay" v-if="new Date().getHours() > 9 && new Date().getHours() <21">
+                    <!-- <li id="weixinpay" v-if="new Date().getHours() > 9 && new Date().getHours() <21">
                         <img src="../../common/bgs-09c.png" alt="" class="img" />
                         <span class="txt">哆啦宝支付</span>
                         <span class="rico rico-on"></span>
-                    </li>
+                    </li> -->
                     <li v-if="new Date().getHours() < 9 || new Date().getHours() >21">哆啦宝充值时间为（09:00~21:00）</li>
                     <li id="aliplay" style="display:none;">
                         <img src="../../common/img/zhi.png" alt="" class="img" />
                         <span class="txt">支付宝支付</span>
                         <span class="rico"></span>
                     </li>
+                    <li id="card">
+                        <img src="../../common/img/card.png" alt="" class="img">
+                        <span class="txt">银行转账</span>
+                        <p class="payCard">账户名称：北京信盈世纪科技有限责任公司<br>
+                            开户行：<span>平安银行北京丰盛支行</span><br>
+                            银行帐户：<span>11014837407009</span></p>
+                    </li>
                 </ul>
             </div>
            </div>
 
-           <p class="subbtn" @click="TrueClick()">确认支付<span class="affirm">￥{{price}}</span></p>
+           <!-- <p class="subbtn" @click="TrueClick()">确认支付<span class="affirm">￥{{price}}</span></p> -->
 
             <p class="sm" style="">精彩币主要用于购买比赛分析文章，精彩币购买后不可提现，不可退款。如有问题请咨询<span class="online" id="onlineservice1">在线客服</span>或拨打<span class="tel" id="telphone">客服电话</span></p>
             <div class="mask-wx" @click.stop="setWx" v-show="wxShow">
@@ -315,6 +322,7 @@ export default {
                 border-bottom:1px @bordercolor solid;
                 border:none;
                 font-size: 15px;
+                .border-bottom;
                 &:last-child{
                     border:none;
                 }
@@ -463,6 +471,25 @@ export default {
             }
         }
 
+    }
+    .menu ul #card{
+        height:auto;
+        line-height:45px;
+        color: @maincolor;
+        .border-none;
+        p{
+            clear:both;
+            line-height:24px;
+            color:@namecolor;
+            padding-bottom:25px;
+        }
+        .txt{
+            line-height: 53px;
+        }
+        .payCard{
+            padding: 10px;font-size:14px;margin-left:20px;
+        }
+        .payCard span{color:@reds;}
     }
 }
 </style>

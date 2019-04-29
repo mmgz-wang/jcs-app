@@ -413,7 +413,7 @@ export default {
           articles.price
         }</i></span><span class="open-explain">
 				仅解锁当前文章</span></p><button class="open-btn" types="money">解锁</button></div>`;
-      } else {
+      } else if (articles.isNba) {
         payForWaystr += `<div class="package-item"><p><span>NBA包天解锁 <i>￥${
           articles.price
         }</i></span><span class="open-explain">
@@ -429,7 +429,7 @@ export default {
         undefined != articles.omnCardValue &&
         articles.singleUnlock
       ) {
-        if (articles.omnCardValue>999999) {
+        if (articles.omnCardType == 7 || articles.omnCardType == 8) {
           payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>任意价格</i></span><span class="open-explain">
             仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
         } else {
@@ -445,12 +445,9 @@ export default {
         articles.omnCardValue != 0 &&
         undefined != articles.omnCardId &&
         undefined != articles.omnCardValue &&
-        !articles.singleUnlock && 
-        articles.omnCardType == 5 || 
-        articles.omnCardType == 6 || 
-        articles.omnCardType == 1
+        !articles.singleUnlock
       ) {
-        if (articles.omnCardValue>999999) {
+        if (articles.omnCardType == 7 || articles.omnCardType == 8) {
           payForWaystr += `<div class="package-item"><p><span>赠送机会 <i>任意价格</i></span><span class="open-explain">
             仅解锁当前文章</span></p><button class="open-btn" types="card">解锁</button></div>`;
         } else {
@@ -1095,7 +1092,6 @@ export default {
       padding-top: 15px;
       margin-left: 3%;
       .border-top;
-      padding-bottom: 10px;
     }
     .topb img {
       width: 100%;
@@ -1153,7 +1149,6 @@ export default {
       }
     }
     .art-match {
-      float: left;
       width: 100%;
       padding-bottom: 15px;
       font-size: 0.1rem;

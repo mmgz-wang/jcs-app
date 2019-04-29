@@ -22,12 +22,12 @@
                                     <i>{{msgData.Money}}</i>精彩币
                                 </span>
                             </li>
-                            <li @click="TrueClick('we')" id="weixinpay" 
+                            <!-- <li @click="TrueClick('we')" id="weixinpay" 
                                 v-if="new Date().getHours() > 9 && new Date().getHours() <21">
                                 <img src="../../common/bgs-09c.png" alt="" class="w-img">
                                 <span class="txt">哆啦宝支付</span>
                                 <span class="rico"></span>
-                            </li>
+                            </li> -->
                             <li @click="TrueClick('ali')" id="aliplay" style="display:none">
                                 <img src="../../common/img/zhi.png" alt="" class="img">
                                 <span class="txt">支付宝支付</span>
@@ -80,9 +80,6 @@
 <script type="text/javascript">
 import Common from 'common/js/common'
 import mainHeader from 'base/header/mainheader'
-import 'common/js/layer'
-import 'common/less/layer.css'
-import 'common/js/jcs_dialoga.css'
 import VueQArt from 'vue-qart'
 export default {
 	name: 'payfor',

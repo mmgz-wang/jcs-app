@@ -47,7 +47,7 @@
 							<div class="r_txt">
 								<div class="txtbox">
 									<span class="txt" v-if="item.tabView" v-html="tabView(item)"></span>
-									<span class="aut-list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">VIP</i>{{item.digest}}</span>
+									<span class="aut-list-digest"><i class="vip" v-if="item.tabView == undefined && item.chargeable">黑必退</i>{{item.digest}}</span>
 								</div>
 								<div v-if="item.matches != undefined && item.matches.length" class="match" @click.stop="gomatch(469732)">
 									{{item.matches[0].cup_name}}
@@ -209,10 +209,7 @@ export default {
       this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.code)
     }
     if (!this.$route.meta.isback || this.isFirstEnter) {
-      this.loding = layer.open({
-        type: 2,
-        content: "加载中"
-      });
+      
       this.url = Common.baseURI().host + "/Author/GetAuhorInfo";
       this.isart = 1;
       this.$refs.scroll.scrollTo(0, 0, 0);
@@ -365,7 +362,7 @@ export default {
         return "";
       }
       if (item.chargeable) {
-        str += '<i class="vip">VIP</i>' + item.tabView;
+        str += '<i class="vip">黑必退</i>' + item.tabView;
         if (item.singleUnlock && item.price > 0) {
           str += '<span class="list-Price">' + item.price + "精彩币</span>";
         } else if (!item.singleUnlock) {

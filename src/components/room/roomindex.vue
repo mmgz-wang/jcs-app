@@ -191,6 +191,7 @@
   import previewImg from 'base/previewimg/preview-img'
   import guessDialog from 'base/guessdialog/guessdialog'
   import 'common/js/jcs_dialoga.css'
+  
   import VueQArt from 'vue-qart'
   export default {
     name: 'roomindex',
@@ -253,7 +254,8 @@
         curTeam: '',
         gusDialogShow: false,
         roomIntegral: 0,
-        inXCX: false
+        inXCX: false,
+        chatClosedStatus: false
       }
     },
     created() {
@@ -332,6 +334,8 @@
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
+          that.chatClosedStatus = data.close
+          that.chatClosed()
           that.ackData = data;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
@@ -420,9 +424,7 @@
               time: 2
             });
           } else if (data.code == 777) {
-
             that.showMeaage('请求过于频繁，访问受限！');
-
           } else {
             //登录成功，有权限
             that.userPic = data.userPic;
@@ -430,6 +432,8 @@
           }
         });
         this.IO.on('chatevent', function (data) {
+          
+          that.chatClosedStatus = data.close
           if (data.userId != that.userId) {
             if(that.newsId == data.messageId){
               return ;
@@ -476,10 +480,10 @@
       },
       sendMsg() {
         var that = this;
-
         if (that.$refs.msgInput.value == '') {
           return false;
         }
+        this.chatClosed()
         var arr = {
           content: that.$refs.msgInput.value,
           createTime: this.shareFn.setTime('send'),
@@ -1123,6 +1127,12 @@
             str += `</span> 积分</p>`
         }
         return str;
+      },
+      chatClosed () {
+        if (this.chatClosedStatus) {
+          alert('直播间休息啦，您也快快休息吧！')
+          this.showMeaage('直播间休息啦，您也快快休息吧！')
+        }
       }
     },
     watch: {
@@ -1446,12 +1456,8 @@
     .inwxxcx{
       top: 40px;
     }
-
-    .newmsg_in{background:@reds;height:30px;line-height:30px;position:absolute;right:0;bottom:65px;color:#fff;
-      border-radius:15px 0 0 15px;padding:0 8px 0 20px;font-size:14px;z-index:9;
-      /*-webkit-animation: neon2 1.5s ease-in-out infinite alternate;
-        -moz-animation: neon2 1.5s ease-in-out infinite alternate;
-        animation: neon2 1.5s ease-in-out infinite alternate;*/
+    .newmsg_in{background:@reds;height:30px;line-height:30px;position:absolute;right:0;bottom:65px;
+      color:#fff;border-radius:15px 0 0 15px;padding:0 8px 0 20px;font-size:14px;z-index:9;
     }
     .newmsg_in:after{content:"";position:absolute;left:8px;top:9px;width:8px;height:12px;
       background:url('../../common/img/n.png') no-repeat;background-size:cover;}

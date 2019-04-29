@@ -27,9 +27,11 @@
     </div>
     <div class="list-wrap" :class="{wrapleft:isLeft,wrapright:!isLeft,inxcx: inXCX}">
       <div class="list-wrapa">
-        <div class="contnelList" @click="goChange(item.rulesId,item.needIntegral,item.card_value)" v-for="item in couponsList">
+        <div class="contnelList" @click="goChange(item.rulesId,item.needIntegral,item.card_value,item.rule_type)" v-for="item in couponsList">
           <div class="leftView">
-            <span>{{item.card_value}}元文章解锁劵</span><span>{{item.needIntegral}}积分</span>
+            <span v-if="item.card_id == '212'">通用文章解锁劵</span>
+            <span v-else>{{item.card_value}}元文章解锁劵</span>
+            <span>{{item.needIntegral}}积分</span>
           </div>
           <div class="rightView" v-if="userInfor.integral>=item.needIntegral">
               <img src="../../common/img/jf.png"><span>去兑换</span>
@@ -154,9 +156,9 @@ export default {
         return false;
       }
       if (this.inXCX) {
-        wx.miniProgram.navigateTo({url: `/pages/consume/exchange/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}`})
+        wx.miniProgram.navigateTo({url: `/pages/consume/exchange/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}&rule_type=${arguments[3]}`})
       } else {
-        this.$router.push({path: `myWallet/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}`})
+        this.$router.push({path: `myWallet/exchange?id=${arguments[0]}&integral=${arguments[1]}&money=${arguments[2]}&rule_type=${arguments[3]}`})
       }
     },
     goGift (id,a) {
