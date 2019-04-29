@@ -4,7 +4,7 @@
     <div class="pre-main" :class="{inxcx: inXCX}">
       <section class="pre-list" v-for="item in Omnipotence">
        <div class="left">
-          <p class="price" v-if="item.cardValue>999999"><i>任意价格</i>下文章</p>
+          <p class="price" v-if="item.card_type == 7 || item.card_type == 8"><i>任意价格</i>下文章</p>
           <p class="price" v-else><i>{{item.cardValue}}精彩币</i>以下文章</p>
           <p class="vip">请到vip文章列表解锁查看</p>
        </div>

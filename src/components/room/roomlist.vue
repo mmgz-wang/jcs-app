@@ -110,6 +110,7 @@ export default {
 
 		},
 		gooRoom: function(item){
+			console.log(item)
 			var that = this;
 			var roomId = item.roomId;
 			var targetBtn = document.querySelector('#s'+roomId);

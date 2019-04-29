@@ -7,6 +7,10 @@ import vueResource from 'vue-resource'
 import vueSwiper from 'vue-awesome-swiper'
 import VueLazyLoad from 'vue-lazyload'
 import shareFn from 'common/js/sharefn.js'
+import 'common/js/jcs_dialoga.css'
+import 'common/js/layer'
+import 'common/less/layer.css'
+
 Vue.prototype.shareFn = shareFn;
 Vue.config.productionTip = false
 /* eslint-disable no-new */

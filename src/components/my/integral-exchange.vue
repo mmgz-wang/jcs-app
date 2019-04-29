@@ -44,6 +44,7 @@ export default {
       id: this.$route.query.id,
       price: this.$route.query.money,
       integral: this.$route.query.integral,
+      rule_type: this.$route.query.rule_type,
       userIntegral: 0,
       num: 1,
       inXCX: false,
@@ -100,7 +101,7 @@ export default {
             token: this.token,
             language: "M",
             rulesId: that.id,
-            rulesType: 2,
+            rulesType: that.rule_type,
             nums: that.num
           }
         })

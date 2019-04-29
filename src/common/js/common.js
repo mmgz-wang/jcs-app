@@ -17,7 +17,7 @@ module.exports = {
 		}, !1), o();
 	},
   baseURI: function () {
-    if(process.env.NODE_ENV != "development"){
+    if(process.env.NODE_ENV !== "development"){
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",
@@ -25,8 +25,8 @@ module.exports = {
         // ioUrl: 'http://182.18.76.155:8080/',
         // roomMsgurls: 'http://182.18.76.155:8822',
         // matchListversion: '1.1.5',
-        //host: "http://jnv.jingcaishuo.net/",
-        host: "http://10.8.0.10:9095",
+        host: "http://jnv.jingcaishuo.net/",
+        //host: "http://10.8.0.10:9095",
         ioUrl: 'https://tchat.jingcaishuo.com/',
         roomMsgurls: 'https://tchat.jingcaishuo.com/'
       }

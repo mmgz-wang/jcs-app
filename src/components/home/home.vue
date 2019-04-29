@@ -49,6 +49,7 @@ import portal from './portal'
 import Common from 'common/js/common'
 import articleList from 'base/articlelist/articlelist'
 import guessDialog from 'base/guessdialog/guessdialog'
+import query from 'querystring'
 export default {
 	data() {
     return {
@@ -179,6 +180,11 @@ export default {
         this.$router.push({
           path: `portal_feed`
         })
+      } else if (item.name == "专家说") {
+        var arr = item.h5Url.split('?')
+        this.$router.push({
+          path: `author/?id=${query.parse(arr[1]).id}`
+        })
       }
     },
     goarticle(item){
@@ -238,7 +244,7 @@ export default {
   watch: {
     $routerPath :{
       handler: function(news,old) {
-
+        
       }
     }
   }
