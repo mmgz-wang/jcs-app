@@ -13,7 +13,8 @@
             <p v-show="showName" class="mynickname">{{userData.NickName}}</p>
             <p v-show="isLogin()" id="logintel">{{strReplace(userData.PhoneNumber)}} ID: {{userId}}</p>
             <p v-show="!isLogin()" class="enterPlese">请登录</p>
-            <div class="sign-in" 
+            <div class="sign-in"
+              v-show="false"
               :class="{'sign-click-already':alreadySign}"
               @click="signIn" v-if="isLogin()">
               {{signText}}
@@ -136,6 +137,7 @@
 <script>
   import publickHeader from 'base/header/publickheader'
   import Common from 'common/js/common.js'
+  import sharefn from "../../common/js/sharefn";
   export default {
     name: 'my',
     data() {
@@ -204,17 +206,12 @@
                 this.signText = res.data.userSignMsg
                 this.alreadySign = true
               }
-              setCookie(
+              sharefn.setCookie(
                 'telephone',
                 this.userData.PhoneNumber == this.userData.NickName?this.strReplace(this.userData.PhoneNumber):this.userData.NickName,
                 1
               );
-              function setCookie(c_name, value, expiredays) {
-                var exdate = new Date();
-                exdate.setDate(exdate.getDate() + expiredays);
-                document.cookie = c_name + "=" + escape(value) +
-                  ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
-              }
+              sharefn.setCookie('money', this.userData.Money, 1);
             } else if (res.data.code == '2004') {
               location.reload();
               setCookie('jsonLog', null, 1);

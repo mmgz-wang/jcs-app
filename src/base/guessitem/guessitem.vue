@@ -1,5 +1,5 @@
 <template>
-  <div class="guesslist">
+  <div class="guesslist" :key="item.id">
     <div class="guess">
       <div class="guess-top">
         <p>{{item.match_league}} {{item.end_time.substr(5,11)}}</p>
@@ -24,7 +24,7 @@
           <i res> 结果：<span>{{item.match_rdesc}}</span></i>
         </template>
       </div>
-      <div class="guess-bottom" v-if="item.value1_purper != undefined">
+      <div class="guess-bottom" v-if="item.value1_purper != undefined && (parseInt(item.value1_purper) != 0 || parseInt(item.value2_purper) != 0)">
         <p>{{item.value1_name}}投注量：{{parseInt(item.value1_purper)}}%，{{item.value2_name}}投注量：{{parseInt(item.value2_purper)}}%</p>
       </div>
     </div>
@@ -40,14 +40,6 @@ export default {
       default: null
     }
   },
-  data () {
-    return {
-
-    }
-  },
-  created () {
-
-  },
   methods: {
     teamClick (item, val) {
       this.$emit('guessTeamClick',item, val)
@@ -59,7 +51,7 @@ export default {
 <style lang="less">
 .guesslist {
   width: 100%;
-  height: 100%;
+  height: auto;
   #integral{
     font-style: normal;
   }

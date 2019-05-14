@@ -1,5 +1,5 @@
 <template>
-	<div class="paydialog">
+	<div class="paydialog" v-show="active">
 	    <ul>
 	        <li class="room-pay-tit" v-html="tit">
 
@@ -13,22 +13,17 @@
 export default {
 	name: 'paydialog',
 	props:{
-		ownshow: true,
 		tit: {
 			type: String,
 			default: '<p>解锁测试老师的聊天室</p><p>需支付<span>28</span>精彩币</p>'
 		},
 		lis: {
 			type: Array,
-			default: function(){
-				return [];
-			}
+			default: () => []
 		},
 		btns: {
 			type: Array,
-			default:function(){
-				return ['确定','取消'];
-			}
+			default: () => ['确定','取消']
 		},
 		yesFn: {
 			type: Function,
@@ -43,18 +38,29 @@ export default {
 			}
 		}
 	},
+  data () {
+	  return {
+      active: false
+    }
+  },
 	created(){
 
 	},
 	methods: {
+	  show () {
+	    this.active = true
+    },
+    hide () {
+      this.active = false
+    },
 		lisClick(event){
 			if(event.target.className == 'yes'){
+			  console.log('yes')
 				this.yesFn();
 			}else if(event.target.className == 'no'){
+        console.log('no')
 				this.noFn();
-				//this.ownshow = false;
 			}
-			//this.$emit('lisClick',event.target.className);
 		}
 	}
 }

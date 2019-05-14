@@ -10,9 +10,12 @@ import shareFn from 'common/js/sharefn.js'
 import 'common/js/jcs_dialoga.css'
 import 'common/js/layer'
 import 'common/less/layer.css'
+import { get } from 'common/js/api'
 
 Vue.prototype.shareFn = shareFn;
 Vue.config.productionTip = false
+Vue.prototype.$get = get
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
+import RoomIndex from '../components/room/roomindex'
 
 Vue.use(Router)
 
@@ -54,7 +54,7 @@ export default new Router({
         iskeep: false
       }
     },
-    {path:'/roomindex', name: 'roomindex', component: resolve => require(['../components/room/roomindex'],resolve),
+    {path:'/roomindex', name: 'roomindex', component: RoomIndex,
         meta: {
             requiresAuth: true,
             iskeep: false
@@ -73,7 +73,6 @@ export default new Router({
             isback: true
         }
     },
-
     //关注
     { path: '/attention', name: 'attention', component: resolve => require(['../components/attention/attention'],resolve),
         meta: {
@@ -159,7 +158,14 @@ export default new Router({
     { path: '/register', name: 'register', component: resolve => require(['../components/register/register'],resolve) },
     { path: '/enter', name: 'enter', component: resolve => require(['../components/register/enter'],resolve) },
     { path: '/forget', name: 'forget', component: resolve => require(['../components/register/Forget'],resolve) },
-    { path: '/download', name: 'download', component: resolve => require(['../components/download/download'],resolve) }
+    { path: '/download', name: 'download', component: resolve => require(['../components/download/download'],resolve) },
+    // potral
+    { path: '/guesslist', name: 'guesslist', component: resolve => require(['../components/guesslist/guesslist'],resolve),
+      meta: {
+        iskeep: false,
+        isback: false
+      }
+    }
   ],
   scrollBehavior(to, from, savedPosition){
 

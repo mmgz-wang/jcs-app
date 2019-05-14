@@ -112,19 +112,18 @@
         this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
       },
       pullingDown(){
-        var that = this;
         this.scroll.on('pullingDown',() => {
-          that.isPullingDown = true;
-          that.pullingDownFn(that);
-          //this.$emit('pullingDown')
+          this.isPullingDown = true;
+          this.pullingDownFn(this);
         })
       },
       pullingUp () {
-        var that = this;
         this.scroll.on('pullingUp',() => {
           this.isPullUpLoad = true
-          that.pullingUpFn(that);
-          //this.$emit('pullingUp')
+          this.pullingUpFn(this);
+          this.isPullUpLoad = false
+          this.scroll.finishPullUp()
+          this.refresh()
         })  
       }
 
@@ -150,17 +149,6 @@
         },
         deep: true
       },
-      // data: {
-      //   handler: function(){
-      //     var that = this;
-      //     setTimeout(() => {
-      //       that.refresh();
-      //       that.scroll.finishPullDown();
-      //       that.scroll.finishPullUp();
-      //     }, 20)
-      //   },
-      //   deep: true
-      // },
       $route: {
         handler: function () {
           //this.refresh();

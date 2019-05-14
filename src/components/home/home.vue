@@ -28,15 +28,25 @@
 
             <banner v-if="banners.length>0" :bannerData = "banners" @bannerClick="bannerClick"></banner>
             <portal @portalClick="portalClick" :portals = "portals"></portal>
-            <article-list
-              @goarticle="goarticle"
-              :topMargin='true'
-              :articleDataList="articleDataList">
-            </article-list>
+            <template v-for="item in articleDataList">
+              <article-list
+                v-if="item.otype == 1 || item.otype == undefined"
+                @goarticle="goarticle"
+                :topMargin='true'
+                :item="item">
+              </article-list>
+              <guess-item
+                v-else-if="item.otype == 4"
+                @guessTeamClick="guessTeamClick"
+                :item="item">
+              </guess-item>
+            </template>
           <p pullup>{{pullUpText}}</p>
         </div>
     </scroll>
-    <!--<guessDialog :item="curGuessItem"></guessDialog>-->
+    <guess-dialog
+      :moneyArr="moneyArr"
+      ref="guessDialog"></guess-dialog>
     <router-view></router-view>
   </div>
 </template>
@@ -48,9 +58,12 @@ import banner from 'base/banner/banner'
 import portal from './portal'
 import Common from 'common/js/common'
 import articleList from 'base/articlelist/articlelist'
+import guessItem from 'base/guessitem/guessitem'
+import guessMixin from 'base/mixins/guess_mixin'
 import guessDialog from 'base/guessdialog/guessdialog'
 import query from 'querystring'
 export default {
+  mixins: [guessMixin],
 	data() {
     return {
       banners: [],
@@ -69,7 +82,13 @@ export default {
     }
   },
 	components: {
-		banner, portal, articleList, Scroll, loading, guessDialog
+		banner,
+    portal,
+    articleList,
+    Scroll,
+    loading,
+    guessDialog,
+    guessItem
 	},
   created(){
 
@@ -185,6 +204,11 @@ export default {
         this.$router.push({
           path: `author/?id=${query.parse(arr[1]).id}`
         })
+      } else if (item.name == "竞猜") {
+        var arr = item.h5Url.split('?')
+        this.$router.push({
+          path: `guesslist`
+        })
       }
     },
     goarticle(item){
@@ -239,7 +263,6 @@ export default {
     expertIn(){
       this.$router.push('export')
     }
-
   },
   watch: {
     $routerPath :{

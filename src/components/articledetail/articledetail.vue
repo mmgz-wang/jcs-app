@@ -140,7 +140,6 @@ import Common from "common/js/common";
 import feedback from "base/feedback/feedback";
 import loading from "base/loading/loading";
 import payDialog from "base/paydialog/paydialog";
-import { isLong } from "long";
 export default {
   name: "articleDetail",
   props: {
@@ -486,7 +485,7 @@ export default {
           };
           var packageExplain = {
             "0": "看老师一整天产品",
-            "1": "包月更优惠，看老师正月产品",
+            "1": "包月更优惠，看老师当月产品",
             "3": "看老师一季度产品",
             "6": "看老师半年产品",
             "12": "看老师全年产品"
