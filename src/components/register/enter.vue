@@ -78,8 +78,15 @@ import Common from 'common/js/common'
 					).then(function(res){
 						if(res.data.Code === '0000'){
 							this.$router.back();
-							var jsonLog='{"abc":"'+escape(this.tel)+'","abcd":"'+res.data.UserId+'","abcde":"'+res.data.SecurityKey+'","pic":"'+res.data.PicPath+'"}';
-							setCookie('jsonLog',jsonLog,1);
+							let jsonLog={
+							  abc: escape(this.tel),
+                abcd: res.data.UserId,
+                abcde: res.data.SecurityKey,
+                pic: res.data.PicPath,
+                money: res.data.Money
+							};
+
+							setCookie('jsonLog',JSON.stringify(jsonLog),1);
               setCookie(
                 'telephone',
                 res.data.NikeName,
@@ -91,7 +98,6 @@ import Common from 'common/js/common'
 								document.cookie=c_name+ "=" +escape(value)+
 								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 							}
-							//location.reload();
 						}else if(res.data.Code === '2000'){
 							layer.open({
 								content: '您输入的密码有误，请重试！',

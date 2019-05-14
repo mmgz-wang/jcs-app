@@ -1,20 +1,23 @@
 <template>
-  <div class="guessdialog">
+  <div class="guessdialog" v-show="active">
     <div class="guess-dialog-wrap">
       <div class="guess-mask">
         <div class="guess-dialog">
           <div class="guess-hd">
             <img src="../../common/img/e_cup.png" alt="">
-            <p class="guess-tit">【爱超】德利城 VS 登克尔克</p>
-            <p class="guess-hint">全场让球：-0.5我选主队</p>
-            <span class="guess-hide" @click="gusDialogHide()"></span>
+            <p class="guess-tit">【{{item.match_league}}】{{item.match_teams}}</p>
+            <p class="guess-hint">{{item.handicap_name}} {{item.handicap_plan}} 我选{{mychoose}}</p>
+            <span class="guess-hide" @click="hide()"></span>
           </div>
           <div class="guess-num">
-            <span v-for="item in integralVal" @click="chooseVal(item)" :value="item" :class="{on:curIntegralVal==item}">{{item}}积分</span>
+            <span v-for="item in moneyArr"
+                  @click="curIntegralVal = item"
+                  :value="item"
+                  :class="{on:curIntegralVal==item}">{{item}}币</span>
           </div>
           <div class="guess-foot">
-            <span>当前积分：<i id="integral">{{integral}}</i></span>
-            <span class="go-recharge">找客服充值送积分</span>
+            <span>当前精彩币：<i id="integral">{{money}}</i></span>
+            <!--<span class="go-recharge">找客服充值送积分</span>-->
             <button type="button" @click="subGuess()">确认</button>
           </div>
         </div>
@@ -24,40 +27,66 @@
 </template>
 
 <script>
+import shareFn from 'common/js/sharefn'
 export default {
-  name: "guessdialog",
+  name: 'guessdialog',
   props: {
-    item: {
-      type: Object,
-      default: function () {
-        return {}
-      }
-    },
-    integral: {
-      type: String,
-      default: 0
+    moneyArr: {
+      type: Array,
+      default: () => []
     }
-
   },
   data () {
     return {
-      integralVal: [9,49,99,199,499,999],
-      curIntegralVal: 9
+      item: {},
+      mychoose: '',
+      curIntegralVal: 0,
+      active: false,
+      money: shareFn.getCookie('money')
     }
-  },
-  created () {
-    console.log(this.item)
   },
   methods: {
     subGuess () {
-      this.$emit('subGuess',this.curIntegralVal)
+      this.$get('/assets/purchaseGuessing', {
+        userId: shareFn.getUserId(),
+        Language: 'M',
+        token: shareFn.getSecurityCode(),
+        guessing_plan_id: this.item.id,
+        cost: this.curIntegralVal,
+        invest_target: this.mychoose,
+        purchaseType: 3
+      }).then(res => {
+        if (res.code == '0000') {
+          this.layerOpen(res.msg)
+          this.money -= this.curIntegralVal * 1
+          shareFn.setCookie('money', this.money, 1);
+          this.$emit('guessSuccess')
+        } else {
+          this.layerOpen(res.msg)
+        }
+        this.active = false
+      }).catch(err => {
+        this.layerOpen(JSON.stringify(err))
+      })
     },
-    chooseVal: function (s) {
-      console.log(s)
-      this.curIntegralVal = s;
+    show () {
+      this.item = arguments[0][0]
+      console.log(this.item)
+      this.mychoose = arguments[0][1]
+      this.curIntegralVal = this.moneyArr[0]
+      this.active = true
     },
-    gusDialogHide () {
-      this.$emit('gusDialogHide')
+    hide () {
+      this.curIntegralVal = this.moneyArr[0]
+      this.active = false
+    },
+    layerOpen (msg) {
+      layer.open({
+        content: msg,
+        time: 2,
+        skin: 'msg',
+        anim: 'scale'
+      })
     }
   }
 }
@@ -69,7 +98,6 @@ export default {
     height: 100%;
   .guess-dialog-wrap{
     width: 100%;
-    height: 100%;
     position: fixed;
     left: 0;
     top: 0;
@@ -80,7 +108,7 @@ export default {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.5);
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     z-index: 88;
@@ -91,7 +119,7 @@ export default {
     position: absolute;
     left: 0;
     bottom: 0;
-    background: #2f2f2f;
+    background: #f4f4f4;
     text-align: center;
     border-radius: 15px 15px 0 0;
   }
@@ -107,7 +135,7 @@ export default {
     top: 9px;
   }
   .guess-hd{
-    background: #363636;
+    background: #ffffff;
     position: relative;
     -webkit-border-radius: 15px 15px 0 0;
     -moz-border-radius: 15px 15px 0 0;
@@ -115,13 +143,13 @@ export default {
   }
   .guess-tit{
     font-size: 15px;
-    color: #ddd;
+    color: #000000;
     padding-bottom: 10px;
   }
   .guess-hint{
     padding-bottom: 20px;
     font-size: 15px;
-    color: #ddd;
+    color: #666666;
   }
   .guess-hd img{
     width: 79px;
@@ -140,7 +168,7 @@ export default {
   }
   .guess-num span{
     height: 34px;
-    border: 1px solid #ffd842;
+    border: 1px solid #e9311d;
     width: 28%;
     font-size: 14px;
     margin-top: 20px;
@@ -148,11 +176,11 @@ export default {
     padding: 0 10px;
     line-height: 34px;
     text-align: center;
-    color: #ffd842;
+    color: #e9311d;
   }
   .guess-num .on{
-    background: #ffd842;
-    color: #000000;
+    background: #e9311d;
+    color: #ffffff;
   }
   .guess-num .btngary{
     border-color: #666666;
@@ -209,11 +237,12 @@ export default {
     height: 49px;
     padding-left: 15px;
     line-height: 49px;
-    background: #151515;
+    background: #ffffff;
     position:relative;
     text-align: left;
     font-size: 13px;
-    color: #ddd;
+    color: #000000;
+    z-index: 99999;
   }
   .guess-foot button{
     width: 105px;
@@ -221,8 +250,8 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
-    color: #000000;
-    background: #ffd842;
+    color: #ffffff;
+    background: #e9311d;
     font-size: 16px;
     outline: none;
     border: none;
@@ -248,6 +277,9 @@ export default {
   .guess-balance{
     font-size: 1px;
     margin: 10px 0 30px 0;
+  }
+  #integral{
+    color: #e9311d;
   }
 
 }

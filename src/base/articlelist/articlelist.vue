@@ -1,6 +1,8 @@
 <template>
     <div class="art-list" :class="{artlistnomargin:topMargin}" id="art-list">
-        <div class="listcon" v-for="item in articleDataList" v-if="item.otype == 1 || item.otype == undefined" @click="goarticle(item)">
+
+        <div class="listcon"
+             @click="goarticle(item)">
             <div class="txtbox">
                 <dl @click.stop="goauthor(item.author_id)" :author_id="item.author_id">
                     <dt>
@@ -22,21 +24,15 @@
                 <span>{{timeformat(item.matches[0].start_time)}} #</span>
             </div>
         </div>
-        <!--<guess-list-->
-          <!--v-else-if="item.otype == 4"-->
-          <!--@guessTeamClick="guessTeamClick"-->
-          <!--:item="item">-->
-        <!--</guess-list>-->
     </div>
 </template>
 <script type="text/javascript">
 import shareFn from 'common/js/sharefn'
-import guessList from 'base/guesslist/guesslist'
 export default{
     props:{
-      articleDataList: {
-          type: Array,
-          default: []
+      item: {
+          type: Object,
+          default: () => {}
       },
       topMargin: {
           type: Boolean,
@@ -47,26 +43,7 @@ export default{
           default: true
       }
     },
-    data() {
-      return {
-
-      }
-    },
-    created(){
-
-    },
-    mounted(){
-      this.$nextTick(function (){
-          
-      })
-    },
-    components: {
-      guessList
-    },
     methods: {
-      guessTeamClick (team,val) {
-        
-      },
       goauthor(Id){
           this.$router.push({
               path: `/author/?id=${Id}`

@@ -4,16 +4,22 @@ export default {
 	param: {"SecurityCode":"4c5af59cc6c4b747b052c6df529135c5","UserId":"45237"},
 	isEnter: false,
 	jsonLog: function (){
-		if(getCookie('jsonLog') == 'null' || getCookie('jsonLog') == undefined || getCookie('jsonLog') == null){
+		if(this.getCookie('jsonLog') == 'null' || this.getCookie('jsonLog') == undefined || this.getCookie('jsonLog') == null){
 			return {"abcde":"","abcd":"",pic:""};
 		}else{
-			return JSON.parse(getCookie('jsonLog'));
-		}
-		function getCookie(name){
-		    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
-		　　 return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
+			return JSON.parse(this.getCookie('jsonLog'));
 		}
 	},
+  getCookie: function (name) {
+    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+    return (arr=document.cookie.match(reg))?unescape(arr[2]):null;
+  },
+  setCookie: function (c_name, value, expiredays) {
+    var exdate = new Date();
+    exdate.setDate(exdate.getDate() + expiredays);
+    document.cookie = c_name + "=" + escape(value) +
+      ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
+  },
 	getUserId: function () {
 		return this.jsonLog().abcd;
 	},
@@ -29,7 +35,6 @@ export default {
 	},
 	//验证登录
 	isLogin:function () {
-		//console.log(this.getUserId()+' : '+this.getSecurityCode())
 		if('' == this.getUserId() || '' == this.getSecurityCode() || undefined == this.getUserId() || undefined == this.getSecurityCode() || 'undefined' == this.getUserId() || 'undefined' == this.getSecurityCode()) {
 			return false;
 		} else {

@@ -37,7 +37,7 @@
                                 <img src="../../common/img/card.png" alt="" class="img">
                                 <span class="txt">银行转账</span>
                                 <p class="payCard">账户名称：北京信盈世纪科技有限责任公司<br>
-                                    开户行：<span>平安银行北京丰盛支行</span><br>
+                                    开户行：<span>平安银行北京金融街支行</span><br>
                                     银行帐户：<span>11014837407009</span></p>
                             </li>
                         </ul>

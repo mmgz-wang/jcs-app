@@ -1,14 +1,15 @@
 <template>
   <transition name="slide">
     <div class="roomindex">
-      <img style="width: 0;height: 0;opacity: 0;display: none;" src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
+      <img style="width: 0;height: 0;opacity: 0;display: none;"
+           src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
       <main-header v-show="!inXCX" @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
       <div class="room-nav">
         <ul class="selector">
-          <li @click="selector('all')" class="all" :class="{on:onData.isAll}">查看全部</li>
-          <li @click="selector('recommend')" class="recommend" :class="{on:onData.isRec}">老师推荐</li>
-          <li @click="selector('teach')" class="teach" :class="{on:onData.isTeach}">仅看老师</li>
-          <li @click="selector('own')" class="own" :class="{on:onData.isOwn}">仅看本人</li>
+          <li @click="selector(0)" class="all" :class="{on: range == 0}">查看全部</li>
+          <li @click="selector(3)" class="recommend" :class="{on: range == 3}">老师推荐</li>
+          <li @click="selector(1)" class="teach" :class="{on: range == 1}">仅看老师</li>
+          <li @click="selector(2)" class="own" :class="{on: range == 2}">仅看本人</li>
           <li class="peopleli"><span class="people">{{roomUsers}}</span></li>
         </ul>
       </div>
@@ -17,7 +18,7 @@
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
-            <section v-if="item.type != 2" :id="item.messageId"
+            <section v-if="item.type != 2" :key="item.messageId" :id="item.messageId"
                      :class="{
                               left:item.isLecturer||userName!=item.userName,
                               right:!item.isLecturer&&userName==item.userName,
@@ -57,8 +58,9 @@
                        :class="{
                                       dialog:item.isLecturer||userName!=item.userName,
                                       rdialog:!item.isLecturer&&userName==item.userName
-                                  }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
-                                                          src="../../common/img/lop.png">
+                                  }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased"
+                                                                  class="lock-pic"
+                                                                  src="../../common/img/lop.png">
                   </div>
                   <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
                        class="dialog dialog-close">
@@ -69,55 +71,7 @@
               </div>
 
             </section>
-            <section v-if="item.type == 2" id="8194" class="left guess-section G405">
-              <div class="pic" @click="goauthor(item.userId)">
-                <img :src="item.userPic" alt="">
-              </div>
-              <div class="msg">
-                <p class="tim">{{item.userName}} {{item.createTime.substr(5,11)}}</p>
-                <div class="dialog">
-                  <dl class="teams" :class="{'teams-over': JSON.parse(item.content).status == 3 || JSON.parse(item.content).status == 4}">
-                    <dt>
-                      <img src="../../common/img/d_cup.png" alt="">
-                    </dt>
-                    <dd>
-                    <div class="cup-name">{{JSON.parse(item.content).match_teams}}</div>
-                      <div class="cup-tim">【{{JSON.parse(item.content).match_league}}】{{JSON.parse(item.content).end_time.substr(5,11)}}</div>
-                      <div v-if="JSON.parse(item.content).value1_purper != undefined" class="guess-goal">
-                        <span>{{JSON.parse(item.content).handicap_name }}</span>
-                        <span>{{JSON.parse(item.content).handicap_plan}}</span>
-                        <span>({{JSON.parse(item.content).value1_name }}</span>
-                        <span>{{ parseInt(JSON.parse(item.content).value1_purper)}}%,</span>
-                        <span>{{JSON.parse(item.content).value2_name}}</span>
-                        <span>{{parseInt(JSON.parse(item.content).value2_purper)}}%)</span>
-                      </div>
-                      <div v-else class="guess-goal">{{JSON.parse(item.content).handicap_name}} {{JSON.parse(item.content).handicap_plan}}</div>
-                    </dd>
-                  </dl>
-                  <div class="guess-item">
-                    <template v-if="JSON.parse(item.content).status==1">
-                      <p>
-                        <span @click="TeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name)">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
-                        <span @click="TeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name)">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
-                      </p>
-                    </template>
-                    <template v-if="JSON.parse(item.content).status==2">
-                      <p class="onlyline">水位变化，暂停投注</p>
-                    </template>
-                    <template v-if="JSON.parse(item.content).status==3">
-                      <p class="onlyline">投注停止</p>
-                    </template>
-                    <template v-if="JSON.parse(item.content).status==4">
-                      <p class="result onlyline">结果：<span>{{JSON.parse(item.content).match_rdesc}}</span></p>
-                    </template>
-                  </div>
-                  <div class="me-val"
-                       v-if="JSON.parse(item.content).guessingPlanSaleList != undefined && JSON.parse(item.content).guessingPlanSaleList.length>0"
-                       v-html="jointStr(JSON.parse(item.content))">
-                  </div>
-                </div>
-              </div>
-            </section>
+            <guess-item v-else-if="item.type == 2" @guessTeamClick="guessTeamClick" :item="item"></guess-item>
           </template>
         </div>
       </div>
@@ -135,18 +89,12 @@
 
       </div>
       <pay-dialog
-        v-show="dialogShow"
+        ref="payDialog"
         :btns="dialogData.btns"
         :tit="dialogData.tit"
         :yesFn="dialogData.yesFn"
         :noFn="dialogData.noFn">
       </pay-dialog>
-      <guessDialog
-        v-show="gusDialogShow"
-        @subGuess="subGuess"
-        @gusDialogHide="gusDialogShow=false"
-        :integral="userIntergral.toString()">
-      </guessDialog>
       <div class="award-mask" v-show="awardShow">
         <div class="award-dialog">
           <div class="award-hd">
@@ -163,38 +111,48 @@
           <p class="award-balance">您的当前余额：<span id="userMoney">{{userMoney}}</span>精彩币</p>
         </div>
       </div>
-      <preview-img @previewHide="previewHide" :imgurl="imgurl" v-show="bigImgShow"></preview-img>
+
+      <preview-img ref="previewImg"></preview-img>
+
       <div class="wx_dialog" v-show="wxDialog">
-          <div class="mask-wx">
-            <div class="dialog-wx">
-              <div class="titles">
-                <p>微信支付</p>
-              </div>
-              <div class="main">
-                <vue-q-art v-if="config!=null" :config="config"></vue-q-art>
-                <a>微信扫码支付</a>
-                <a class="cancle_pay" @click="wxDialog=false" href="javascript:;">取消</a>
-              </div>
+        <div class="mask-wx">
+          <div class="dialog-wx">
+            <div class="titles">
+              <p>微信支付</p>
+            </div>
+            <div class="main">
+              <vue-q-art v-if="config!=null" :config="config"></vue-q-art>
+              <a>微信扫码支付</a>
+              <a class="cancle_pay" @click="wxDialog=false" href="javascript:;">取消</a>
             </div>
           </div>
+        </div>
       </div>
-
+      <guess-dialog
+        :moneyArr="moneyArr"
+        @guessSuccess="guessSuccess"
+        ref="guessDialog">
+      </guess-dialog>
     </div>
   </transition>
 </template>
 
 <script type="text/javascript">
+  import guessMixin from 'base/mixins/guess_mixin'
+  import guessDialog from 'base/guessdialog/guessdialog'
   import mainHeader from 'base/header/mainheader'
   import Common from 'common/js/common'
   import DialogZ from 'common/js/jcs_dialoga.js'
   import payDialog from 'base/paydialog/paydialog'
   import previewImg from 'base/previewimg/preview-img'
-  import guessDialog from 'base/guessdialog/guessdialog'
+  import guessItem from './chatitem/guessitem'
   import 'common/js/jcs_dialoga.css'
-  
+
   import VueQArt from 'vue-qart'
+
   export default {
     name: 'roomindex',
+    mixins: [guessMixin],
     props: ['item'],
     data() {
       return {
@@ -207,14 +165,11 @@
           tit: '',
           btns: ['确认购买', '返回列表']
         },
-        imgurl: '',
-        bigImgShow: false,
         newMsg: false,
         msgData: [],
         IO: null,
         roomUsers: 0,
         isLogin: this.shareFn.isLogin(),
-        userId: '',
         userName: '',
         teachId: 0,
         range: 0,
@@ -239,7 +194,6 @@
           isTeach: false,
           isOwn: false
         },
-        dialogShow: false,
         openRoomWay: null,
         isPullDown: false,
         messageIds: 0,
@@ -259,22 +213,21 @@
       }
     },
     created() {
-      if(window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())){
+      if ( window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase()) ) {
         this.inXCX = true
         this.userId = this.$router.currentRoute.query.userId
-        this.token = this.shareFn.wxGetUserT(this.userId,this.$router.currentRoute.query.token)
+        this.token = this.shareFn.wxGetUserT(this.userId, this.$router.currentRoute.query.token)
         document.getElementsByTagName("title")[0].innerText = "聊天室";
       }
     },
     activated() {
       if (!this.$route.meta.iskeep) {
         this.msgData = [];
-        //if (this.isLogin) {
-        if(!this.shareFn.isLogin() && !this.inXCX){
+        if (!this.shareFn.isLogin() && !this.inXCX) {
           this.$refs.msgInput.placeholder = '点此登录后方可发言！';
           this.$refs.msgInput.disabled = true;
           this.reseteRoomStatus();
-        }else{
+        } else {
           this.$refs.msgInput.placeholder = '发送消息...';
           this.$refs.msgInput.disabled = false;
           this.reseteRoomStatus();
@@ -283,22 +236,20 @@
       } else {
         this.$router.push({name: 'enter'})
       }
-
-      //}
     },
     mounted() {
-      if(Common.getDeviceinfo().type == 'pc'){
+      if (Common.getDeviceinfo().type == 'pc') {
         this.laodPcMsg();
-      }else{
+      } else {
         this.loadMsg();
       }
     },
-    computed: {  },
+    computed: {},
     methods: {
-      coding(str){
-        return unescape(str.replace(/&#x/g,'%u').replace(/;/g,''));
+      coding(str) {
+        return unescape(str.replace(/&#x/g, '%u').replace(/;/g, ''));
       },
-      reseteRoomStatus(){
+      reseteRoomStatus() {
         this.IO = io.connect(Common.baseURI().ioUrl);
         this.roomScoket();
         this.userId = this.userId;
@@ -306,7 +257,6 @@
         this.roomName = this.$router.currentRoute.query.roomName;
         this.roomPrice = this.$router.currentRoute.query.roomPrice;
         this.isPullDown = false;
-        this.dialogShow = false;
         this.messageIds = 0;
         this.headerData = {
           name: 'roomindex',
@@ -344,10 +294,10 @@
           that.userMoney = data.userMoney;
           that.userName = data.userName;
           that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
-          that.userIntergral = data.userIntergral==undefined?0:data.userIntergral;
+          that.userIntergral = data.userIntergral == undefined ? 0 : data.userIntergral;
           if (data.code == 999) {
-            if(that.shareFn.isLogin() || that.inXCX){
-              that.dialogShow = true;
+            if (that.shareFn.isLogin() || that.inXCX) {
+              that.$refs.payDialog.show()
               var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
               if (data.roomPrice == 0 && data.room_integral > 0) {
                 tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${data.room_integral}</span>积分</p>`;
@@ -358,10 +308,10 @@
                 yesFn: that.firstYesFn,
                 noFn: that.firstNoFn
               }
-            }else{
+            } else {
               layer.open({
                 content: `你还没有登录，登录后方可聊天。`,
-                btn: [ '去登录','返回列表'],
+                btn: ['去登录', '返回列表'],
                 shadeClose: false,
                 yes: function (index) {
 
@@ -369,15 +319,14 @@
                   that.$router.push('enter');
                 },
                 no: function (index) {
-                  if(that.inXCX){
+                  if (that.inXCX) {
                     wx.miniProgram.navigateBack()
-                  }else{
+                  } else {
                     that.back();
                   }
                   layer.close(index);
                 }
               });
-
             }
           } else if (data.code == 888) {
             that.$refs.msgInput.placeholder = '直播未开始';
@@ -390,9 +339,9 @@
               shadeClose: false,
               yes: function (index) {
                 layer.close(index);
-                if(that.inXCX){
+                if (that.inXCX) {
                   wx.miniProgram.navigateBack()
-                }else{
+                } else {
                   that.back();
                 }
               },
@@ -403,9 +352,9 @@
                     language: 'M',
                     userId: that.userId,
                     roomId: data.roomId
-                  },function (res) {
+                  }, function (res) {
 
-                  },function (err) {
+                  }, function (err) {
                     that.showMeaage('设置失败请!');
                   }
                 );
@@ -432,20 +381,20 @@
           }
         });
         this.IO.on('chatevent', function (data) {
-          
+
           that.chatClosedStatus = data.close
           if (data.userId != that.userId) {
-            if(that.newsId == data.messageId){
-              return ;
+            if (that.newsId == data.messageId) {
+              return;
             }
             that.msgData.push(data);
             that.newsId = data.messageId;
             var mainH = that.$refs.scrollWraper.offsetHeight;
             var innerH = that.$refs.roomMain.offsetHeight;
             var scrollH = innerH - mainH;
-            if(that.$refs.scrollWraper.scrollTop <= scrollH-15){
+            if (that.$refs.scrollWraper.scrollTop <= scrollH - 15) {
               that.newMsg = true;
-            }else{
+            } else {
               that.scrollTo();
             }
           }
@@ -507,81 +456,21 @@
         that.scrollTo();
       },
       selector(s) {
-        var targetsName = event.target.className,
-          targets = event.target,
-          that = this;
         this.isPullDown = false;
-        if (s == 'all') {
-          that.toData = {
-            limit: 20,
-            userId: this.userId,
-            range: 0,
-            token: this.token
-          }
-          that.onData = {
-            isAll: true,
-            isRec: false,
-            isTeach: false,
-            isOwn: false
-          }
-          that.GetRoomMsg();
-          that.range = 0;
-
-        } else if (s == 'teach') {
-          that.toData = {
-            limit: 20,
-            userId: this.userId,
-            range: 1,
-            token: this.token
-
-          }
-          that.onData = {
-            isAll: false,
-            isRec: false,
-            isTeach: true,
-            isOwn: false
-          }
-          that.GetRoomMsg();
-          that.range = 1;
-        } else if (s == 'own') {
-          that.toData = {
-            limit: 20,
-            userId: this.userId,
-            range: 2,
-            token: this.token
-          }
-          that.onData = {
-            isAll: false,
-            isRec: false,
-            isTeach: false,
-            isOwn: true
-          }
-          that.GetRoomMsg();
-          that.range = 2;
-        } else if (s == 'recommend') {
-          that.toData = {
-            limit: 20,
-            userId: this.userId,
-            range: 3,
-            token: this.token
-          }
-          that.onData = {
-            isAll: false,
-            isRec: true,
-            isTeach: false,
-            isOwn: false
-          }
-          that.GetRoomMsg();
-          that.range = 3;
-        } else if (s == 'peopleli') {
-          return false;
+        this.toData = {
+          limit: 20,
+          userId: this.userId,
+          range: s,
+          token: this.token
         }
-        that.scrollTo();
+        this.GetRoomMsg();
+        this.range = s;
+        this.scrollTo();
       },
       setMsg(s) {
-        if(!this.shareFn.isLogin() && !inXCX){
+        if (!this.shareFn.isLogin() && !inXCX) {
           this.$router.push('enter');
-          return ;
+          return;
         }
         if (s != '订阅推荐消息') {
           this.headerData.r_ele = '订阅推荐消息';
@@ -633,7 +522,7 @@
                 that.scrollTo();
               }
               res.data.isMsgDescriber == 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
-              if(that.isPullDown && res.data.messages.length == 0){
+              if (that.isPullDown && res.data.messages.length == 0) {
                 layer.open({
                   content: '已无更多历史消息！',
                   time: 2,
@@ -643,7 +532,7 @@
             } else {
               console.log('请求失败')
             }
-            if(that.msgData.length != 0){
+            if (that.msgData.length != 0) {
               that.messageIds = that.msgData[0].messageId;
             }
             var downDom = document.querySelector('.custmor-pullDown');
@@ -652,7 +541,8 @@
               wrapEle.removeChild(downDom);
               that.isPullDown = false;
             }
-          },function () {}
+          }, function () {
+          }
         );
       },
       setTime(s) {
@@ -666,9 +556,9 @@
           btn: ['确定', '取消'],
           yes: function (index) {
             if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
-                that.custmorPost(7,id.toString());
-                layer.close(index)
-            }else{
+              that.custmorPost(7, id.toString());
+              layer.close(index)
+            } else {
               that.custmorJsonp(
                 Common.baseURI().host + '/Purchase/PurchaseChatRoomMsg',
                 {
@@ -677,7 +567,7 @@
                   payable: true,
                   MsgId: id,
                   SecurityCode: that.token
-                },function (res) {
+                }, function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
                     texts = "精彩币余额不足请充值！";
@@ -691,7 +581,8 @@
                     that.GetRoomMsg();
                     layer.close(index)
                   }
-                },function () {}
+                }, function () {
+                }
               );
             }
 
@@ -702,14 +593,13 @@
         })
       },
       firstYesFn() {
-        var that = this;
         if (this.ackData.roomPrice == 0 && this.ackData.room_integral > 0) {
           this.integralWay();
         } else {
           this.jcbPay();
         }
       },
-      integralWay () {
+      integralWay() {
         var that = this;
         that.custmorJsonp(
           Common.baseURI().host + '/Purchase/PurchaseChatRoom',
@@ -719,7 +609,7 @@
             RoomId: that.roomId,
             SecurityCode: that.token,
             purchaseType: 15
-          },function (res) {
+          }, function (res) {
             var texts = "购买成功！"
             if (res.data.Code == '3006') {
               texts = "余额不足请充值！";
@@ -740,31 +630,25 @@
                 time: 2
               });
             }
-          },function () {}
+          }, function () {
+          }
         );
-        that.dialogShow = false;
+        that.$refs.payDialog.hide()
       },
-      jcbPay () {
+      jcbPay() {
         var that = this;
         if (this.ackData.userMoney < this.ackData.roomPrice) {
-          if(Common.getDeviceinfo().type == 'pc'){
-            that.custmorPost(6,this.roomId);
-          }else{
+          if (Common.getDeviceinfo().type == 'pc') {
+            that.custmorPost(6, this.roomId);
+          } else {
             this.dialogData = {
               tit: '您的精彩币余额不足！',
               btns: ['去充值', '返回列表'],
               yesFn: function () {
                 that.$router.push('recharge');
-                that.dialogShow = false;
+                that.$refs.payDialog.hide()
               },
-              noFn: function () {
-                if(that.inXCX){
-                  wx.miniProgram.navigateBack()
-                }else{
-                  that.back();
-                }
-                that.dialogShow = false;
-              }
+              noFn: that.firstNoFn
             }
           }
         } else {
@@ -779,7 +663,7 @@
                   Language: 'M',
                   RoomId: that.roomId,
                   SecurityCode: that.token
-                },function (res) {
+                }, function (res) {
                   var texts = "购买成功！"
                   if (res.data.Code == '3006') {
                     texts = "余额不足请充值！";
@@ -794,28 +678,21 @@
                     that.isOver = false;
                     that.GetRoomMsg();
                   }
-                },function () {}
+                }, function () {
+                }
               );
-              that.dialogShow = false;
             },
-            noFn: function () {
-              if(that.inXCX){
-                wx.miniProgram.navigateBack()
-              }else{
-                that.back();
-              }
-              that.dialogShow = false;
-            }
+            noFn: that.firstNoFn
           }
         }
       },
       firstNoFn() {
-        if(this.inXCX){
+        if (this.inXCX) {
           wx.miniProgram.navigateBack()
-        }else{
+        } else {
           this.back();
         }
-        this.dialogShow = false;
+        this.$refs.payDialog.hide()
       },
       loadMsg: function () {
         var that = this;
@@ -827,7 +704,7 @@
           var mainH = that.$refs.scrollWraper.offsetHeight;
           var innerH = that.$refs.roomMain.offsetHeight;
           var scrollH = innerH - mainH;
-          if(that.$refs.scrollWraper.scrollTop>scrollH-10){
+          if (that.$refs.scrollWraper.scrollTop > scrollH - 10) {
             //that.
           }
 
@@ -872,8 +749,8 @@
       },
       laodPcMsg: function () {
         var that = this;
-        this.$refs.scrollWraper.addEventListener('scroll',function () {
-          if(this.scrollTop==0){
+        this.$refs.scrollWraper.addEventListener('scroll', function () {
+          if (this.scrollTop == 0) {
             that.loadPcShow = true;
             that.isPullDown = true;
             that.toData = {
@@ -894,13 +771,9 @@
       scrollTo() {
         var that = this;
         setTimeout(function () {
-          // if (that.isPullDown) {
-          //   return;
-          // }
           var mainH = that.$refs.scrollWraper.clientHeight;
           var innerH = that.$refs.roomMain.clientHeight;
           var scrollH = innerH - mainH;
-
           that.$refs.scrollWraper.scrollTop = scrollH;
         }, 20)
 
@@ -928,23 +801,24 @@
           return data.roomPrice == 0 ? '免费' : data.roomPrice + '精彩币';
         }
       },
-      goPayAward(){
-        if(this.awardNum<=0){
-          return ;
+      goPayAward() {
+        if (this.awardNum <= 0) {
+          return;
         }
-        if(this.userMoney<this.awardNum){
+        if (this.userMoney < this.awardNum) {
           this.showMeaage('您的精彩币余额不足，请充值！')
-          return ;
+          return;
         }
         this.awardShow = false;
         var that = this;
         var awardListData = {
           msg: '您将打赏老师' + that.awardNum + '精彩币！',
-          btn: ['确认','取消'],
+          btn: ['确认', '取消'],
           trueCallback: succFn,
           falseCallback: eorFn
         };
         DialogZ.init(awardListData);
+
         function succFn() {
           that.custmorJsonp(
             Common.baseURI().host + '/Purchase/PurchaseChatRoom/PlayReward',
@@ -955,138 +829,75 @@
               SecurityCode: that.token,
               GoldCoin: that.awardNum,
               sign: new Date().getTime()
-            },function (res) {
-              if(res.data.Code == '0000'){
-                that.userMoney = that.userMoney-that.awardNum;
-              }else{
+            }, function (res) {
+              if (res.data.Code == '0000') {
+                that.userMoney = that.userMoney - that.awardNum;
+              } else {
                 layerDilog('打赏不成功，请重试！');
                 DialogZ.remoDom();
               }
-            },function (err) {
+            }, function (err) {
               console.log(err)
             }
           );
           DialogZ.remoDom();
           that.showMeaage('打赏成功！');
         }
-        function eorFn() {}
+
+        function eorFn() {
+        }
       },
-      goAward(){
-        if(this.shareFn.isLogin()){
+      goAward() {
+        if (this.shareFn.isLogin()) {
           this.awardShow = true;
         }
       },
-      awardHide(){
+      awardHide() {
         this.awardShow = false;
       },
-      visitorFn(){
-        if(!this.shareFn.isLogin() && !inXCX){
+      visitorFn() {
+        if (!this.shareFn.isLogin() && !inXCX) {
           this.$router.push('enter')
         }
       },
-      preview(e){
-        if(e.target.src.indexOf('_s')>0){
-          this.bigImgShow = true;
-          this.imgurl = e.target.src.replace('_s','');
-        }else{
-          this.bigImgShow = true;
-          this.imgurl = e.target.src;
-        }
+      preview(e) {
+        this.$refs.previewImg.show(e.target.src)
       },
-      previewHide(){
-        this.bigImgShow = false;
-      },
-      newMsgClick(){
+      newMsgClick() {
         this.newMsg = false;
         this.scrollTo();
       },
-      subGuess (s) {
-        var that = this;
-        this.gusDialogShow = false;
-        this.custmorJsonp(
-          Common.baseURI().host + "/assets/purchaseGuessingPlan",
-          {
-            userId: that.userId,
-            Language: 'M',
-            token: that.token,
-            guessing_plan_id: that.curGuessId,
-            cost: s,
-            invest_target: that.curTeam
-          },
-          function (data) {
-            if (data.data.code == '0000') {
-              layer.open({
-                content: data.data.msg,
-                time: 2,
-                skin: 'msg',
-                anim: 'scale'
-              });
-              that.userIntergral = that.userIntergral - s;
-            } else {
-              layer.open({
-                content: data.data.msg,
-                time: 2,
-                skin: 'msg',
-                anim: 'scale'
-              });
-            }
-            that.curIntegralVal = 9;
-          },
-          function (data) {
-
-          }
-        )
-      },
-      TeamClick: function () {
-        if(!this.shareFn.isLogin()){
-          layer.open({
-            content: '你还没有登录，请登录！',
-            time: 2,
-            skin: 'msg',
-            anim: 'scale'
-          });
-          try {
-            app.pushLoginView();
-          } catch (err) {
-            console.log(err)
-          }
-          return;
-        }
-        this.gusDialogShow = true;
-        this.curGuessId =  arguments[0].id;
-        this.curTeam = arguments[1];
-      },
-      custmorJsonp(url,data,sucFn,eorFn){
+      custmorJsonp(url, data, sucFn, eorFn) {
         this.$nextTick(function () {
           this.$http.jsonp(
             url,
             {
-              params:data
+              params: data
             }
-          ).then(function(res){
+          ).then(function (res) {
             sucFn(res)
-          },function (err) {
+          }, function (err) {
             eorFn(err)
           })
         });
       },
-      custmorPost(payType,ID){
+      custmorPost(payType, ID) {
         this.$http.post(
           Common.baseURI().host + "/dlb/tradepay",
           {
-            "Language":"M",
-            "UserId":this.userId,
-            "CommodityId":ID,
-            "SecurityCode":this.token,
-            "CommodityType":payType,
-            "source":"1_2_7"
-          },{
+            "Language": "M",
+            "UserId": this.userId,
+            "CommodityId": ID,
+            "SecurityCode": this.token,
+            "CommodityType": payType,
+            "source": "1_2_7"
+          }, {
             headers: {
               "Content-Type": "application/json;charset=UTF-8"
             }
           }
         ).then(function (res) {
-          if(res.data.Code == '0000'){
+          if (res.data.Code == '0000') {
             var resultStr = res.data.DLBPara;
             this.config = {
               value: resultStr,
@@ -1095,14 +906,14 @@
               background: '#fff',
               imagePath: require('../../common/img/jcslog.png')
             }
-            this.wxDialog=true;
-          }else if(res.data.Code == 3008){
+            this.wxDialog = true;
+          } else if (res.data.Code == 3008) {
             alert("您已经购买过了");
-          }else if(res.data.Code == '2006'||res.data.Code == '2005'){
+          } else if (res.data.Code == '2006' || res.data.Code == '2005') {
             layer.open({
               content: '<p style="text-align:center;">您已在其他设备登录，确定要重新登录吗？</p >',
-              btn: ['确定','取消'],
-              shadeClose:null,
+              btn: ['确定', '取消'],
+              shadeClose: null,
               yes: function (index) {
                 $('#PayInit').hide();
                 layer.close(index);
@@ -1111,28 +922,18 @@
               }
             });
           }
-        },function (err) {
+        }, function (err) {
           console.log(err)
         })
       },
-      jointStr (data) {
-        var str = '';
-        for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
-          str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5,11).replace(/-/,"/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
-          if(data.status == 4) {
-            str += `获得 <span>${data.guessingPlanSaleList[i].result}`
-          }else{
-            str += `投注 <span>${data.guessingPlanSaleList[i].cost}`
-          }
-            str += `</span> 积分</p>`
-        }
-        return str;
-      },
-      chatClosed () {
+      chatClosed() {
         if (this.chatClosedStatus) {
           alert('直播间休息啦，您也快快休息吧！')
           this.showMeaage('直播间休息啦，您也快快休息吧！')
         }
+      },
+      guessSuccess () {
+
       }
     },
     watch: {
@@ -1150,30 +951,33 @@
         deep: true
       },
       $route: {
-        handler: function (old,news) {
-          if(this.$route.name == 'roomlist'){
+        handler: function (old, news) {
+          if (this.$route.name == 'roomlist') {
             this.IO.emit('leaveroomevent');
           }
         }
       }
     },
     components: {
-      mainHeader, payDialog,previewImg,VueQArt, guessDialog
+      mainHeader, payDialog, previewImg, VueQArt, guessItem, guessDialog
     }
   }
 </script>
 
 <style lang="less" type="text/less">
   @import '../../common/less/base.less';
-  *{
+
+  * {
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
   }
+
   @media screen and (min-width: 450px) {
     .roomindex {
       max-height: 90%;
     }
   }
+
   .roomindex {
     background: @backcolor;
     color: @maincolor;
@@ -1184,11 +988,13 @@
     right: 0;
     z-index: 90;
     font-size: 0.14rem;
+
     .main-header {
       .r_ele {
         font-size: 0.12rem;
         color: #444444;
       }
+
       p {
         width: 60%;
         margin-left: 50px;
@@ -1201,16 +1007,19 @@
         padding-left: 10px;
       }
     }
+
     .room-main {
       float: left;
       width: 100%;
       min-height: 100%;
     }
+
     .room-nav {
       width: 100%;
       height: 40px;
       line-height: 40px;
       background: @whites;
+
       .selector {
         width: 100%;
         line-height: 40px;
@@ -1219,10 +1028,12 @@
         overflow: hidden;
         user-select: none;
       }
+
       .selector-open {
         height: 132px;
         overflow: auto;
       }
+
       .selector li {
         height: 40px;
         width: 20%;
@@ -1230,18 +1041,22 @@
         float: left;
         text-align: center;
       }
+
       .selector .on {
         color: @reds;
       }
+
       .selector .on span {
         border-color: #ffd842;
         color: #ffd842;
       }
+
       .people {
         display: inline-block;
         font-size: 0.14rem;
         color: #d2d2d2;
       }
+
       .people:before {
         content: "";
         width: 21px;
@@ -1252,6 +1067,7 @@
       }
 
     }
+
     .msg-list {
       width: 100%;
       position: absolute;
@@ -1261,31 +1077,37 @@
       bottom: 52px;
       padding: 0 15px;
       overflow: scroll;
+
       section {
         width: 100%;
         float: left;
         margin-top: 15px;
         font-size: 0.15rem;
         user-select: none;
+
         .pic {
           float: left;
           width: 15%;
           padding-top: 5px;
+
           img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
           }
         }
+
         .tim {
           color: #b1b1b1;
           font-size: 0.13rem;
           margin-bottom: 5px;
         }
+
         .msg {
           float: left;
           width: 80%;
         }
+
         .dialog {
           width: auto;
           background: @whites;
@@ -1298,6 +1120,7 @@
           word-break: break-all;
           white-space: pre-wrap;
           margin-left: 10px;
+
           .lock-pic {
             position: absolute;
             right: 0;
@@ -1305,6 +1128,7 @@
             width: 28px;
           }
         }
+
         &.te_left {
           .dialog {
             width: auto;
@@ -1317,14 +1141,17 @@
             word-wrap: break-word;
             word-break: break-all;
             white-space: pre-wrap;
+
             &:before {
               border-left-color: @shallowred;
             }
           }
+
           .dialog-close {
             background: @shalloworange;
             line-height: 30px;
             font-size: 0;
+
             .close-lock {
               width: 30px;
               height: 30px;
@@ -1334,9 +1161,11 @@
               background-size: 100%;
               float: left;
             }
+
             &:before {
               border-left-color: @shalloworange;
             }
+
             p {
               line-height: 30px;
               display: inline-block;
@@ -1346,12 +1175,14 @@
               padding-left: 10px;
             }
           }
-          .imgdialog{
-            padding:5px;
+
+          .imgdialog {
+            padding: 5px;
             -webkit-border-radius: 5px;
             -moz-border-radius: 5px;
             border-radius: 5px;
-            img{
+
+            img {
               width: 100px;
               height: auto;
               min-height: 100px;
@@ -1359,14 +1190,17 @@
             }
           }
         }
-        .imgdialog{
-          padding:5px;
-          img{
+
+        .imgdialog {
+          padding: 5px;
+
+          img {
             width: 100px;
             height: auto;
             min-height: 100px;
           }
         }
+
         .dialog:before {
           content: "";
           position: absolute;
@@ -1385,22 +1219,26 @@
           text-align: right;
           padding-top: 5px;
         }
+
         .rtim {
           text-align: right;
           color: #999;
           font-size: 0.13rem;
           margin-bottom: 5px;
         }
+
         .rpic img {
           width: 40px;
           height: 40px;
           border-radius: 50%;
         }
+
         @media screen and (min-width: 450px) {
-          .rpic,.pic{
+          .rpic, .pic {
             width: 50px;
           }
         }
+
         .rmsg {
           float: right;
           width: 80%;
@@ -1418,6 +1256,7 @@
           white-space: pre-wrap;
           margin-right: 10px;
         }
+
         .rdialog:before {
           content: "";
           position: absolute;
@@ -1430,16 +1269,18 @@
           transform: rotate(45deg);
         }
       }
-      .award-section{
-        height:24px;
+
+      .award-section {
+        height: 24px;
         line-height: 24px;
         color: @maincolor;
         font-size: 13px;
         position: relative;
         margin: 20px 0;
       }
-      .award-section span{
-        background:@whites url("../../common/img/g.png") no-repeat;
+
+      .award-section span {
+        background: @whites url("../../common/img/g.png") no-repeat;
         background-size: 17px 16px;
         background-position: 10px 4px;
         border-radius: 12px;
@@ -1447,20 +1288,45 @@
         left: 50%;
         -webkit-transform: translateX(-50%);
         transform: translateX(-50%);
-        padding:0 10px 0 37px;
-        word-break:keep-all;
-        white-space:nowrap;
+        padding: 0 10px 0 37px;
+        word-break: keep-all;
+        white-space: nowrap;
       }
-      .award-section i{color: #f97757;font-style: normal;}
+
+      .award-section i {
+        color: #f97757;
+        font-style: normal;
+      }
     }
-    .inwxxcx{
+
+    .inwxxcx {
       top: 40px;
     }
-    .newmsg_in{background:@reds;height:30px;line-height:30px;position:absolute;right:0;bottom:65px;
-      color:#fff;border-radius:15px 0 0 15px;padding:0 8px 0 20px;font-size:14px;z-index:9;
+
+    .newmsg_in {
+      background: @reds;
+      height: 30px;
+      line-height: 30px;
+      position: absolute;
+      right: 0;
+      bottom: 65px;
+      color: #fff;
+      border-radius: 15px 0 0 15px;
+      padding: 0 8px 0 20px;
+      font-size: 14px;
+      z-index: 9;
     }
-    .newmsg_in:after{content:"";position:absolute;left:8px;top:9px;width:8px;height:12px;
-      background:url('../../common/img/n.png') no-repeat;background-size:cover;}
+
+    .newmsg_in:after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 9px;
+      width: 8px;
+      height: 12px;
+      background: url('../../common/img/n.png') no-repeat;
+      background-size: cover;
+    }
 
     .room-foot {
       height: 50px;
@@ -1474,6 +1340,7 @@
       left: 0;
       bottom: 0;
       padding-right: 15px;
+      z-index: 99;
       p {
         flex-grow: 1;
         height: 100%;
@@ -1482,6 +1349,7 @@
         overflow: hidden;
         height: 31px;
         display: flex;
+
         input {
           outline: none;
           border: none;
@@ -1490,22 +1358,27 @@
           padding-left: 8px;
           font-size: 0.14rem;
         }
+
         ::-webkit-input-placeholder { /* WebKit browsers */
           font-size: 14px;
           color: #999999;
         }
+
         :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
           font-size: 14px;
           color: #999999;
         }
+
         ::-moz-placeholder { /* Mozilla Firefox 19+ */
           font-size: 14px;
           color: #999999;
         }
+
         :-ms-input-placeholder { /* Internet Explorer 10+ */
           font-size: 14px;
           color: #999999;
         }
+
         button {
           height: 29px;
           width: 64px;
@@ -1521,320 +1394,22 @@
           border-radius: 15px;
         }
       }
-      .goaward{
+
+      .goaward {
         font-size: 9px;
         color: @reds;
         display: inline-block;
         text-align: center;
         padding: 0 12px;
       }
-      .goaward dt{
+
+      .goaward dt {
         font-size: 0;
       }
-      .goaward img{
+
+      .goaward img {
         width: 19px;
       }
-    }
-    .guess-section {
-      width: 100%;
-      height: auto;
-      float: left;
-    }
-    .guess-section {
-      width: 100%;
-      float: left;
-      margin-top: 15px;
-      font-size: 15px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    .guess-section .pic {
-      float: left;
-      width: 15%;
-      padding-top: 5px;
-    }
-    .guess-section .pic .picwrap {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 1.5px solid transparent;
-      background-image: url('');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-    .guess-section .msg {
-      float: left;
-      width: 80%;
-    }
-    .guess-section .msg .tim {
-      color: #999;
-      font-size: 13px;
-      margin-bottom: 5px;
-      text-align: left;
-    }
-    .guess-section .msg .dialog {
-      width: 100%;
-      color: #000;
-      position: relative;
-      float: left;
-      text-align: left;
-      border-radius: 10px;
-      padding: 0;
-      font-size: 0;
-      background: #ffffff;
-      overflow: hidden;
-    }
-    .guess-section .msg .dialog:before{
-      border-color: transparent;
-    }
-    .guess-section .msg .dialog .teams {
-      width: 100%;
-      height: auto;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      border-radius: 10px 10px 0 0;
-      padding: 15px 10px;
-      background: -webkit-gradient(linear, left top, right top, from(#ff8d4f), to(#f97757));
-      background: linear-gradient(to right, #ff8d4f, #f97757);
-    }
-
-    .guess-section .msg .dialog .teams dt {
-      margin-right: 10px;
-    }
-    .guess-section .msg .dialog .teams dd {
-      font-size: 0;
-      text-align: center;
-      flex-grow: 1;
-    }
-    .guess-section .msg .dialog .teams dd div {
-      font-size: 14px;
-      color: #fff;
-    }
-    .guess-section .msg .dialog .teams dd .cup-tim {
-      font-size: 10px;
-    }
-    .guess-section .msg .dialog .teams dd .guess-goal {
-      color: #ba2c00;
-      font-size: 11px;
-    }
-    .guess-section .msg .dialog .teams dd .cup-name {
-
-    }
-    .guess-section .msg .dialog .teams img {
-      width: 35px;
-    }
-    .guess-section .msg .dialog .teams-over {
-      background: -webkit-gradient(linear, left top, right top, from(#b3babf), to(#92969c));
-      background: linear-gradient(to right, #b3babf, #92969c);
-    }
-    .guess-section .msg .dialog .teams-over dd .guess-goal {
-      color: #4f5154;
-    }
-    .guess-section .msg .dialog .guess-item {
-      width: 100%;
-      background: #fff;
-      padding: 0 20px;
-      color: rgba(173,173,173,0.678);
-    }
-    .guess-item p{
-
-      font-size: 15px;
-    }
-    .guess-section .msg .dialog .guess-item p:nth-child(1) {
-      padding: 14px 0 14px 0;
-      display: -webkit-box;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-      justify-content: space-between;
-    }
-    .guess-section .msg .dialog .guess-item p:nth-child(1) span {
-      background: #f97757;
-      height: 28px;
-      font-size: 13px;
-      color: #fff;
-      text-align: center;
-      padding: 0 22px;
-      border-radius: 50px;
-      line-height: 28px;
-    }
-    .guess-section .msg .dialog .guess-item p:nth-child(2) {
-      font-size: 12px;
-      text-align: center;
-      padding-bottom: 15px;
-    }
-    .guess-section .msg .dialog .guess-item .onlyline {
-      display: block !important;
-      text-align: center;
-    }
-    .guess-section .msg .dialog .guess-item .result {
-      text-align: center;
-      color: #fa7b56;
-      font-size: 16px;
-      -ms-flex-pack: distribute;
-      justify-content: space-around;
-    }
-    .guess-section .msg .dialog .me-val {
-      width: 100%;
-      float: left;
-      background: #f1f1f1;
-      color: #666;
-      font-size: 12px;
-      position: relative;
-      padding-left: 0px;
-      border-radius: 0 0 10px 10px;
-      padding-bottom: 14px;
-    }
-    .guess-section .msg .dialog .me-val:before {
-      height: 1px;
-      content: '';
-      width: 100%;
-      border-top: 1px solid #e0e0e0;
-      position: absolute;
-      top: -1px;
-      right: 0;
-      transform: scaleY(0.5);
-      -webkit-transform: scaleY(0.5);
-      z-index: 9999;
-    }
-    .guess-section .msg .dialog .me-val p {
-      padding-top: 10px;
-      line-height: 1;
-      text-align: center;
-    }
-    .guess-section .msg .dialog .me-val p i {
-      color: #999;
-      font-style: normal;
-    }
-    .guess-section .msg .dialog .me-val p span {
-      color: #f97757;
-    }
-    .guess-section .msg .jmsgimg {
-      width: 100px;
-      height: auto;
-      float: left;
-      min-height: 100px;
-      border-radius: 3px;
-    }
-
-
-    .guess{
-      font-size: 0.15rem;
-      color: #DDDDDD;
-      padding: 0 15px;
-      background: #333333;
-      margin-bottom: 10px;
-    }
-    .guess-top{
-      position:relative;
-    }
-    .guess-top:before{
-      height: 1px;
-      content: '';
-      border-top: 1px solid #434343;
-      position: absolute;
-      bottom: -1px;
-      right: -15px;
-      left: 0px;
-      transform: scaleY(0.5);
-      -webkit-transform: scaleY(0.5);
-      z-index: 9999;
-    }
-    .guess-top p:nth-child(1){
-      font-size: 11px;
-      color: #999999;
-      line-height: 1;
-      padding-top: 18px;
-    }
-    .guess-top p:nth-child(2){
-      padding: 7px 0 18px 0;
-    }
-    .guess-top p:nth-child(2) span{
-      line-height: 1;
-      padding: 2px 10px;
-      border: 1px solid #ffd842;
-      color: #ffd842;
-      display: inline-block;
-      border-radius: 20px;
-      font-size: 10px;
-      float: right;
-    }
-    .guess-top p .over_guess{
-      border-color: #666666 !important;
-      color: #666666 !important;
-    }
-    .guess-logo{
-      width: 26px;
-      height: 25px;
-      position: absolute;
-      right: 15px;
-      top: 0;
-      background-image: url("../../common/img/guess_b.png");
-      background-repeat: no-repeat;
-      background-size: 26px 25px;
-    }
-    .gary{
-      width: 26px;
-      height: 25px;
-      position: absolute;
-      right: 15px;
-      top: 0;
-      background-image: url("../../common/img/over.png");
-      background-repeat: no-repeat;
-      background-size: 26px 25px;
-    }
-    .guess-center{
-      height: 54px;
-      line-height: 54px;
-      position: relative;
-      font-size: 14px;
-    }
-    .guess-center:before{
-      height: 1px;
-      content: '';
-      border-top: 1px solid #434343;
-      position: absolute;
-      bottom: -1px;
-      right: -15px;
-      left: 0px;
-      transform: scaleY(0.5);
-      -webkit-transform: scaleY(0.5);
-      z-index: 9999;
-    }
-    .guess-center i{
-      font-size: 14px;
-      color: #888888;
-      font-style: normal;
-      float: right;
-    }
-    .guess-center span{
-      font-size: 13px;
-      display: inline-block;
-      height: 24px;
-      line-height: 24px;
-      background: #ffd842;
-      color: #000000;
-      padding: 0 15px;
-      border-radius: 3px;
-      float: right;
-      margin-top: 15px;
-    }
-    .guess-center span:nth-child(1){
-      margin-left:  15px;
-    }
-    .guess-bottom{
-      font-size: 11px;
-      color: #99863b;
-      line-height: 1;
-      padding-bottom: 9px;
-    }
-    .guess-bottom p{
-      padding-top: 9px;
     }
   }
 
@@ -1871,17 +1446,19 @@
       transform: rotate(360deg);
     }
   }
-  .award-mask{
+
+  .award-mask {
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     position: absolute;
     left: 0;
     top: 0;
     z-index: 888;
     display: block;
   }
-  .award-dialog{
+
+  .award-dialog {
     width: 100%;
     position: absolute;
     left: 0;
@@ -1892,7 +1469,8 @@
     -moz-border-radius: 15px 15px 0 0;
     border-radius: 15px 15px 0 0;
   }
-  .award-hide{
+
+  .award-hide {
     background: url("../../common/img/g-close.png") no-repeat center;
     -webkit-background-size: 18px;
     background-size: 18px;
@@ -1902,36 +1480,41 @@
     right: 9px;
     top: 9px;
   }
-  .award-hd{
+
+  .award-hd {
     background: @backcolor;
     position: relative;
     -webkit-border-radius: 15px 15px 0 0;
     -moz-border-radius: 15px 15px 0 0;
     border-radius: 15px 15px 0 0;
   }
-  .award-tit{
+
+  .award-tit {
     font-size: 0.15rem;
     color: @maincolor;
     padding-bottom: 25px;
   }
 
-  .award-hd img{
+  .award-hd img {
     width: 79px;
     margin-top: -20px;
   }
 
-  .awardgary{
+  .awardgary {
     opacity: 0.3;
   }
-  .award-num{
+
+  .award-num {
     margin-top: 15px;
   }
-  .award-num p{
+
+  .award-num p {
     width: 205px;
     margin: 0 auto;
     position: relative;
   }
-  .award-num p:after{
+
+  .award-num p:after {
     height: 1px;
     content: '';
     border-top: 1px solid @bordercolor;
@@ -1943,10 +1526,11 @@
     -webkit-transform: scaleY(0.5);
     z-index: 10;
   }
-  .award-num input{
+
+  .award-num input {
     line-height: 45px;
     width: 205px;
-    border:none;
+    border: none;
     text-align: center;
     outline: none;
     color: #ddd;
@@ -1955,29 +1539,33 @@
     color: @maincolor;
     font-size: 0.25rem;
   }
+
   .award-num input::-webkit-input-placeholder { /* WebKit browsers */
-    color:#b1b1b1;
+    color: #b1b1b1;
     font-size: 0.15rem;
   }
+
   .award-num input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color:#b1b1b1;
+    color: #b1b1b1;
     font-size: 0.15rem;
   }
 
   .award-num input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color:#b1b1b1;
+    color: #b1b1b1;
     font-size: 0.15rem;
   }
 
   .award-num input:-ms-input-placeholder { /* Internet Explorer 10+ */
-    color:#b1b1b1;
+    color: #b1b1b1;
     font-size: 0.15rem;
   }
-  .award-btn{
+
+  .award-btn {
     width: 100%;
     margin-top: 30px;
   }
-  .award-btn button{
+
+  .award-btn button {
     width: 241px;
     height: 40px;
     list-height: 40px;
@@ -1990,92 +1578,103 @@
     -moz-border-radius: 20px;
     border-radius: 20px;
   }
-  .award-balance{
+
+  .award-balance {
     font-size: 0.1rem;
     margin: 10px 0 30px 0;
   }
-  .wx_dialog{
+
+  .wx_dialog {
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     position: absolute;
-    left:0;
-    top:0;
+    left: 0;
+    top: 0;
     z-index: 9999999;
-    .mask-wx{
-      position:fixed;
-      left:0;
-      top:0;
-      bottom:0;
-      right:0;
-      background: rgba(0,0,0,0.3);
-      color:@maincolor;
-      font-size:0.15rem;
-      z-index:111;
-      .dialog-wx{
-        width:80%;
-        position:absolute;
-        left:10%;
-        top:50%;
+
+    .mask-wx {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.3);
+      color: @maincolor;
+      font-size: 0.15rem;
+      z-index: 111;
+
+      .dialog-wx {
+        width: 80%;
+        position: absolute;
+        left: 10%;
+        top: 50%;
         transform: translateY(-50%);
         background: @whites;
-        border-radius:20px;
-        text-align:center;
-        overflow:hidden;
-        .wxGo{
-          width:90%;
-          height:45px;
-          margin:0;
-          display:inline-block;
-          background:#1aad19;
-          color:@whites;
-          line-height:45px;
-          text-align:center;
-          border-radius:3px;
-          font-size:0.16rem;
+        border-radius: 20px;
+        text-align: center;
+        overflow: hidden;
+
+        .wxGo {
+          width: 90%;
+          height: 45px;
+          margin: 0;
+          display: inline-block;
+          background: #1aad19;
+          color: @whites;
+          line-height: 45px;
+          text-align: center;
+          border-radius: 3px;
+          font-size: 0.16rem;
         }
-        .titles{
-          height:70px;
-          width:100%;
-          background:@backcolor;
-          line-height:70px;
-          color:@maincolor;
-          font-size:@titsize;
-          p{
-            display:inline-block;
-            background-image:url('../../common/img/wp.png');
-            background-position:left center;
-            background-size:27px auto;
-            background-repeat:no-repeat;
-            padding-left:35px;
+
+        .titles {
+          height: 70px;
+          width: 100%;
+          background: @backcolor;
+          line-height: 70px;
+          color: @maincolor;
+          font-size: @titsize;
+
+          p {
+            display: inline-block;
+            background-image: url('../../common/img/wp.png');
+            background-position: left center;
+            background-size: 27px auto;
+            background-repeat: no-repeat;
+            padding-left: 35px;
           }
         }
-        .main{
-          padding:15px;
-          .name{
-            font-size:0.14rem;
-            color:#999999;
+
+        .main {
+          padding: 15px;
+
+          .name {
+            font-size: 0.14rem;
+            color: #999999;
           }
-          .pay_price{
-            font-size:0.3rem;
-            color:@maincolor;
-            line-height:45px;
-            height:45px;
+
+          .pay_price {
+            font-size: 0.3rem;
+            color: @maincolor;
+            line-height: 45px;
+            height: 45px;
           }
         }
-        a{
-          color:#999;
-          text-decoration:none;
-          font-size:0.14rem;
-          display:block;
-          line-height:1;
-          margin:15px 0 20px 0;
+
+        a {
+          color: #999;
+          text-decoration: none;
+          font-size: 0.14rem;
+          display: block;
+          line-height: 1;
+          margin: 15px 0 20px 0;
         }
       }
 
     }
   }
-  .load_pc{
+  .load_pc {
     text-align: center;
     font-size: 0.12rem;
     line-height: 30px;
