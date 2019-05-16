@@ -4,24 +4,30 @@
       <router-view></router-view>
     </keep-alive>
     <menus></menus>
+    <div class="loading-container" v-show="isShow">
+      <loading></loading>
+    </div>
   </div>
 </template>
 
 <script>
 import menus from './components/menu/menu'
+import loading from 'base/loading/loading'
   export default {
     name: 'app',
     data(){
       return {
-
+        isShow: true
       }
     },
     components: {
-    	menus
+      menus,
+      loading
     },
     mounted(){
     //this.$ajax.get('http:www.jingcaishuo.com/article/detail',{});
     //  console.log(this.$axios)
+      this.isShow = false
     }
   }
 </script>

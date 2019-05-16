@@ -33,11 +33,11 @@ import Common from 'common/js/common'
 					name: 'enter-in',
 					ele: '登录精彩说'
 				},
-        		loginfrom: 'H5'
+        loginfrom: 'H5'
 			}
 		},
 		created(){
-			//console.log(unescape(document.cookie))
+			// this.goWhere()
 		},
 		methods:{
 			signIn(){
@@ -77,7 +77,6 @@ import Common from 'common/js/common'
             }
 					).then(function(res){
 						if(res.data.Code === '0000'){
-							this.$router.back();
 							let jsonLog={
 							  abc: escape(this.tel),
                 abcd: res.data.UserId,
@@ -91,7 +90,8 @@ import Common from 'common/js/common'
                 'telephone',
                 res.data.NikeName,
                 1
-              );
+							);
+							this.goWhere()
 							function setCookie(c_name,value,expiredays){
 								var exdate=new Date();
 								exdate.setDate(exdate.getDate()+expiredays);
@@ -109,6 +109,22 @@ import Common from 'common/js/common'
             console.log(err)
           })
 				})
+			},
+			goWhere () {
+				let qstr = this.$route.query
+				if (!qstr.hasOwnProperty('queryData')) {
+					this.$router.back();
+					return false
+				}
+				qstr = JSON.parse(qstr.queryData)
+				if (qstr.length > 1) {
+					this.$router.push({path:`/roomlist?queryData=${this.$route.query.queryData}` });
+				} else if (qstr.length === 1) {
+					this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}` });
+				} else {
+					this.$router.push('roomlist')
+					// this.$router.back();
+				}
 			}
 		},
 		components: {

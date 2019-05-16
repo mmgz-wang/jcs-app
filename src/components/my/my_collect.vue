@@ -3,7 +3,13 @@
     <main-header v-if="!inXCX" :headerData="headerData"></main-header>
     <scroll class="container" :data="articleDataList" :class="{inxcx: inXCX}">
       <div class="scroll-wrap">
-        <article-list :topMargin="false" @goarticle="goarticle" :articleDataList = "articleDataList"></article-list>
+        <template v-for="item in articleDataList">
+          <article-list 
+            :topMargin="false" 
+            @goarticle="goarticle"
+            :item = "item">
+          </article-list>
+        </template>
         <div class="loading-container" v-show="!articleDataList.length">
           <loading></loading>
         </div>
