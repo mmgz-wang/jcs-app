@@ -146,7 +146,6 @@
   import payDialog from 'base/paydialog/paydialog'
   import previewImg from 'base/previewimg/preview-img'
   import guessItem from './chatitem/guessitem'
-  import 'common/js/jcs_dialoga.css'
 
   import VueQArt from 'vue-qart'
 
@@ -171,7 +170,6 @@
         roomUsers: 0,
         isLogin: this.shareFn.isLogin(),
         userName: '',
-        teachId: 0,
         range: 0,
         roomPic: '',
         roomId: this.$router.currentRoute.query.roomId,
@@ -236,6 +234,12 @@
       } else {
         this.$router.push({name: 'enter'})
       }
+      let userId = this.shareFn.getUserId()
+      let token = this.shareFn.getSecurityCode()
+      this.userId = userId
+      this.token = token
+      this.toData.userId = userId
+      this.toData.token = token
     },
     mounted() {
       if (Common.getDeviceinfo().type == 'pc') {
@@ -252,7 +256,6 @@
       reseteRoomStatus() {
         this.IO = io.connect(Common.baseURI().ioUrl);
         this.roomScoket();
-        this.userId = this.userId;
         this.roomId = this.$router.currentRoute.query.roomId;
         this.roomName = this.$router.currentRoute.query.roomName;
         this.roomPrice = this.$router.currentRoute.query.roomPrice;
@@ -281,9 +284,11 @@
             userId: that.userId,
             token: that.token
           };
+          console.log(jsonObject)
           that.IO.emit('login', jsonObject);
         });
         this.IO.on('ack', function (data) {
+          console.log(data)
           that.chatClosedStatus = data.close
           that.chatClosed()
           that.ackData = data;
@@ -367,11 +372,7 @@
             that.$refs.msgInput.disabled = "disabled";
             that.isOver = true;
             that.GetRoomMsg();
-            layer.open({
-              content: '直播已结束',
-              skin: 'msg',
-              time: 2
-            });
+            that.showMeaage('直播已结束')
           } else if (data.code == 777) {
             that.showMeaage('请求过于频繁，访问受限！');
           } else {

@@ -12,7 +12,13 @@
     :data="articleDataList">
       <div class="scroll-wrap">
         <p pulldown>{{pullDownText}}</p>
-        <article-list @goarticle="goarticle" :topMargin="false" :articleDataList = "articleDataList"></article-list>
+        <template v-for="item in articleDataList">
+          <article-list 
+            @goarticle="goarticle" 
+            :topMargin="false" 
+            :item = "item">
+          </article-list>
+        </template>
         <p pullup>{{pullUpText}}</p>
         <div class="loading-container" v-show="!articleDataList.length">
           <loading></loading>

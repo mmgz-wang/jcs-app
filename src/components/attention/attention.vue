@@ -14,7 +14,12 @@
           <loading></loading>
         </div>
         <div v-if="!isTeach" class="articlelist">
-          <article-list @goauthor="goauthor" @goarticle="goarticle" :articleDataList="articleDataList"></article-list>
+          <template v-for="item in articleDataList">
+            <article-list 
+              @goauthor="goauthor" 
+              @goarticle="goarticle" 
+              :item="item"></article-list>
+          </template>
         </div>
         <div v-if="isTeach" class="teacherlist">
           <div class="allteach" @click="goAllteach()">
@@ -116,6 +121,7 @@
           that.isloading = true;
           that.isTeach = false;
           that.queryString.urls = '/Author/GetFollowedAuhorArticles/';
+          that.queryString.data.articleId = 0;
           that.getData(that.queryString);
           that.$refs.scroll.refresh();
           this.className = 'on';
@@ -125,6 +131,7 @@
         teacherBtn.onclick = function () {
           that.isloading = true;
           that.isTeach = true;
+          that.queryString.data.articleId = 0;
           that.queryString.urls = '/author/list/follow/';
           that.getData(that.queryString);
           that.$refs.scroll.refresh();

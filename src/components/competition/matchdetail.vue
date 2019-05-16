@@ -29,13 +29,14 @@
 		</div>
 		<div class="match-detail-wrap" :class="{roomActive:!isart,roomLeave:isart,'wxmatch-detail-wrap': inXCX}">
 			<scroll class="matchdetail-list" :data="articleList">
-				<article-list
-					:topMargin='false'
-					:matchShow="false"
-					@goarticle="goarticle"
-					:articleDataList="articleList">
-
-				</article-list>
+        <template v-for="item in articleList">
+          <article-list
+            :topMargin='false'
+            :matchShow="false"
+            @goarticle="goarticle"
+            :item="item">
+				  </article-list>
+        </template>
 			</scroll>
 			<div class="odds_wrap" v-if="oddsData != null">
 				<div style="700px;">

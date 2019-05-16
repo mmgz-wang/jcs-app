@@ -69,7 +69,9 @@ export default {
 			pullUpText: '上拉加载更多！',
 			roomPageIndex: 0,
 			informText: '开播后通知我',
-			pageRows: 20
+			pageRows: 20,
+			lecturerId: '',
+			qstr: ''
 		}
 	},
 	components: {
@@ -77,6 +79,12 @@ export default {
 	},
 	created(){
 		this.getData();
+		this.qstr = this.$route.query
+		if (this.qstr.hasOwnProperty('queryData')) {
+			this.qstr = JSON.parse(this.qstr.queryData)
+			this.lecturerId = this.qstr[0].lecturerId
+		}
+		console.log(this.qstr)
 	},
   beforeRouteEnter(to, from, next) {
     if(from.name == 'roomindex'){
@@ -107,7 +115,6 @@ export default {
 		  this.roomPageIndex += 1;
 		  this.pullUpText = '努力加载中 ...';
 		  this.getData();
-
 		},
 		gooRoom: function(item){
 			console.log(item)
@@ -182,20 +189,26 @@ export default {
 					{
 						params:{
 							userId: this.shareFn.getUserId(),
-              pageIndex: this.roomPageIndex,
+							pageIndex: this.roomPageIndex,
+							authorId: this.lecturerId,
               pageRows: this.pageRows
             }
           }
 				).then(function(res){
-					console.log(res.data)
-					// console.log(this.types)
 					if(res.status == 200 && res.data.length > 0){
 						if(this.types){
-
-						  this.roomListData = this.roomListData.concat(res.data);
+							if (this.qstr.hasOwnProperty('roomId')) {
+								this.roomListData = this.roomListData.concat(this.isQueryData(res.data))
+							} else {
+						  	this.roomListData = this.roomListData.concat(res.data);
+							}
 						  this.pullUpText = '上拉加载更多！';
 						}else{
-						  this.roomListData = res.data;
+							if (this.qstr.hasOwnProperty('roomId')) {
+								this.roomListData = this.isQueryData(res.data);
+							} else {
+								this.roomListData = res.data;
+							}
 						  this.pullDownText = '下拉刷新！';
 						}
 					}else{
@@ -326,7 +339,19 @@ export default {
         skin: 'msg',
         anim: 'scale'
       });
-    },
+		},
+		isQueryData (data) {
+			console.log(this.qstr)
+			let arr = []
+			this.qstr.forEach(v => {
+				data.forEach(val => {
+					if (v.roomId === val.roomId) {
+						arr.push(val)
+					}
+				})
+			})
+			return arr
+		}
 	},
 	watch:{
 		data(){

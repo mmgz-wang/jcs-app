@@ -28,6 +28,7 @@
 
 <script>
 import shareFn from 'common/js/sharefn'
+import Common from 'common/js/common.js'
 export default {
   name: 'guessdialog',
   props: {
@@ -42,8 +43,14 @@ export default {
       mychoose: '',
       curIntegralVal: 0,
       active: false,
-      money: shareFn.getCookie('money')
+      money: ''
     }
+  },
+  created () {
+     this.getData()
+  },
+  mounted () {
+   
   },
   methods: {
     subGuess () {
@@ -68,6 +75,20 @@ export default {
       }).catch(err => {
         this.layerOpen(JSON.stringify(err))
       })
+    },
+    getData() {
+        this.$get('/User/GetUserInfo',
+          {
+            userId: this.shareFn.getUserId(),
+            token: this.shareFn.getSecurityCode(),
+            language: 'M'
+          }
+        ).then(res => {
+          this.money = res.Money
+          console.log(this.money)
+        }, function (res) {
+          alert('请求失败！')
+        })
     },
     show () {
       this.item = arguments[0][0]

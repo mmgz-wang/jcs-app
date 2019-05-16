@@ -48,6 +48,10 @@ export default {
   created() {
     console.log();
     //this.sendLogin();
+    let qstr = this.$route.query
+      if (qstr.hasOwnProperty('queryData')) {
+        this.invitecode = JSON.parse(qstr.queryData)[0].lecturerId
+      }
   },
   methods: {
     getCode() {
@@ -87,7 +91,7 @@ export default {
           } else {
             that.bunceIn(data.Code + data.msg);
             clearInterval(timer);
-            that.codeText = "稍后再试";
+            that.codeText = "获取验证码";
             tim = 60;
             that.codeing = false;
           }
@@ -123,21 +127,36 @@ export default {
         )
         .then(
           function(res) {
-            console.log(res.data);
             if (res.data.Code === "0000") {
+              this.goWhere()
               console.log("注册成功");
             } else if (res.data.Code === "2007") {
               this.bunceIn("验证码错误!");
             } else if (res.data.Code === "3011") {
               this.bunceIn("抱歉，您输入的邀请码无效，请重新输入!");
             } else if (res.data.Code === "2003") {
-              this.bunceIn("改手机号已经被注册!");
+              this.bunceIn("该号码已经被注册!");
             }
           },
           function() {
             this.bunceIn("请求失败请检查网络");
           }
         );
+    },
+    goWhere () {
+      let qstr = this.$route.query
+      if (!qstr.hasOwnProperty('queryData')) {
+        this.$router.back();
+        return false
+      }
+      qstr = JSON.parse(qstr.queryData)
+      if (qstr.length > 1) {
+        this.$router.push({path:`/roomlist?queryData=${this.$route.query.queryData}` });
+      } else if (qstr.length === 1) {
+        this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}` });
+      } else {
+        this.$router.push('roomlist')
+      }
     },
     custmorAjax(opt) {
       var data = null;
