@@ -75,13 +75,13 @@ export default {
 				).then(function(res){
 					if(res.data.Code === '0000'){
 						this.bunceIn('成功退出！')
-						setCookie('jsonLog',null,1);
-			setCookie('telephone','',1);
+						setCookie('jsonLog',null,-1);
+						setCookie('telephone','',-1);
 						function setCookie(c_name,value,expiredays){
 							var exdate=new Date();
 							exdate.setDate(exdate.getDate()+expiredays);
 							document.cookie=c_name+ "=" +escape(value)+
-							((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
+							((expiredays==null) ? "" : ";expires="+exdate.toGMTString()+';path=/');
 						}
 						this.$router.back();
 						location.reload();
