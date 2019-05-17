@@ -21,10 +21,12 @@ module.exports = {
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",
+        // 测试host
         nativeHost: 'http://apm.jingcaishuo.net',
         // ioUrl: 'http://182.18.76.155:8080/',
         // roomMsgurls: 'http://182.18.76.155:8822',
         // matchListversion: '1.1.5',
+        // 测试H5host
         host: "http://jnv.jingcaishuo.net/",
         // host: "http://10.8.0.10:9095",
         ioUrl: 'https://tchat.jingcaishuo.com/',
@@ -32,7 +34,9 @@ module.exports = {
       }
     } else {
       return {
+        // 正式H5host
         host: "https://www.jingcaishuo.com",
+        // 正式host
         nativeHost: 'https://api.jingcaishuo.com/',
         jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html/",
         ioUrl: 'https://chat.jingcaishuo.com/',
