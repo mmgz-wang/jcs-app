@@ -12,8 +12,8 @@
                     </div>
                 </div>
                 <div class="state">
-                  <p>特定积分充值有积分相赠，快去联系<span>专属客服MM领取吧~</span></p>
-                  <p>没有客服的小伙伴还请联系微信号<span>JCSxiaoyang</span></p>
+                  <p>特定积分充值有积分相赠，快去联系<span>专属客服MM领取吧~</span>&nbsp; WX：<span>JCSxiaoyang</span></p>
+                  <!-- <p>没有客服的小伙伴还请联系微信号</p> -->
                 </div>
             </div>
            <p class="p">充值方式</p>
@@ -31,6 +31,12 @@
                         <span class="txt">支付宝支付</span>
                         <span class="rico"></span>
                     </li>
+                    <li id="ybpay">
+						<img src="https://www.yeepay.com/favicon.ico" alt="" class="img" />
+						<span class="txt">易宝支付</span>
+                        <span style="color: #b1b1b1;">（支持信用卡充值）</span>
+						<span class="rico rico-on"></span>
+					</li>	
                     <li id="card">
                         <img src="../../common/img/card.png" alt="" class="img">
                         <span class="txt">银行转账</span>
@@ -42,7 +48,7 @@
             </div>
            </div>
 
-           <!-- <p class="subbtn" @click="TrueClick()">确认支付<span class="affirm">￥{{price}}</span></p> -->
+           <p class="subbtn" @click="TrueClick()">确认支付<span class="affirm">￥{{price}}</span></p>
 
             <p class="sm" style="">精彩币主要用于购买比赛分析文章，精彩币购买后不可提现，不可退款。如有问题请咨询<span class="online" id="onlineservice1">在线客服</span>或拨打<span class="tel" id="telphone">客服电话</span></p>
             <div class="mask-wx" @click.stop="setWx" v-show="wxShow">
@@ -147,7 +153,7 @@ export default {
             const PAY_TYPE_SIX=7;
             var payType = 9;
             if(navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == "micromessenger") {
-              //payType = 12;
+              
             }
             var godata = {
                     "language": "M",
@@ -157,6 +163,8 @@ export default {
                     "userId": this.shareFn.getUserId()*1,
                     "securityCode": this.shareFn.getSecurityCode()
                 };
+            this.goYBPay()
+            return false
             this.$nextTick(function(){
                 that.$http.jsonp(
                     Common.baseURI().host + "/charge/chargeRealMoney",
@@ -198,7 +206,6 @@ export default {
                           onBridgeReady();
                         }
                         function onBridgeReady(e){
-                          console.log(e)
                           WeixinJSBridge.invoke(
                             'getBrandWCPayRequest',
                             JSON.parse(data.code_url),
@@ -211,6 +218,42 @@ export default {
                 },function(res){
                     console.log(res.data)
                 })
+            })
+        },
+        goYBPay () {
+            var loding = layer.open({
+                type: 2,
+                content: '请求中...'
+            });
+            this.$http.post(
+                Common.baseURI().nativeHost,
+                {
+                    "language": "M",
+                    "ChargeType": 18,
+                    "Money": this.price.toString(),
+                    "PriceType": this.id.toString(),
+                    "UserId": this.shareFn.getUserId()*1,
+                    "SecurityCode": this.shareFn.getSecurityCode()
+                },
+                {
+                    headers: {
+                        "X-Target": "PrentService.ChargeRealMoney"
+                    }
+                }
+            ).then(res => {
+                console.log(res.data)
+                if(res.data.Code == '0000'){
+                    window.location.href = res.data.YEEPara;
+                }else{
+                    layer.open({
+                        content: res.Code,
+                        skin: 'msg',
+                        time: 2
+                    });
+                }
+                //layer.close(loding);
+            },rej => {
+                console.log(rej)
             })
         },
         setMsg(){
@@ -239,6 +282,7 @@ export default {
     right:0;
     z-index:90;
     font-size:0.14rem;
+    overflow-y: scroll;
     .rechargelist{
         width:100%;
         background:@whites;
@@ -250,8 +294,8 @@ export default {
             justify-content:space-between;
             position:relative;
             div {
-                min-height: 60px;
-                width: 30%;
+                min-height: 45px;
+                width: 28%;
                 text-align: center;
                 border: 0.005rem solid @reds;
                 border-radius: 3px;
@@ -317,8 +361,8 @@ export default {
             ul li{
                 float:left;
                 width:100%;
-                height:55px;
-                line-height:55px;
+                height:45px;
+                line-height:45px;
                 border-bottom:1px @bordercolor solid;
                 border:none;
                 font-size: 15px;
@@ -351,12 +395,15 @@ export default {
                     background-size:17px;
                 }
                  .img{
-                    width:35px;
-                    height:39px;
+                    width:31px;
+                    height:35px;
                     float: left;
-                    margin-top:10px;
+                    margin-top:6px;
                     margin-right:10px;
                 }
+            }
+            #ybpay{
+                
             }
             .th{
                 position: absolute;
@@ -369,22 +416,22 @@ export default {
     }
     .subbtn {
         width: 90%;
-        height: 45px;
+        height: 42px;
         background: @reds;
         color: @whites;
         clear: both;
         font-size: 0.15rem;
-        line-height: 45px;
+        line-height: 42px;
         text-align: center;
         border-radius: 3px;
-        margin: 30px 0 0 5%;
+        margin: 15px 0 0 5%;
         float: left;
     }
     .p{
         color: @garycolor;
         float:left;
         width:100%;
-        padding:15px 0 8px 3%;
+        padding:10px 0 10px 3%;
         font-size: 0.13rem;
     }
     .sm{
@@ -395,8 +442,6 @@ export default {
         color: @assistcolor;
         font-size:@assistsize;
         margin-top:10px;
-        position:absolute;
-        bottom:10px;
         span{
             color:@reds;
         }
@@ -478,18 +523,31 @@ export default {
         color: @maincolor;
         .border-none;
         p{
-            clear:both;
-            line-height:24px;
-            color:@namecolor;
-            padding-bottom:25px;
+            clear: both;
+            line-height: 24px;
+            color: @namecolor;
+            padding-bottom: 25px;
         }
         .txt{
-            line-height: 53px;
+            line-height: 45px;
         }
         .payCard{
-            padding: 10px;font-size:14px;margin-left:20px;
+            padding: 10px;font-size: 14px;margin-left: 20px;
         }
-        .payCard span{color:@reds;}
+        .payCard span{color: @reds;}
+    }
+    @media screen and(min-width:500px) {
+        .rechargelist{
+            .recharge-item{
+                div {
+                    min-height: 60px;
+                    width: 30%;
+                    text-align: center;
+                    border: 1px solid @reds;
+                    border-radius: 3px;
+                }
+            }
+        }
     }
 }
 </style>

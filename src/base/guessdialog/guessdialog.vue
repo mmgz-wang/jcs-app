@@ -17,7 +17,7 @@
           </div>
           <div class="guess-foot">
             <span>当前精彩币：<i id="integral">{{money}}</i></span>
-            <!--<span class="go-recharge">找客服充值送积分</span>-->
+            <span class="go-recharge"><router-link to="/recharge"> 去充值</router-link></span>
             <button type="button" @click="subGuess()">确认</button>
           </div>
         </div>
@@ -91,8 +91,8 @@ export default {
         })
     },
     show () {
+      this.getData()
       this.item = arguments[0][0]
-      console.log(this.item)
       this.mychoose = arguments[0][1]
       this.curIntegralVal = this.moneyArr[0]
       this.active = true
@@ -113,7 +113,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .guessdialog {
     width: 100%;
     height: 100%;
@@ -278,9 +278,11 @@ export default {
     border: none;
   }
   .go-recharge{
-    color: #ffd842;
-    padding-left: 15px;
+    margin-left: 25px;
     position:relative;
+    a{
+      color: #e9311d;
+    }
   }
   .go-recharge:after{
     content: '';
@@ -290,8 +292,8 @@ export default {
     margin-top: -5px;
     width: 9px;
     height: 9px;
-    border-right:1px solid #ffd842;
-    border-bottom:1px solid #ffd842;
+    border-right:1px solid #e9311d;
+    border-bottom:1px solid #e9311d;
     transform: rotate(-45deg);
     transform-origin: center;
   }
