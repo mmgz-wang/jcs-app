@@ -96,7 +96,7 @@ import Common from 'common/js/common'
 								var exdate=new Date();
 								exdate.setDate(exdate.getDate()+expiredays);
 								document.cookie=c_name+ "=" +escape(value)+
-								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
+								((expiredays==null) ? "" : ";expires="+exdate.toGMTString()+';path=/');
 							}
 						}else if(res.data.Code === '2000'){
 							layer.open({
