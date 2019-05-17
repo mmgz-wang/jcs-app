@@ -18,7 +18,7 @@ export default {
     var exdate = new Date();
     exdate.setDate(exdate.getDate() + expiredays);
     document.cookie = c_name + "=" + escape(value) +
-      ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
+      ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString()+';path=/');
   },
 	getUserId: function () {
 		return this.jsonLog().abcd;

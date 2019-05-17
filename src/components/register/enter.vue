@@ -84,6 +84,10 @@ import Common from 'common/js/common'
                 pic: res.data.PicPath,
                 money: res.data.Money
 							};
+							setCookie('jsonLog',null,-1);
+							setCookie('telephone','',-1);
+							setCookie2('jsonLog',null,-1);
+							setCookie2('telephone','',-1);
 
 							setCookie('jsonLog',JSON.stringify(jsonLog),1);
               setCookie(
@@ -92,11 +96,17 @@ import Common from 'common/js/common'
                 1
 							);
 							this.goWhere()
-							function setCookie(c_name,value,expiredays){
+							function setCookie(c_name, value, expiredays){
 								var exdate=new Date();
-								exdate.setDate(exdate.getDate()+expiredays);
+								exdate.setDate(exdate.getDate() + expiredays);
 								document.cookie=c_name+ "=" +escape(value)+
 								((expiredays==null) ? "" : ";expires="+exdate.toGMTString()+';path=/');
+							}
+							function setCookie2(c_name, value, expiredays){
+								var exdate=new Date();
+								exdate.setDate(exdate.getDate() + expiredays);
+								document.cookie=c_name+ "=" +escape(value)+
+								((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
 							}
 						}else if(res.data.Code === '2000'){
 							layer.open({
