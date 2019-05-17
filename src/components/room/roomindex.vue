@@ -4,63 +4,52 @@
       <img style="width: 0;height: 0;opacity: 0;display: none;"
            src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
       <main-header v-show="!inXCX" @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
-      <div class="room-nav">
-        <ul class="selector">
-          <li @click="selector(0)" class="all" :class="{on: range == 0}">查看全部</li>
-          <li @click="selector(3)" class="recommend" :class="{on: range == 3}">老师推荐</li>
-          <li @click="selector(1)" class="teach" :class="{on: range == 1}">仅看老师</li>
-          <li @click="selector(2)" class="own" :class="{on: range == 2}">仅看本人</li>
-          <li class="peopleli"><span class="people">{{roomUsers}}</span></li>
-        </ul>
-      </div>
-
+      <room-nav 
+        :roomUsers="roomUsers"
+        @guessSelect="guessSelect"
+        @selector="selector"></room-nav>
+      
       <div ref="scrollWraper" class="msg-list" :class="{inwxxcx:inXCX}">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
-            <section v-if="item.type != 2" :key="item.messageId" :id="item.messageId"
-                     :class="{
-                              left:item.isLecturer||userName!=item.userName,
-                              right:!item.isLecturer&&userName==item.userName,
-                              te_left:item.isLecturer
-                          }">
+            <section v-if="item.type != 2" 
+    
+              :id="item.messageId"
+              :class="{
+                left:item.isLecturer||userName!=item.userName,
+                right:!item.isLecturer&&userName==item.userName,
+                te_left:item.isLecturer}">
               <div v-if="item.isSystem" class="award-section">
                 <span v-html="item.content"></span>
               </div>
-
               <div v-else>
-                <div
-                  :class="{
-                                  pic:item.isLecturer||userName!=item.userName,
-                                  rpic:!item.isLecturer&&userName==item.userName
-                              }">
+                <div :class="{
+                    pic:item.isLecturer||userName!=item.userName,
+                    rpic:!item.isLecturer&&userName==item.userName
+                  }">
                   <img :src="item.userPic" alt="">
                 </div>
-                <div
-                  :class="{
-                              msg:item.isLecturer||userName!=item.userName,
-                              rmsg:!item.isLecturer&&userName==item.userName
-                          }">
-                  <p
-                    :class="{
-                                  tim:item.isLecturer||userName!=item.userName,
-                                  rtim:!item.isLecturer&&userName==item.userName
-                              }">{{item.userName}} {{setTime(item.createTime)}}</p>
+                <div :class="{
+                      msg:item.isLecturer||userName!=item.userName,
+                      rmsg:!item.isLecturer&&userName==item.userName
+                  }">
+                  <p :class="{
+                      tim:item.isLecturer||userName!=item.userName,
+                      rtim:!item.isLecturer&&userName==item.userName
+                    }">{{item.userName}} {{setTime(item.createTime)}}</p>
                   <div v-if="item.content.indexOf('jmsgimg')>0"
                        @click.stop="preview"
                        :class="{
-                                      dialog:item.isLecturer || userName != item.userName,
-                                      rdialog:!item.isLecturer && userName==item.userName,
-                                      imgdialog:item.content.indexOf('jmsgimg')>0
-                                  }" v-html="item.content">
-                  </div>
+                            dialog:item.isLecturer || userName != item.userName,
+                            rdialog:!item.isLecturer && userName==item.userName,
+                            imgdialog:item.content.indexOf('jmsgimg')>0
+                        }" v-html="item.content"></div>
                   <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
-                       :class="{
-                                      dialog:item.isLecturer||userName!=item.userName,
-                                      rdialog:!item.isLecturer&&userName==item.userName
-                                  }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased"
-                                                                  class="lock-pic"
-                                                                  src="../../common/img/lop.png">
+                        :class="{
+                          dialog:item.isLecturer||userName!=item.userName,
+                          rdialog:!item.isLecturer&&userName==item.userName
+                        }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic" src="../../common/img/lop.png">
                   </div>
                   <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
                        class="dialog dialog-close">
@@ -69,9 +58,11 @@
                   </div>
                 </div>
               </div>
-
             </section>
-            <guess-item v-else-if="item.type == 2" @guessTeamClick="guessTeamClick" :item="item"></guess-item>
+            <guess-item
+              v-else-if="item.type == 2"
+              @guessTeamClick="guessTeamClick"
+              :item="item"></guess-item>
           </template>
         </div>
       </div>
@@ -83,7 +74,7 @@
           <dd>打赏</dd>
         </dl>
         <p>
-          <input ref="msgInput" type="text" placeholder="发送消息..." name="msg" @keyup.enter="sendMsg()">
+          <input ref="msgInput" @blur="inputBlur" type="text" placeholder="发送消息..." name="msg" @keyup.enter="sendMsg()">
           <button type="button" id="send" @click="sendMsg()">发送</button>
         </p>
 
@@ -95,6 +86,7 @@
         :yesFn="dialogData.yesFn"
         :noFn="dialogData.noFn">
       </pay-dialog>
+
       <div class="award-mask" v-show="awardShow">
         <div class="award-dialog">
           <div class="award-hd">
@@ -103,12 +95,13 @@
             <span class="award-hide" @click="awardHide"></span>
           </div>
           <div class="award-num">
-            <p><input type="number" placeholder="请输入要打赏的精彩币数额" v-model="awardNum" name="award-num"></p>
+            <p><input @blur="inputBlur" type="number" placeholder="请输入要打赏的精彩币数额" v-model="awardNum" name="award-num"></p>
           </div>
           <div class="award-btn">
             <button type="button" @click="goPayAward()" :class="{awardgary:awardNum<=0}">确认</button>
           </div>
           <p class="award-balance">您的当前余额：<span id="userMoney">{{userMoney}}</span>精彩币</p>
+          <span class="go-recharge-award"><router-link to="/recharge"> 去充值</router-link></span>
         </div>
       </div>
 
@@ -138,6 +131,7 @@
 </template>
 
 <script type="text/javascript">
+  import roomNav from './room-nav'
   import guessMixin from 'base/mixins/guess_mixin'
   import guessDialog from 'base/guessdialog/guessdialog'
   import mainHeader from 'base/header/mainheader'
@@ -247,6 +241,9 @@
       } else {
         this.loadMsg();
       }
+      // setTimeout(() => {
+      //   this.selector(1)
+      // }, 3000);
     },
     computed: {},
     methods: {
@@ -459,7 +456,7 @@
       selector(s) {
         this.isPullDown = false;
         this.toData = {
-          limit: 20,
+          limit: 30,
           userId: this.userId,
           range: s,
           token: this.token
@@ -467,6 +464,15 @@
         this.GetRoomMsg();
         this.range = s;
         this.scrollTo();
+      },
+      guessSelect () {
+        this.toData = {
+          limit: 100,
+          userId: this.userId,
+          range: 4,
+          token: this.token
+        }
+        this.GetRoomMsg();
       },
       setMsg(s) {
         if (!this.shareFn.isLogin() && !inXCX) {
@@ -530,6 +536,7 @@
                   skin: 'msg'
                 });
               }
+              console.log(that.msgData)
             } else {
               console.log('请求失败')
             }
@@ -769,6 +776,12 @@
         this.$router.back();
         this.IO.emit('leaveroomevent');
       },
+      inputBlur () {
+        setTimeout(() => {
+          console.log(99)
+          document.body.scrollTop = 0
+        }, 20)
+      },
       scrollTo() {
         var that = this;
         setTimeout(function () {
@@ -810,7 +823,8 @@
           this.showMeaage('您的精彩币余额不足，请充值！')
           return;
         }
-        this.awardShow = false;
+        this.awardShow = false
+        this.awardNum = ''
         var that = this;
         var awardListData = {
           msg: '您将打赏老师' + that.awardNum + '精彩币！',
@@ -850,11 +864,12 @@
       },
       goAward() {
         if (this.shareFn.isLogin()) {
-          this.awardShow = true;
+          this.awardShow = true
         }
       },
       awardHide() {
-        this.awardShow = false;
+        this.awardShow = false
+        this.awardNum = ''
       },
       visitorFn() {
         if (!this.shareFn.isLogin() && !inXCX) {
@@ -960,7 +975,7 @@
       }
     },
     components: {
-      mainHeader, payDialog, previewImg, VueQArt, guessItem, guessDialog
+      mainHeader, payDialog, previewImg, VueQArt, guessItem, guessDialog, roomNav
     }
   }
 </script>
@@ -1013,60 +1028,6 @@
       float: left;
       width: 100%;
       min-height: 100%;
-    }
-
-    .room-nav {
-      width: 100%;
-      height: 40px;
-      line-height: 40px;
-      background: @whites;
-
-      .selector {
-        width: 100%;
-        line-height: 40px;
-        font-size: 0.13rem;
-        height: 40px;
-        overflow: hidden;
-        user-select: none;
-      }
-
-      .selector-open {
-        height: 132px;
-        overflow: auto;
-      }
-
-      .selector li {
-        height: 40px;
-        width: 20%;
-        border-bottom: 1px solid @bordercolor;
-        float: left;
-        text-align: center;
-      }
-
-      .selector .on {
-        color: @reds;
-      }
-
-      .selector .on span {
-        border-color: #ffd842;
-        color: #ffd842;
-      }
-
-      .people {
-        display: inline-block;
-        font-size: 0.14rem;
-        color: #d2d2d2;
-      }
-
-      .people:before {
-        content: "";
-        width: 21px;
-        height: 18px;
-        background: url("../../common/img/pp.png") no-repeat left center;
-        background-size: 18px 14px;
-        padding-left: 25px;
-      }
-
     }
 
     .msg-list {
@@ -1582,7 +1543,7 @@
 
   .award-balance {
     font-size: 0.1rem;
-    margin: 10px 0 30px 0;
+    margin: 10px 0;
   }
 
   .wx_dialog {
@@ -1680,5 +1641,26 @@
     font-size: 0.12rem;
     line-height: 30px;
     color: @assistcolor;
+  }
+
+  .go-recharge-award{
+    position:relative;
+    margin-bottom: 20px;
+    display: block;
+    a{
+      color: #e9311d;
+    }
+  }
+  .go-recharge-award:after{
+    content: '';
+    position: absolute;
+    top: 50%;
+    margin-top: -5px;
+    width: 9px;
+    height: 9px;
+    border-right:1px solid #e9311d;
+    border-bottom:1px solid #e9311d;
+    transform: rotate(-45deg);
+    transform-origin: center;
   }
 </style>

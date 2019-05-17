@@ -8,44 +8,44 @@
         <p class="tim">{{item.userName}} {{item.createTime.substr(5,11)}}</p>
         <div class="dialog">
           <dl class="teams"
-              :class="{'teams-over': item.content.status == 3 || item.content.status == 4}">
+              :class="{'teams-over': JSON.parse(item.content).status == 3 || JSON.parse(item.content).status == 4}">
             <dt>
               <img src="../../../common/img/d_cup.png" alt="">
             </dt>
             <dd>
-              <div class="cup-name">{{item.content.match_teams}}</div>
-              <div class="cup-tim">【{{item.content.match_league}}】{{item.content.end_time.substr(5,11)}}</div>
-              <div v-if="item.content.value1_purper != undefined" class="guess-goal">
-                <span>{{item.content.handicap_name }}</span>
-                <span>{{item.content.handicap_plan}}</span>
-                <span>({{item.content.value1_name }}</span>
-                <span>{{ parseInt(item.content.value1_purper)}}%,</span>
-                <span>{{item.content.value2_name}}</span>
-                <span>{{parseInt(item.content.value2_purper)}}%)</span>
+              <div class="cup-name">{{JSON.parse(item.content).match_teams}}</div>
+              <div class="cup-tim">【{{JSON.parse(item.content).match_league}}】{{JSON.parse(item.content).end_time.substr(5,11)}}</div>
+              <div v-if="JSON.parse(item.content).value1_purper != undefined" class="guess-goal">
+                <span>{{JSON.parse(item.content).handicap_name }}</span>
+                <span>{{JSON.parse(item.content).handicap_plan}}</span>
+                <span>({{JSON.parse(item.content).value1_name }}</span>
+                <span>{{ parseInt(JSON.parse(item.content).value1_purper)}}%,</span>
+                <span>{{JSON.parse(item.content).value2_name}}</span>
+                <span>{{parseInt(JSON.parse(item.content).value2_purper)}}%)</span>
               </div>
-              <div v-else class="guess-goal">{{item.content.handicap_name}} {{item.content.handicap_plan}}</div>
+              <div v-else class="guess-goal">{{JSON.parse(item.content).handicap_name}} {{JSON.parse(item.content).handicap_plan}}</div>
             </dd>
           </dl>
           <div class="guess-item">
-            <template v-if="item.content.status == 1">
+            <template v-if="JSON.parse(item.content).status == 1">
               <p>
-                <span @click="guessTeamClick(item.content, item.content.value2_name)">{{item.content.value2_name}} {{item.content.value2_plan}}</span>
-                <span @click="guessTeamClick(item.content, item.content.value1_name)">{{item.content.value1_name}} {{item.content.value1_plan}}</span>
+                <span @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name)">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
+                <span @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name)">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
               </p>
             </template>
-            <template v-if="item.content.status==2">
+            <template v-if="JSON.parse(item.content).status==2">
               <p class="onlyline">水位变化，暂停投注</p>
             </template>
-            <template v-if="item.content.status==3">
+            <template v-if="JSON.parse(item.content).status==3">
               <p class="onlyline">投注停止</p>
             </template>
-            <template v-if="item.content.status==4">
-              <p class="result onlyline">结果：<span>{{item.content.match_result || item.content.match_rdesc}}</span></p>
+            <template v-if="JSON.parse(item.content).status==4">
+              <p class="result onlyline">结果：<span>{{JSON.parse(item.content).match_result || JSON.parse(item.content).match_rdesc}}</span></p>
             </template>
           </div>
           <div class="me-val"
-               v-if="item.content.guessingPlanSaleList != undefined && item.content.guessingPlanSaleList.length>0"
-               v-html="jointStr(item.content)">
+               v-if="JSON.parse(item.content).guessingPlanSaleList != undefined && JSON.parse(item.content).guessingPlanSaleList.length>0"
+               v-html="jointStr(JSON.parse(item.content))">
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default {
     }
   },
   created () {
-    this.item.content = JSON.parse(this.item.content)
+  
   },
   methods: {
     jointStr(data) {

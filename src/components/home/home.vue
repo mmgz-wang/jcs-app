@@ -25,7 +25,7 @@
           <div class="loading-container" v-show="!articleDataList.length">
             <loading></loading>
           </div>
-
+          <div>
             <banner v-if="banners.length>0" :bannerData = "banners" @bannerClick="bannerClick"></banner>
             <portal @portalClick="portalClick" :portals = "portals"></portal>
             <template v-for="item in articleDataList">
@@ -40,7 +40,11 @@
                 @guessTeamClick="guessTeamClick"
                 :item="item">
               </guess-item>
+              <room-list 
+                :item="item"
+                v-if="item.otype == 3"></room-list>
             </template>
+            </div>
           <p pullup>{{pullUpText}}</p>
         </div>
     </scroll>
@@ -61,6 +65,7 @@ import articleList from 'base/articlelist/articlelist'
 import guessItem from 'base/guessitem/guessitem'
 import guessMixin from 'base/mixins/guess_mixin'
 import guessDialog from 'base/guessdialog/guessdialog'
+import roomList from 'base/roomlist-item/roomlist-item'
 import query from 'querystring'
 export default {
   mixins: [guessMixin],
@@ -88,7 +93,8 @@ export default {
     Scroll,
     loading,
     guessDialog,
-    guessItem
+    guessItem,
+    roomList
 	},
   created(){
 
@@ -104,7 +110,6 @@ export default {
       this.lastArticleId = 0;
       this.pullDownText = '努力加载中 ...';
       this.getData();
-
     },
     pullingUpFn(scroll){
       this.types = 1;
@@ -265,9 +270,10 @@ export default {
     }
   },
   watch: {
-    $routerPath :{
+    $route :{
       handler: function(news,old) {
-        
+        console.log(news)
+        console.log(old)
       }
     }
   }

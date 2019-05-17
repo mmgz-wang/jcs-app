@@ -24,7 +24,7 @@
       </div>
       <div class="money_box">
         精彩币：<span  id="money">{{userData.Money}}</span>
-        <!-- <span v-if="isLogin()" class="add_money" id="recharge" style="display: block;" @click="goaRecharge()">充值</span> -->
+        <span v-if="isLogin()" class="add_money" id="recharge" style="display: block;" @click="goaRecharge()">充值</span>
       </div>
       <div class="menulist">
         <div class="menu-wrap">
@@ -774,10 +774,6 @@
       background-size: 24px !important;
       color: #ff7e00 !important;
     }
-    .signon dd{
-      color: ;
-    }
-
     .picaudit{
       font-size: 10px;
       color: #666666 !important;

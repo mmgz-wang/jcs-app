@@ -26,11 +26,11 @@ module.exports = {
         // roomMsgurls: 'http://182.18.76.155:8822',
         // matchListversion: '1.1.5',
         host: "http://jnv.jingcaishuo.net/",
-        //host: "http://10.8.0.10:9095",
+        // host: "http://10.8.0.10:9095",
         ioUrl: 'https://tchat.jingcaishuo.com/',
         roomMsgurls: 'https://tchat.jingcaishuo.com/'
       }
-    }else{
+    } else {
       return {
         host: "https://www.jingcaishuo.com",
         nativeHost: 'https://api.jingcaishuo.com/',
@@ -79,14 +79,12 @@ module.exports = {
     } else if (ua.match(/\sQQ/i) == " qq") {
       app = "qq";
     }
-
     return {
       'type': device_type,
       'ver': system_version,
       'app': app
     }
   }
-
 }
 
 
