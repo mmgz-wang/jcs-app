@@ -4,17 +4,17 @@
       <img style="width: 0;height: 0;opacity: 0;display: none;"
            src="http://www.jingcaishuo.com/mandarin_h5_html/aboutour_mandarin/img/log.png" alt="">
       <main-header v-show="!inXCX" @setMsg="setMsg" @back="back" :headerData="headerData"></main-header>
-      <room-nav 
+      <room-nav
         :roomUsers="roomUsers"
         @guessSelect="guessSelect"
         @selector="selector"></room-nav>
-      
+
       <div ref="scrollWraper" class="msg-list" :class="{inwxxcx:inXCX}">
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
-            <section v-if="item.type != 2" 
-    
+            <section v-if="item.type != 2"
+
               :id="item.messageId"
               :class="{
                 left:item.isLecturer||userName!=item.userName,
@@ -241,6 +241,11 @@
       } else {
         this.loadMsg();
       }
+
+      const script = document.createElement('script');
+      script.src = 'https://s23.cnzz.com/z_stat.php?id=1277629553&web_id=1277629553';
+      script.language = 'JavaScript';
+      document.body.appendChild(script)
       // setTimeout(() => {
       //   this.selector(1)
       // }, 3000);
@@ -970,6 +975,13 @@
         handler: function (old, news) {
           if (this.$route.name == 'roomlist') {
             this.IO.emit('leaveroomevent');
+          }
+
+          if (window._czc) {
+            let location = window.location
+            let contentUrl = location.pathname + location.hash
+            let refererUrl = '/'
+            window._czc.push(['_trackPageview', contentUrl, refererUrl])
           }
         }
       }

@@ -95,7 +95,7 @@ import Common from 'common/js/common'
                 res.data.NikeName,
                 1
 							);
-							this.goWhere()
+							this.goWhere(res.data.UserId);
 							function setCookie(c_name, value, expiredays){
 								var exdate=new Date();
 								exdate.setDate(exdate.getDate() + expiredays);
@@ -120,7 +120,7 @@ import Common from 'common/js/common'
           })
 				})
 			},
-			goWhere () {
+			goWhere (userId) {
 				let qstr = this.$route.query
 				if (!qstr.hasOwnProperty('queryData')) {
 					this.$router.back();
@@ -130,7 +130,7 @@ import Common from 'common/js/common'
 				if (qstr.length > 1) {
 					this.$router.push({path:`/roomlist?queryData=${this.$route.query.queryData}`});
 				} else if (qstr.length === 1) {
-					this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}` });
+					this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}&userId=`+userId });
 				} else {
 					this.$router.push('roomlist')
 					// this.$router.back();
