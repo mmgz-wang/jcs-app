@@ -39,6 +39,11 @@
               <span class="my-txt">我的购买</span>
               <img class="my-rico" src="../../common/img/r_ico.png">
             </li>
+            <li @click="myPageClick('guess')" id="guess">
+              <img src="../../common/img/7.png" alt=""/>
+              <span class="my-txt">我的竞猜</span>
+              <img class="my-rico" src="../../common/img/r_ico.png">
+            </li>
             <li @click="myPageClick('mesasge')" id="mesasge">
               <img src="../../common/img/2.png" alt=""/>
               <span class="my-txt">我的私信</span>
@@ -333,6 +338,12 @@
             return;
           }
           this.$router.push({name: 'myCollect'})
+        } else if (s == 'guess') {
+          if (!this.isLogin()) {
+            this.$router.push({name: 'enter'});
+            return;
+          }
+          this.$router.push({name: 'my_guess'})
         } else if (s == 'present') {
           if (!this.isLogin()) {
             this.$router.push({name: 'enter'});

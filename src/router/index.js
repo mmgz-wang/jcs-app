@@ -104,6 +104,7 @@ export default new Router({
             { path: 'mypresent', name: 'mypresent', component: resolve => require(['../components/my/my_present'],resolve) },
             { path: 'myCollect', name: 'myCollect', component: resolve => require(['../components/my/my_collect'],resolve) },
             { path: 'myBuy', name: 'my_buy', component: resolve => require(['../components/my/my_buy'],resolve) },
+          { path: 'myGuess', name: 'my_guess', component: resolve => require(['../components/my/my_guess'],resolve) },
             { 
                 path: 'myWallet', name: 'my_wallet', component: resolve => require(['../components/my/my_wallet'],resolve),
                 children: [
