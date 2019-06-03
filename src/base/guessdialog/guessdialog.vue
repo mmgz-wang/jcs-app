@@ -50,7 +50,7 @@ export default {
      this.getData()
   },
   mounted () {
-   
+
   },
   methods: {
     subGuess () {
@@ -63,11 +63,17 @@ export default {
         invest_target: this.mychoose,
         purchaseType: 3
       }).then(res => {
+        //console.log("投注返回数据:");
+        //console.log(res);
         if (res.code == '0000') {
           this.layerOpen(res.msg)
           this.money -= this.curIntegralVal * 1
           shareFn.setCookie('money', this.money, 1);
           this.$emit('guessSuccess')
+        }else if(res.code == '4111'){
+          this.layerOpen('投注超额！')
+        }else if(res.code == '4112'){
+          this.layerOpen('不确定投注的是哪方！')
         } else {
           this.layerOpen(res.msg)
         }

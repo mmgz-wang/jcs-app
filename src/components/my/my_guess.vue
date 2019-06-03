@@ -14,7 +14,7 @@
               <div class="leftView">
                 <span class="teams">{{item.match_teams}}</span>
                 <span class="rqinfo">{{item.handicap_name}}：<label class="infov">{{item.handicap_plan}}</label></span>
-                <p class="betp">投注：<label class="infov">{{item.cost}}</label></p>
+                <p class="betp">竞猜额：<label class="infov">{{item.cost}}</label> ({{item.invest_target}})</p>
               </div>
               <div class="rightView">
                 <span v-if="!history" class="guessing">进行中...</span>
@@ -182,7 +182,7 @@
               }
             }
           ).then(function (res) {
-            //  console.log('数据: ' + JSON.stringify(res.data));
+           //  console.log('数据: ' + JSON.stringify(res.data));
             this.loading = false;
             if (res.data != null && res.data.length > 0) {
               this.pullUpShow = true;
