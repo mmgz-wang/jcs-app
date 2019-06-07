@@ -14,7 +14,9 @@
             </dt>
             <dd>
               <div class="cup-name">{{JSON.parse(item.content).match_teams}}</div>
-              <div class="cup-tim">【{{JSON.parse(item.content).match_league}}】{{JSON.parse(item.content).end_time.substr(5,11)}}</div>
+              <div class="cup-tim">
+                【{{JSON.parse(item.content).match_league}}】{{JSON.parse(item.content).end_time.substr(5,11)}}
+              </div>
               <div v-if="JSON.parse(item.content).value1_purper != undefined" class="guess-goal">
                 <span>{{JSON.parse(item.content).handicap_name }}</span>
                 <span>{{JSON.parse(item.content).handicap_plan}}</span>
@@ -23,24 +25,29 @@
                 <span>{{JSON.parse(item.content).value2_name}}</span>
                 <span>{{parseInt(JSON.parse(item.content).value2_purper)}}%)</span>
               </div>
-              <div v-else class="guess-goal">{{JSON.parse(item.content).handicap_name}} {{JSON.parse(item.content).handicap_plan}}</div>
+              <div v-else class="guess-goal">{{JSON.parse(item.content).handicap_name}}
+                {{JSON.parse(item.content).handicap_plan}}
+              </div>
             </dd>
           </dl>
           <div class="guess-item">
             <template v-if="JSON.parse(item.content).status == 1">
               <p>
-                <span @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name)">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
-                <span @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name)">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
+                <span
+                  @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name,JSON.parse(item.content).value2_plan,'down')">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
+                <span
+                  @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name,JSON.parse(item.content).value1_plan,'up')">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
               </p>
             </template>
             <template v-if="JSON.parse(item.content).status==2">
-              <p class="onlyline">水位变化，暂停投注</p>
+              <p class="onlyline">水位变化，暂停竞猜</p>
             </template>
             <template v-if="JSON.parse(item.content).status==3">
-              <p class="onlyline">投注停止</p>
+              <p class="onlyline">竞猜停止</p>
             </template>
             <template v-if="JSON.parse(item.content).status==4">
-              <p class="result onlyline">结果：<span>{{JSON.parse(item.content).match_result || JSON.parse(item.content).match_rdesc}}</span></p>
+              <p class="result onlyline">结果：<span>{{JSON.parse(item.content).match_result || JSON.parse(item.content).match_rdesc}}</span>
+              </p>
             </template>
           </div>
           <div class="me-val"
@@ -54,45 +61,47 @@
 </template>
 
 <script>
-export default {
-  name: 'guessitem',
-  props: {
-    item: {
-      type: Object,
-      default: () => {}
-    }
-  },
-  data () {
-    return {
-
-    }
-  },
-  created () {
-  
-  },
-  methods: {
-    jointStr(data) {
-      var str = '';
-      for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
-        str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5, 11).replace(/-/, "/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
-        if (data.status == 4) {
-          str += `获得 <span>${data.guessingPlanSaleList[i].result}`
-        } else {
-          str += `投注 <span>${data.guessingPlanSaleList[i].cost}`
+  export default {
+    name: 'guessitem',
+    props: {
+      item: {
+        type: Object,
+        default: () => {
         }
-        str += `</span> 精彩币</p>`
       }
-      return str;
     },
-    guessTeamClick (item, meval) {
-      this.$emit('guessTeamClick', item, meval)
+    data() {
+      return {}
+    },
+    created() {
+
+    },
+    methods: {
+      jointStr(data) {
+        var str = '';
+        for (var i = 0; i < data.guessingPlanSaleList.length; i++) {
+          str += `<p><i>${data.guessingPlanSaleList[i].cdate.substr(5, 11).replace(/-/, "/")}</i>我选 ${data.guessingPlanSaleList[i].invest_target}`
+          if (data.status == 4) {
+            str += `获得 <span>${data.guessingPlanSaleList[i].result}`
+          } else {
+            str += `投注 <span>${data.guessingPlanSaleList[i].cost}`
+          }
+          str += `</span> 精彩币</p>`
+        }
+        return str;
+      },
+      guessTeamClick(item, opeName, optPlan, upDown) {
+        //console.log("item=="+JSON.stringify(this.item));
+        //console.log("聊天室赛事竞猜点击。。。。。。");
+        this.$emit('guessTeamClick', item, opeName, optPlan, upDown)
+      }
     }
   }
-}
 </script>
 
 <style lang="less" type="text/less" scoped>
   @import '../../../common/less/base.less';
+
   .guess-section {
     width: 100%;
     height: auto;

@@ -54,7 +54,7 @@ export default {
 	name: 'room-list',
 	data (){
 		return {
-			roomPageIndex: 0,
+			roomPageIndex: 1,
 			roomListData: [],
 			types: 0,
 			headerData: {
@@ -67,7 +67,6 @@ export default {
 			pullUpLoad: {threshold: 0, txt:{more: "", noMore: ""} },
 			pullDownText: '下拉刷新！',
 			pullUpText: '上拉加载更多！',
-			roomPageIndex: 0,
 			informText: '开播后通知我',
 			pageRows: 20,
 			lecturerId: '',
@@ -105,7 +104,7 @@ export default {
 		},
 		pullingDownFn(scroll){
 		  this.types = 0;
-		  this.roomPageIndex = 0;
+		  this.roomPageIndex = 1;
 		  this.pullDownText = '努力加载中 ...';
 		  this.getData();
 

@@ -70,6 +70,8 @@ export default {
       getDataList('/assets/listGuessingPlan', {
         planIdx: this.planIdx
       }).then(res => {
+        console.log('获取竞猜列表');
+        console.log(res);
         if (res.data.length < 20) {
           this.noMore = true
         }

@@ -12,6 +12,7 @@ const guessMixins = {
   },
   methods: {
     guessTeamClick () {
+      //console.log('聊天室进来的');
       if (sharefn.isLogin()) {
         this.$refs.guessDialog.show(arguments)
       } else {

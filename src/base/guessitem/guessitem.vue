@@ -11,21 +11,21 @@
       </div>
       <div class="guess-center">{{item.handicap_name}}<span style="color: #e9311d">{{item.handicap_plan}}</span>
         <template v-if="item.status==1">
-          <span btn @click="teamClick(item, item.value2_name)">{{item.value2_name}} {{item.value2_plan}}</span>
-          <span btn style="margin-right: 15px" @click="teamClick(item, item.value1_name)">{{item.value1_name}} {{item.value1_plan}}</span>
+          <span btn @click="teamClick(item, item.value2_name,item.value2_plan,'down')">{{item.value2_name}} {{item.value2_plan}}</span>
+          <span btn style="margin-right: 15px" @click="teamClick(item, item.value1_name,item.value1_plan,'up')">{{item.value1_name}} {{item.value1_plan}}</span>
         </template>
         <template v-if="item.status==2">
-          <i>水位变化，暂停投注</i>
+          <i>水位变化，暂停竞猜</i>
         </template>
         <template v-if="item.status==3">
-          <i>投注停止</i>
+          <i>竞猜停止</i>
         </template>
         <template v-if="item.status==4">
           <i res> 结果：<span>{{item.match_rdesc}}</span></i>
         </template>
       </div>
       <div class="guess-bottom" v-if="item.value1_purper != undefined && (parseInt(item.value1_purper) != 0 || parseInt(item.value2_purper) != 0)">
-        <p>{{item.value1_name}}投注量：{{parseInt(item.value1_purper)}}%，{{item.value2_name}}投注量：{{parseInt(item.value2_purper)}}%</p>
+        <p>{{item.value1_name}}竞猜量：{{parseInt(item.value1_purper)}}%，{{item.value2_name}}竞猜量：{{parseInt(item.value2_purper)}}%</p>
       </div>
     </div>
   </div>
@@ -41,8 +41,11 @@ export default {
     }
   },
   methods: {
-    teamClick (item, val) {
-      this.$emit('guessTeamClick',item, val)
+    teamClick (item, opeName,optPlan,upDown) {
+      // console.log("item=="+JSON.stringify(this.item));
+      // console.log(item);
+      // console.log(opeName+",,,"+optPlan+",,"+upDown);
+      this.$emit('guessTeamClick',item, opeName,optPlan,upDown)
     }
   }
 }
