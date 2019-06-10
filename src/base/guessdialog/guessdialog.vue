@@ -107,8 +107,8 @@
       },
       //确认按钮
       subGuess() {
-        if (this.curIntegralVal < 2) {
-          this.layerOpen('最小额度为2');
+        if (this.curIntegralVal < 10) {
+          this.layerOpen('最小额度为10');
           return false;
         }
         if (this.checkBetMoneyLimit()) {
