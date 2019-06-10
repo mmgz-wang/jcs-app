@@ -107,12 +107,12 @@
       },
       //确认按钮
       subGuess() {
-        if (this.checkBetMoneyLimit()) {
-          this.layerOpen(this.betMoneyLimitToolsMsg);
-          return false;
-        }
         if (this.curIntegralVal < 2) {
           this.layerOpen('最小额度为2');
+          return false;
+        }
+        if (this.checkBetMoneyLimit()) {
+          // this.layerOpen(this.betMoneyLimitToolsMsg);
           return false;
         }
         //最后校验盘口水位是否有变化
