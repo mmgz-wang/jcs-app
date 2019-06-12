@@ -153,7 +153,7 @@ export default {
       if (qstr.length > 1) {
         this.$router.push({path:`/roomlist?queryData=${this.$route.query.queryData}` });
       } else if (qstr.length === 1) {
-        this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}` });
+        this.$router.push({path:`/roomindex?roomId=${qstr[0].roomId}&pic=${qstr[0].pic}&lecturerName=${encodeURI(qstr[0].lecturerName)}&roomName=${encodeURI(qstr[0].roomName)}&roomPrice=${encodeURI(qstr.roomPrice)}` });
       } else {
         this.$router.push('roomlist')
       }

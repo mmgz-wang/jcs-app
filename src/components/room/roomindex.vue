@@ -15,8 +15,8 @@
           <template v-for="item in msgData">
             <section v-if="item.type != 2"
 
-              :id="item.messageId"
-              :class="{
+                     :id="item.messageId"
+                     :class="{
                 left:item.isLecturer||userName!=item.userName,
                 right:!item.isLecturer&&userName==item.userName,
                 te_left:item.isLecturer}">
@@ -46,10 +46,11 @@
                             imgdialog:item.content.indexOf('jmsgimg')>0
                         }" v-html="item.content"></div>
                   <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
-                        :class="{
+                       :class="{
                           dialog:item.isLecturer||userName!=item.userName,
                           rdialog:!item.isLecturer&&userName==item.userName
-                        }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic" src="../../common/img/lop.png">
+                        }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
+                                                        src="../../common/img/lop.png">
                   </div>
                   <div v-if="item.payable && !item.hasPurchased" @click="openMsg(item.messageId,item.price)"
                        class="dialog dialog-close">
@@ -95,7 +96,8 @@
             <span class="award-hide" @click="awardHide"></span>
           </div>
           <div class="award-num">
-            <p><input @blur="inputBlur" type="number" placeholder="请输入要打赏的精彩币数额" v-model="awardNum" name="award-num"></p>
+            <p><input @blur="inputBlur" type="number" placeholder="请输入要打赏的精彩币数额" v-model="awardNum" name="award-num">
+            </p>
           </div>
           <div class="award-btn">
             <button type="button" @click="goPayAward()" :class="{awardgary:awardNum<=0}">确认</button>
@@ -140,6 +142,7 @@
   import payDialog from 'base/paydialog/paydialog'
   import previewImg from 'base/previewimg/preview-img'
   import guessItem from './chatitem/guessitem'
+  import wxApi from 'common/js/wxapi'
 
   import VueQArt from 'vue-qart'
 
@@ -205,7 +208,7 @@
       }
     },
     created() {
-      if ( window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase()) ) {
+      if (window.__wxjs_environment === 'miniprogram' || /miniProgram/i.test(navigator.userAgent.toLowerCase())) {
         this.inXCX = true
         this.userId = this.$router.currentRoute.query.userId
         this.token = this.shareFn.wxGetUserT(this.userId, this.$router.currentRoute.query.token)
@@ -234,6 +237,8 @@
       this.token = token
       this.toData.userId = userId
       this.toData.token = token
+
+      this.wxInit();
     },
     mounted() {
       if (Common.getDeviceinfo().type == 'pc') {
@@ -241,7 +246,6 @@
       } else {
         this.loadMsg();
       }
-
       const script = document.createElement('script');
       script.src = 'https://s23.cnzz.com/z_stat.php?id=1277629553&web_id=1277629553';
       script.language = 'JavaScript';
@@ -252,6 +256,38 @@
     },
     computed: {},
     methods: {
+      //微信初始化
+      wxInit() {
+        wxApi.wxRegister();
+        let that = this;
+        wx.ready(function () {
+          that.wxShareAppMessage();
+          that.wxShareTimeline();
+        });
+      },
+      //分享到朋友圈
+      wxShareTimeline() {
+        let option = {
+          title: this.$router.currentRoute.query.lecturerName,
+          link: location.href,
+          imgUrl: this.$router.currentRoute.query.pic,
+          success: () => {
+          }
+        };
+        wxApi.ShareTimeline(option);
+      },
+      //分享给朋友
+      wxShareAppMessage() {
+        let option = {
+          title: this.$router.currentRoute.query.lecturerName,
+          desc: this.$router.currentRoute.query.roomName,
+          link: location.href,
+          imgUrl: this.$router.currentRoute.query.pic,
+          success: () => {
+          }
+        };
+        wxApi.ShareAppMessage(option);
+      },
       coding(str) {
         return unescape(str.replace(/&#x/g, '%u').replace(/;/g, ''));
       },
@@ -470,7 +506,7 @@
         this.range = s;
         this.scrollTo();
       },
-      guessSelect () {
+      guessSelect() {
         this.toData = {
           limit: 100,
           userId: this.userId,
@@ -781,7 +817,7 @@
         this.$router.back();
         this.IO.emit('leaveroomevent');
       },
-      inputBlur () {
+      inputBlur() {
         setTimeout(() => {
           console.log(99)
           document.body.scrollTop = 0
@@ -877,7 +913,7 @@
         this.awardNum = ''
       },
       visitorFn() {
-        if (!this.shareFn.isLogin() && !inXCX) {
+        if (!this.shareFn.isLogin() && !this.inXCX) {
           this.$router.push('enter')
         }
       },
@@ -953,7 +989,7 @@
           this.showMeaage('直播间休息啦，您也快快休息吧！')
         }
       },
-      guessSuccess () {
+      guessSuccess() {
 
       }
     },
@@ -1315,6 +1351,7 @@
       bottom: 0;
       padding-right: 15px;
       z-index: 99;
+
       p {
         flex-grow: 1;
         height: 100%;
@@ -1648,6 +1685,7 @@
 
     }
   }
+
   .load_pc {
     text-align: center;
     font-size: 0.12rem;
@@ -1655,23 +1693,25 @@
     color: @assistcolor;
   }
 
-  .go-recharge-award{
-    position:relative;
+  .go-recharge-award {
+    position: relative;
     margin-bottom: 20px;
     display: block;
-    a{
+
+    a {
       color: #e9311d;
     }
   }
-  .go-recharge-award:after{
+
+  .go-recharge-award:after {
     content: '';
     position: absolute;
     top: 50%;
     margin-top: -5px;
     width: 9px;
     height: 9px;
-    border-right:1px solid #e9311d;
-    border-bottom:1px solid #e9311d;
+    border-right: 1px solid #e9311d;
+    border-bottom: 1px solid #e9311d;
     transform: rotate(-45deg);
     transform-origin: center;
   }

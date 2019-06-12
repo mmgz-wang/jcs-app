@@ -384,7 +384,7 @@
       gooRoom: function(item){
         console.log(item)
         if(this.shareFn.isLogin()){
-          this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
+          this.$router.push({path:`/roomindex?roomId=${item.roomId}&pic=${item.roomPic}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
         }else{
           this.$router.push({ name: 'enter'});
         }

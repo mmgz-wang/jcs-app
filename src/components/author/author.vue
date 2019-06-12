@@ -476,7 +476,7 @@ export default {
       if (this.inXCX) {
         let url = ''
         if (this.wxLogin) {
-          url = `/pages/chartroom/chartroom?roomId=${item.roomId}&lecturerName=${encodeURI(
+          url = `/pages/chartroom/chartroom?roomId=${item.roomId}&pic=${item.roomPic}&lecturerName=${encodeURI(
               item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${
                 encodeURI(item.roomPrice)}&startTime=${item.startTime}`
                 wx.miniProgram.navigateTo({url: url})
@@ -495,7 +495,7 @@ export default {
       } else if (!this.inXCX) {
         if (this.shareFn.isLogin()) {
           this.$router.push({
-            path: `/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(
+            path: `/roomindex?roomId=${item.roomId}&pic=${item.roomPic}&lecturerName=${encodeURI(
               item.lecturerName
             )}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(
               item.roomPrice

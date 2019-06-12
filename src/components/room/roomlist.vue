@@ -170,7 +170,7 @@ export default {
             this.showMeaage('您还没有登录！')
           }
 				}else{
-					this.$router.push({path:`/roomindex?roomId=${item.roomId}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
+					this.$router.push({path:`/roomindex?roomId=${item.roomId}&pic=${item.roomPic}&lecturerName=${encodeURI(item.lecturerName)}&roomName=${encodeURI(item.roomName)}&roomPrice=${encodeURI(item.roomPrice)}&startTime=${item.startTime}` });
 				}
 			/*}else{
 				if(item.roomStatus == 2 || item.roomStatus == 1){
