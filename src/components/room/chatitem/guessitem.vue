@@ -34,9 +34,9 @@
             <template v-if="JSON.parse(item.content).status == 1">
               <p>
                 <span
-                  @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name,JSON.parse(item.content).value2_plan,'down')">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
-                <span
                   @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value1_name,JSON.parse(item.content).value1_plan,'up')">{{JSON.parse(item.content).value1_name}} {{JSON.parse(item.content).value1_plan}}</span>
+                <span
+                  @click="guessTeamClick(JSON.parse(item.content), JSON.parse(item.content).value2_name,JSON.parse(item.content).value2_plan,'down')">{{JSON.parse(item.content).value2_name}} {{JSON.parse(item.content).value2_plan}}</span>
               </p>
             </template>
             <template v-if="JSON.parse(item.content).status==2">
@@ -91,8 +91,8 @@
         return str;
       },
       guessTeamClick(item, opeName, optPlan, upDown) {
-        //console.log("item=="+JSON.stringify(this.item));
-        //console.log("聊天室赛事竞猜点击。。。。。。");
+       // console.log("聊天室赛事竞猜点击。。。。。。");
+       // console.log(item);
         this.$emit('guessTeamClick', item, opeName, optPlan, upDown)
       }
     }

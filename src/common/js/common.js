@@ -17,7 +17,7 @@ module.exports = {
 		}, !1), o();
 	},
   baseURI: function () {
-	  //打包改为===   //开发 ===代表测试环境,!==代表生产环境
+	  //打包===生产环境,!==测试环境   //开发 ===代表测试环境,!==代表生产环境
     if(process.env.NODE_ENV === "development"){
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",

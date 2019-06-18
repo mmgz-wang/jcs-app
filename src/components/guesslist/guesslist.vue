@@ -35,6 +35,7 @@ export default {
   name: 'guesslist',
   data () {
     return {
+      resLen:0,
       planIdx: 1,
       dataList: [],
       moneyArr: [],
@@ -70,9 +71,10 @@ export default {
       getDataList('/assets/listGuessingPlan', {
         planIdx: this.planIdx
       }).then(res => {
-        console.log('获取竞猜列表');
-        console.log(res);
-        if (res.data.length < 20) {
+        console.log('获取竞猜列表数量'+res.data.length);
+        this.resLen = res.data.length;
+       // console.log(res);
+        if (res.data.length == 0) {
           this.noMore = true
         }
         if (this.types === 0) {
@@ -109,7 +111,9 @@ export default {
     },
     pullingUpFn(){
       this.types = 1;
-      this.planIdx += 20
+     // this.planIdx += 20
+      this.planIdx +=this.resLen;
+      console.log('请求的planIdx数量 '+this.planIdx);
       if (this.noMore) {
         this.pullUpText = '已经是全部竞猜了...'
         return false
