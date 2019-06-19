@@ -17,6 +17,7 @@ export default {
     },
     methods: {
         portalClick(item){
+           // console.log(item);
             this.$emit('portalClick', item)
         }
     }

@@ -249,6 +249,11 @@
           this.$router.push({
             path: `guesslist`
           })
+        } else if(item.name == "椰子分"){
+          this.$router.push({
+            path: `/articledetail/?id=889804`,
+            props: {id: 889804}
+          })
         }
       },
       goarticle(item) {
