@@ -60,7 +60,8 @@
         betMoneyLimitTipMsg: '',
         betMoneyLimitToolsMsg: '超出限额，您可以考虑反向竞猜或联系客服！',
         active: false,
-        money: ''
+        money: '',
+        targetSource: ''
       }
     },
     created() {
@@ -79,7 +80,7 @@
         this.checkBetMoneyLimit();
       },
       checkBetMoneyLimit() {
-    //    console.log('判断投注额度');
+        // console.log('判断投注额度');
         //判断投注额度
         if (this.mychooseUpDown == 'up') {
           if (this.betLimitData.upMaxGuessBetValue != -1 && this.curIntegralVal > this.betLimitData.upMaxGuessBetValue) {
@@ -152,7 +153,7 @@
 
       },
       finalDataSub() {
-       // console.log('最终数据提交.....');
+        // console.log('最终数据提交.....');
         this.$get('/assets/purchaseGuessing', {
           userId: shareFn.getUserId(),
           Language: 'M',
@@ -162,13 +163,18 @@
           invest_target: this.mychoose,
           purchaseType: 3
         }).then(res => {
-          //console.log("投注返回数据:");
-          //console.log(res);
+          console.log("投注返回数据:");
+          console.log(res);
           if (res.code == '0000') {
-            this.layerOpen(res.msg)
+
             this.money -= this.curIntegralVal * 1
             shareFn.setCookie('money', this.money, 1);
             this.$emit('guessSuccess')
+            if (this.targetSource == 'list') {
+              console.log('来源于竞猜列表!');
+            } else {
+              this.layerOpen(res.msg)
+            }
           } else {
             this.layerOpen(res.msg)
           }
@@ -201,8 +207,8 @@
             guess_id: this.item.id
           }
         ).then(res => {
-      //    console.log('获取竞猜额度');
-      //    console.log(res);
+          console.log('获取竞猜额度');
+          console.log(res);
           this.betLimitData = res;
         }, function (res) {
           alert('请求失败！')
@@ -215,9 +221,9 @@
           token: this.shareFn.getSecurityCode(),
           guess_id: this.item.id
         }).then(res => {
-      //    console.log('获取竞猜最新赔率');
+          console.log('获取竞猜最新赔率');
           let newOdds = res;
-      //    console.log(newOdds);
+          console.log(newOdds);
           this.item.handicap_plan = newOdds.handicap_plan;
           if (this.mychooseUpDown == 'up') {
             this.mychoosePlan = newOdds.value1_plan;
@@ -227,9 +233,12 @@
         })
       },
       show() {
-   //     console.log("显示竞猜pop,传递参数:");
-   //     console.log(arguments);
-        // console.log(this.moneyArr);
+        //     console.log("显示竞猜pop,传递参数:");
+        console.log(arguments);
+        console.log(this.moneyArr);
+        if (arguments[1] != undefined && arguments[1] == 'list') {
+          this.targetSource = 'list';
+        }
         this.item = arguments[0][0];
         this.betOdds();
         this.getData();
@@ -353,6 +362,7 @@
       outline: none;
       color: red;
       font-size: 18px;
+      border-radius: 1rem;
       //background: transparent;
     }
 

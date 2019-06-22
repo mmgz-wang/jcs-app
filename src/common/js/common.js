@@ -1,24 +1,24 @@
-
 module.exports = {
-	fontSizeRem: function(){
-		/*
-		 *大字体小字体
-		 */
-		function o() {
-			if(document.documentElement.clientWidth>380){
-				document.documentElement.style.fontSize = /*(document.documentElement.clientWidth > 640 ? 640 : document.documentElement.clientWidth) / 3.2*/110 + "px";
-			}else{
-				document.documentElement.style.fontSize = /*(document.documentElement.clientWidth > 640 ? 640 : document.documentElement.clientWidth) / 3.2*/100 + "px";
-			}
-		}
-		var e = null;
-		window.addEventListener("resize", function() {
-			clearTimeout(e), e = setTimeout(o, 300)
-		}, !1), o();
-	},
+  fontSizeRem: function () {
+    /*
+         *大字体小字体
+         */
+    function o() {
+      if (document.documentElement.clientWidth > 380) {
+        document.documentElement.style.fontSize = /*(document.documentElement.clientWidth > 640 ? 640 : document.documentElement.clientWidth) / 3.2*/110 + "px";
+      } else {
+        document.documentElement.style.fontSize = /*(document.documentElement.clientWidth > 640 ? 640 : document.documentElement.clientWidth) / 3.2*/100 + "px";
+      }
+    }
+
+    var e = null;
+    window.addEventListener("resize", function () {
+      clearTimeout(e), e = setTimeout(o, 300)
+    }, !1), o();
+  },
   baseURI: function () {
-	  //打包===生产环境,!==测试环境   //开发 ===代表测试环境,!==代表生产环境
-    if(process.env.NODE_ENV !== "development"){
+    //打包===生产环境,!==测试环境   //开发 ===代表测试环境,!==代表生产环境
+    if (process.env.NODE_ENV !== "development") {
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",
@@ -45,7 +45,7 @@ module.exports = {
       }
     }
   },
-  getDeviceinfo: function() {
+  getDeviceinfo: function () {
     var device_type = 'other';
     var system_version = null;
     var app = null;

@@ -161,7 +161,7 @@ export default new Router({
     { path: '/forget', name: 'forget', component: resolve => require(['../components/register/Forget'],resolve) },
     { path: '/download', name: 'download', component: resolve => require(['../components/download/download'],resolve) },
     // potral
-    { path: '/guesslist', name: 'guesslist', component: resolve => require(['../components/guesslist/guesslist'],resolve),
+    { path: '/guesslist', name: 'guesslist', component: resolve => require(['../components/guesslist/guesslist2'],resolve),
       meta: {
         iskeep: false,
         isback: false
