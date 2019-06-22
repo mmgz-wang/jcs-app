@@ -13,42 +13,42 @@
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
-            <section v-if="item.type !== 2"
+            <section v-if="item.type != 2"
 
                      :id="item.messageId"
                      :class="{
-                left:item.isLecturer||userName!==item.userName,
-                right:!item.isLecturer&&userName===item.userName,
+                left:item.isLecturer||userName!=item.userName,
+                right:!item.isLecturer&&userName==item.userName,
                 te_left:item.isLecturer}">
               <div v-if="item.isSystem" class="award-section">
                 <span v-html="item.content"></span>
               </div>
               <div v-else>
                 <div :class="{
-                    pic:item.isLecturer||userName!==item.userName,
-                    rpic:!item.isLecturer&&userName===item.userName
+                    pic:item.isLecturer||userName!=item.userName,
+                    rpic:!item.isLecturer&&userName==item.userName
                   }">
                   <img :src="item.userPic" alt="">
                 </div>
                 <div :class="{
-                      msg:item.isLecturer||userName!==item.userName,
-                      rmsg:!item.isLecturer&&userName===item.userName
+                      msg:item.isLecturer||userName!=item.userName,
+                      rmsg:!item.isLecturer&&userName==item.userName
                   }">
                   <p :class="{
-                      tim:item.isLecturer||userName!==item.userName,
-                      rtim:!item.isLecturer&&userName===item.userName
+                      tim:item.isLecturer||userName!=item.userName,
+                      rtim:!item.isLecturer&&userName==item.userName
                     }">{{item.userName}} {{setTime(item.createTime)}}</p>
                   <div v-if="item.content.indexOf('jmsgimg')>0"
                        @click.stop="preview"
                        :class="{
-                            dialog:item.isLecturer || userName !== item.userName,
-                            rdialog:!item.isLecturer && userName===item.userName,
+                            dialog:item.isLecturer || userName != item.userName,
+                            rdialog:!item.isLecturer && userName==item.userName,
                             imgdialog:item.content.indexOf('jmsgimg')>0
                         }" v-html="item.content"></div>
                   <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
                        :class="{
-                          dialog:item.isLecturer||userName!==item.userName,
-                          rdialog:!item.isLecturer&&userName===item.userName
+                          dialog:item.isLecturer||userName!=item.userName,
+                          rdialog:!item.isLecturer&&userName==item.userName
                         }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
                                                         src="../../common/img/lop.png">
                   </div>
@@ -61,7 +61,7 @@
               </div>
             </section>
             <guess-item
-              v-else-if="item.type === 2"
+              v-else-if="item.type == 2"
               @guessTeamClick="guessTeamClick"
               :item="item"></guess-item>
           </template>
@@ -204,7 +204,8 @@
         gusDialogShow: false,
         roomIntegral: 0,
         inXCX: false,
-        chatClosedStatus: false
+        chatClosedStatus: false,
+        messageTimeHandle: null
       }
     },
     created() {
@@ -325,6 +326,7 @@
           console.log(jsonObject)
           that.IO.emit('login', jsonObject);
         });
+
         this.IO.on('ack', function (data) {
           console.log(data)
           that.chatClosedStatus = data.close
@@ -337,8 +339,8 @@
           that.userMoney = data.userMoney;
           that.userName = data.userName;
           that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
-          that.userIntergral = data.userIntergral === undefined ? 0 : data.userIntergral;
-          if (data.code === 999) {
+          that.userIntergral = data.userIntergral == undefined ? 0 : data.userIntergral;
+          if (data.code == 999) {
             if (that.shareFn.isLogin() || that.inXCX) {
               that.$refs.payDialog.show()
               var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
@@ -371,7 +373,7 @@
                 }
               });
             }
-          } else if (data.code === 888) {
+          } else if (data.code == 888) {
             that.$refs.msgInput.placeholder = '直播未开始';
             that.$refs.msgInput.disabled = 'disabled';
             that.isOver = true;
@@ -405,25 +407,59 @@
               }
             });
 
-          } else if (data.code === 887) {
+          } else if (data.code == 887) {
             that.$refs.msgInput.placeholder = '直播已结束';
             that.$refs.msgInput.disabled = "disabled";
             that.isOver = true;
             that.GetRoomMsg();
             that.showMeaage('直播已结束')
-          } else if (data.code === 777) {
+          } else if (data.code == 777) {
             that.showMeaage('请求过于频繁，访问受限！');
+          }  else if (data.code == 500) {
+            that.showMeaage('价格非法的非法请求，请联系管理员!！');
+          } else if (data.code == 100) {
+            that.showMeaage('非法访问，请重新登录！');
+          } else if (data.code == 101) {
+            that.showMeaage('服务器异常请退出聊天室重试！');
+          } else if (data.code == 102) {
+            if (that.messageTimeHandle!=null){
+              clearTimeout(that.messageTimeHandle);
+              that.messageTimeHandle = null;
+            }
+
+            //聊天室消息发送成功
+            var arr = {
+              content: that.$refs.msgInput.value,
+              createTime: that.shareFn.setTime('send'),
+              isLecturer: false,
+              isRecommended: false,
+              messageId: '',
+              payId: 0,
+              payable: false,
+              userName: that.userName,
+              userPic: that.roomPic
+            };
+
+            console.log("zzzzzzzzzzzz");
+            that.msgData.push(arr);
+            that.$refs.msgInput.value = '';
+            that.scrollTo();
           } else {
             //登录成功，有权限
             that.userPic = data.userPic;
             that.GetRoomMsg();
           }
         });
-        this.IO.on('chatevent', function (data) {
 
-          that.chatClosedStatus = data.close
-          if (data.userId !== that.userId) {
-            if (that.newsId === data.messageId) {
+        this.IO.on('chatevent', function (data) {
+          console.log('chatevent recv!!!!!!');
+          console.log(data);
+          that.chatClosedStatus = data.close;
+          if (data.userId != that.userId) {
+            console.log("22222");
+            console.log(that.newsId);
+            console.log(that.messageId);
+            if (that.newsId == data.messageId) {
               return;
             }
             that.msgData.push(data);
@@ -468,23 +504,27 @@
         this.IO.emit('login', jsonObject);
       },
       sendMsg() {
+        if (this.messageTimeHandle!=null){
+          return;
+        }
+
         var that = this;
         if (that.$refs.msgInput.value === '') {
-          return false;
+          return;
         }
         this.chatClosed();
-        var arr = {
-          content: that.$refs.msgInput.value,
-          createTime: this.shareFn.setTime('send'),
-          isLecturer: false,
-          isRecommended: false,
-          messageId: '',
-          payId: 0,
-          payable: false,
-          userName: that.userName,
-          userPic: that.roomPic
-        };
-        this.msgData.push(arr);
+        // var arr = {
+        //   content: that.$refs.msgInput.value,
+        //   createTime: this.shareFn.setTime('send'),
+        //   isLecturer: false,
+        //   isRecommended: false,
+        //   messageId: '',
+        //   payId: 0,
+        //   payable: false,
+        //   userName: that.userName,
+        //   userPic: that.roomPic
+        // };
+        // this.msgData.push(arr);
         //推送给其他人
         var jsonObject = {
           roomId: that.$router.currentRoute.query.roomId,
@@ -492,8 +532,12 @@
           content: that.$refs.msgInput.value
         };
         this.IO.emit('chatevent', jsonObject);
-        that.$refs.msgInput.value = '';
-        that.scrollTo();
+        // that.$refs.msgInput.value = '';
+        // that.scrollTo();
+        this.messageTimeHandle = setTimeout(function(){
+          that.showMeaage('请点击发送按钮重新发送！');
+          that.messageTimeHandle = null;
+        }, 1000);
       },
       selector(s) {
         this.isPullDown = false;
@@ -559,7 +603,7 @@
           Common.baseURI().roomMsgurls + '/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
           that.toData,
           function (res) {
-            if (res.status === 200) {
+            if (res.status == 200) {
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
                 setTimeout(function () {
@@ -570,8 +614,8 @@
                 that.msgData = res.data.messages;
                 that.scrollTo();
               }
-              res.data.isMsgDescriber === 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
-              if (that.isPullDown && res.data.messages.length === 0) {
+              res.data.isMsgDescriber == 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
+              if (that.isPullDown && res.data.messages.length == 0) {
                 layer.open({
                   content: '已无更多历史消息！',
                   time: 2,
@@ -582,7 +626,7 @@
             } else {
               console.log('请求失败')
             }
-            if (that.msgData.length !== 0) {
+            if (that.msgData.length != 0) {
               that.messageIds = that.msgData[0].messageId;
             }
             var downDom = document.querySelector('.custmor-pullDown');
@@ -643,7 +687,7 @@
         })
       },
       firstYesFn() {
-        if (this.ackData.roomPrice === 0 && this.ackData.room_integral > 0) {
+        if (this.ackData.roomPrice == 0 && this.ackData.room_integral > 0) {
           this.integralWay();
         } else {
           this.jcbPay();
@@ -768,7 +812,7 @@
           var mainH = that.$refs.scrollWraper.offsetHeight;
           var innerH = that.$refs.roomMain.offsetHeight;
           var scrollH = innerH - mainH;
-          if (scrollH === wrapEle.scrollTop && movey <= 0) {
+          if (scrollH == wrapEle.scrollTop && movey <= 0) {
             e.preventDefault();
           }
           document.querySelector(".msg-list").WebKitOverflowScrolling = 'auto';
@@ -800,7 +844,7 @@
       laodPcMsg: function () {
         var that = this;
         this.$refs.scrollWraper.addEventListener('scroll', function () {
-          if (this.scrollTop === 0) {
+          if (this.scrollTop == 0) {
             that.loadPcShow = true;
             that.isPullDown = true;
             that.toData = {
@@ -843,18 +887,18 @@
         });
       },
       setPrice: function (data) {
-        if (data.periodList !== undefined) {
-          if (data.roomPrice === 0 && data.periodList.length <= 0) {
+        if (data.periodList != undefined) {
+          if (data.roomPrice == 0 && data.periodList.length <= 0) {
             return '免费';
-          } else if (data.roomPrice !== 0 && data.periodList.length >= 0) {
+          } else if (data.roomPrice != 0 && data.periodList.length >= 0) {
             return data.roomPrice + '精彩币 ' + this.returnPackage(data.periodList);
-          } else if (data.roomPrice !== 0 && data.periodList.length <= 0) {
+          } else if (data.roomPrice != 0 && data.periodList.length <= 0) {
             return data.roomPrice + '精彩币';
           } else {
             return this.returnPackage(data.periodList);
           }
         } else {
-          return data.roomPrice === 0 ? '免费' : data.roomPrice + '精彩币';
+          return data.roomPrice == 0 ? '免费' : data.roomPrice + '精彩币';
         }
       },
       goPayAward() {
