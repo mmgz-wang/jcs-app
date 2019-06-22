@@ -327,6 +327,130 @@
           that.IO.emit('login', jsonObject);
         });
 
+        this.IO.on('messageAck', function (data) {
+          console.log(data)
+          that.chatClosedStatus = data.close
+          that.chatClosed()
+          that.ackData = data;
+          that.roomUsers = data.roomUsers;
+          that.roomPrice = data.roomPrice;
+          that.roomIntegral = data.room_integral;
+          that.roomPic = data.userPic;
+          that.userMoney = data.userMoney;
+          that.userName = data.userName;
+          that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
+          that.userIntergral = data.userIntergral == undefined ? 0 : data.userIntergral;
+          if (data.code == 999) {
+            if (that.shareFn.isLogin() || that.inXCX) {
+              that.$refs.payDialog.show()
+              var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
+              if (data.roomPrice == 0 && data.room_integral > 0) {
+                tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${data.room_integral}</span>积分</p>`;
+              }
+              that.dialogData = {
+                tit: tit,
+                btns: ['确认购买', '返回列表'],
+                yesFn: that.firstYesFn,
+                noFn: that.firstNoFn
+              }
+            } else {
+              layer.open({
+                content: `你还没有登录，登录后方可聊天。`,
+                btn: ['去登录', '返回列表'],
+                shadeClose: false,
+                yes: function (index) {
+
+                  layer.close(index);
+                  that.$router.push('enter');
+                },
+                no: function (index) {
+                  if (that.inXCX) {
+                    wx.miniProgram.navigateBack()
+                  } else {
+                    that.back();
+                  }
+                  layer.close(index);
+                }
+              });
+            }
+          } else if (data.code == 888) {
+            that.$refs.msgInput.placeholder = '直播未开始';
+            that.$refs.msgInput.disabled = 'disabled';
+            that.isOver = true;
+            that.showMeaage('直播未开始');
+            layer.open({
+              content: `<p class="teach-name">${that.roomName}</p><p>主播：${data.roomLecturer}<span style="width:40px;display: inline-block"></span>门票：${that.setPrice(that.roomPrice)}</p><p>直播时间：${data.startTime.substr(5, 11)} ${data.endTime.substr(5, 11)}</p>`,
+              btn: ['返回', '开启后通知我'],
+              shadeClose: false,
+              yes: function (index) {
+                layer.close(index);
+                if (that.inXCX) {
+                  wx.miniProgram.navigateBack()
+                } else {
+                  that.back();
+                }
+              },
+              no: function (index) {
+                that.custmorJsonp(
+                  Common.baseURI().roomMsgurls + "/Room/SubscribeRoom",
+                  {
+                    language: 'M',
+                    userId: that.userId,
+                    roomId: data.roomId
+                  }, function (res) {
+
+                  }, function (err) {
+                    that.showMeaage('设置失败请!');
+                  }
+                );
+                layer.close(index);
+              }
+            });
+
+          } else if (data.code == 887) {
+            that.$refs.msgInput.placeholder = '直播已结束';
+            that.$refs.msgInput.disabled = "disabled";
+            that.isOver = true;
+            that.GetRoomMsg();
+            that.showMeaage('直播已结束')
+          } else if (data.code == 777) {
+            that.showMeaage('请求过于频繁，访问受限！');
+          }  else if (data.code == 500) {
+            that.showMeaage('价格非法的非法请求，请联系管理员!！');
+          } else if (data.code == 100) {
+            that.showMeaage('非法访问，请重新登录！');
+          } else if (data.code == 101) {
+            that.showMeaage('服务器异常请退出聊天室重试！');
+          } else if (data.code == 102) {
+            if (that.messageTimeHandle!=null){
+              clearTimeout(that.messageTimeHandle);
+              that.messageTimeHandle = null;
+            }
+
+            //聊天室消息发送成功
+            var arr = {
+              content: that.$refs.msgInput.value,
+              createTime: that.shareFn.setTime('send'),
+              isLecturer: false,
+              isRecommended: false,
+              messageId: '',
+              payId: 0,
+              payable: false,
+              userName: that.userName,
+              userPic: that.roomPic
+            };
+
+            console.log("zzzzzzzzzzzz");
+            that.msgData.push(arr);
+            that.$refs.msgInput.value = '';
+            that.scrollTo();
+          } else {
+            //登录成功，有权限
+            that.userPic = data.userPic;
+            that.GetRoomMsg();
+          }
+        });
+
         this.IO.on('ack', function (data) {
           console.log(data)
           that.chatClosedStatus = data.close
