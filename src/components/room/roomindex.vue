@@ -13,42 +13,42 @@
         <div ref="roomMain" class="room-main">
           <p class="load_pc" v-show="loadPcShow">加载中...</p>
           <template v-for="item in msgData">
-            <section v-if="item.type != 2"
+            <section v-if="item.type !== 2"
 
                      :id="item.messageId"
                      :class="{
-                left:item.isLecturer||userName!=item.userName,
-                right:!item.isLecturer&&userName==item.userName,
+                left:item.isLecturer||userName!==item.userName,
+                right:!item.isLecturer&&userName===item.userName,
                 te_left:item.isLecturer}">
               <div v-if="item.isSystem" class="award-section">
                 <span v-html="item.content"></span>
               </div>
               <div v-else>
                 <div :class="{
-                    pic:item.isLecturer||userName!=item.userName,
-                    rpic:!item.isLecturer&&userName==item.userName
+                    pic:item.isLecturer||userName!==item.userName,
+                    rpic:!item.isLecturer&&userName===item.userName
                   }">
                   <img :src="item.userPic" alt="">
                 </div>
                 <div :class="{
-                      msg:item.isLecturer||userName!=item.userName,
-                      rmsg:!item.isLecturer&&userName==item.userName
+                      msg:item.isLecturer||userName!==item.userName,
+                      rmsg:!item.isLecturer&&userName===item.userName
                   }">
                   <p :class="{
-                      tim:item.isLecturer||userName!=item.userName,
-                      rtim:!item.isLecturer&&userName==item.userName
+                      tim:item.isLecturer||userName!==item.userName,
+                      rtim:!item.isLecturer&&userName===item.userName
                     }">{{item.userName}} {{setTime(item.createTime)}}</p>
                   <div v-if="item.content.indexOf('jmsgimg')>0"
                        @click.stop="preview"
                        :class="{
-                            dialog:item.isLecturer || userName != item.userName,
-                            rdialog:!item.isLecturer && userName==item.userName,
+                            dialog:item.isLecturer || userName !== item.userName,
+                            rdialog:!item.isLecturer && userName===item.userName,
                             imgdialog:item.content.indexOf('jmsgimg')>0
                         }" v-html="item.content"></div>
                   <div v-else-if="(!item.hasPurchased && !item.payable) || item.hasPurchased"
                        :class="{
-                          dialog:item.isLecturer||userName!=item.userName,
-                          rdialog:!item.isLecturer&&userName==item.userName
+                          dialog:item.isLecturer||userName!==item.userName,
+                          rdialog:!item.isLecturer&&userName===item.userName
                         }">{{coding(item.content)}}<img v-if="item.payable || item.hasPurchased" class="lock-pic"
                                                         src="../../common/img/lop.png">
                   </div>
@@ -61,7 +61,7 @@
               </div>
             </section>
             <guess-item
-              v-else-if="item.type == 2"
+              v-else-if="item.type === 2"
               @guessTeamClick="guessTeamClick"
               :item="item"></guess-item>
           </template>
@@ -241,7 +241,7 @@
       this.wxInit();
     },
     mounted() {
-      if (Common.getDeviceinfo().type == 'pc') {
+      if (Common.getDeviceinfo().type === 'pc') {
         this.laodPcMsg();
       } else {
         this.loadMsg();
@@ -337,8 +337,8 @@
           that.userMoney = data.userMoney;
           that.userName = data.userName;
           that.lecturerName = that.$router.currentRoute.query.lecturerName || data.roomLecturer;
-          that.userIntergral = data.userIntergral == undefined ? 0 : data.userIntergral;
-          if (data.code == 999) {
+          that.userIntergral = data.userIntergral === undefined ? 0 : data.userIntergral;
+          if (data.code === 999) {
             if (that.shareFn.isLogin() || that.inXCX) {
               that.$refs.payDialog.show()
               var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
@@ -371,7 +371,7 @@
                 }
               });
             }
-          } else if (data.code == 888) {
+          } else if (data.code === 888) {
             that.$refs.msgInput.placeholder = '直播未开始';
             that.$refs.msgInput.disabled = 'disabled';
             that.isOver = true;
@@ -390,7 +390,7 @@
               },
               no: function (index) {
                 that.custmorJsonp(
-                  "http://123.206.88.92:8080/Room/SubscribeRoom",
+                  Common.baseURI().roomMsgurls + "/Room/SubscribeRoom",
                   {
                     language: 'M',
                     userId: that.userId,
@@ -405,13 +405,13 @@
               }
             });
 
-          } else if (data.code == 887) {
+          } else if (data.code === 887) {
             that.$refs.msgInput.placeholder = '直播已结束';
             that.$refs.msgInput.disabled = "disabled";
             that.isOver = true;
             that.GetRoomMsg();
             that.showMeaage('直播已结束')
-          } else if (data.code == 777) {
+          } else if (data.code === 777) {
             that.showMeaage('请求过于频繁，访问受限！');
           } else {
             //登录成功，有权限
@@ -422,8 +422,8 @@
         this.IO.on('chatevent', function (data) {
 
           that.chatClosedStatus = data.close
-          if (data.userId != that.userId) {
-            if (that.newsId == data.messageId) {
+          if (data.userId !== that.userId) {
+            if (that.newsId === data.messageId) {
               return;
             }
             that.msgData.push(data);
@@ -437,6 +437,7 @@
               that.scrollTo();
             }
           }
+
           if (data.payable) {
             that.GetRoomMsg();
           }
@@ -445,12 +446,12 @@
           that.GetRoomMsg();
         });
         this.IO.on('roomstatusevent', function (data) {
-          if (data.roomStatus == 'opened') {
+          if (data.roomStatus === 'opened') {
             that.roomConnect();
             that.$refs.msgInput.disabled = false;
             that.$refs.msgInput.value = "";
             that.isOver = false;
-          } else if (data.roomStatus == 'closed') {
+          } else if (data.roomStatus === 'closed') {
             that.$refs.msgInput.placeholder = '直播已结束';
             that.$refs.msgInput.disabled = "disabled";
             that.showMeaage('直播已结束')
@@ -468,10 +469,10 @@
       },
       sendMsg() {
         var that = this;
-        if (that.$refs.msgInput.value == '') {
+        if (that.$refs.msgInput.value === '') {
           return false;
         }
-        this.chatClosed()
+        this.chatClosed();
         var arr = {
           content: that.$refs.msgInput.value,
           createTime: this.shareFn.setTime('send'),
@@ -520,7 +521,7 @@
           this.$router.push('enter');
           return;
         }
-        if (s != '订阅推荐消息') {
+        if (s !== '订阅推荐消息') {
           this.headerData.r_ele = '订阅推荐消息';
           this.$nextTick(function () {
             this.$http.jsonp(
@@ -558,7 +559,7 @@
           Common.baseURI().roomMsgurls + '/Message/GetMsgList?roomId=' + that.$router.currentRoute.query.roomId,
           that.toData,
           function (res) {
-            if (res.status == 200) {
+            if (res.status === 200) {
               if (that.isPullDown) {
                 that.msgData = res.data.messages.concat(that.msgData);
                 setTimeout(function () {
@@ -569,8 +570,8 @@
                 that.msgData = res.data.messages;
                 that.scrollTo();
               }
-              res.data.isMsgDescriber == 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
-              if (that.isPullDown && res.data.messages.length == 0) {
+              res.data.isMsgDescriber === 0 ? that.headerData.r_ele = '已订阅推荐消息' : that.headerData.r_ele = '订阅推荐消息';
+              if (that.isPullDown && res.data.messages.length === 0) {
                 layer.open({
                   content: '已无更多历史消息！',
                   time: 2,
@@ -581,7 +582,7 @@
             } else {
               console.log('请求失败')
             }
-            if (that.msgData.length != 0) {
+            if (that.msgData.length !== 0) {
               that.messageIds = that.msgData[0].messageId;
             }
             var downDom = document.querySelector('.custmor-pullDown');
@@ -604,7 +605,7 @@
           shadeClose: false,
           btn: ['确定', '取消'],
           yes: function (index) {
-            if (Common.getDeviceinfo().type == 'pc' && that.ackData.userMoney < price) {
+            if (Common.getDeviceinfo().type === 'pc' && that.ackData.userMoney < price) {
               that.custmorPost(7, id.toString());
               layer.close(index)
             } else {
@@ -618,7 +619,7 @@
                   SecurityCode: that.token
                 }, function (res) {
                   var texts = "购买成功！"
-                  if (res.data.Code == '3006') {
+                  if (res.data.Code === '3006') {
                     texts = "精彩币余额不足请充值！";
                     layer.open({
                       content: texts,
@@ -626,7 +627,7 @@
                       skin: 'msg'
                     });
                     return;
-                  } else if (res.data.Code == '0000') {
+                  } else if (res.data.Code === '0000') {
                     that.GetRoomMsg();
                     layer.close(index)
                   }
@@ -642,7 +643,7 @@
         })
       },
       firstYesFn() {
-        if (this.ackData.roomPrice == 0 && this.ackData.room_integral > 0) {
+        if (this.ackData.roomPrice === 0 && this.ackData.room_integral > 0) {
           this.integralWay();
         } else {
           this.jcbPay();
@@ -660,7 +661,7 @@
             purchaseType: 15
           }, function (res) {
             var texts = "购买成功！"
-            if (res.data.Code == '3006') {
+            if (res.data.Code === '3006') {
               texts = "余额不足请充值！";
               layer.open({
                 content: texts,
@@ -668,7 +669,7 @@
                 time: 2
               });
               return;
-            } else if (res.data.Code == '0000') {
+            } else if (res.data.Code === '0000') {
               that.roomConnect();
               that.isOver = false;
               that.GetRoomMsg();
@@ -687,7 +688,7 @@
       jcbPay() {
         var that = this;
         if (this.ackData.userMoney < this.ackData.roomPrice) {
-          if (Common.getDeviceinfo().type == 'pc') {
+          if (Common.getDeviceinfo().type === 'pc') {
             that.custmorPost(6, this.roomId);
           } else {
             this.dialogData = {
@@ -714,7 +715,7 @@
                   SecurityCode: that.token
                 }, function (res) {
                   var texts = "购买成功！"
-                  if (res.data.Code == '3006') {
+                  if (res.data.Code === '3006') {
                     texts = "余额不足请充值！";
                     layer.open({
                       content: texts,
@@ -722,7 +723,7 @@
                       time: 2
                     });
                     return;
-                  } else if (res.data.Code == '0000') {
+                  } else if (res.data.Code === '0000') {
                     that.roomConnect();
                     that.isOver = false;
                     that.GetRoomMsg();
@@ -767,7 +768,7 @@
           var mainH = that.$refs.scrollWraper.offsetHeight;
           var innerH = that.$refs.roomMain.offsetHeight;
           var scrollH = innerH - mainH;
-          if (scrollH == wrapEle.scrollTop && movey <= 0) {
+          if (scrollH === wrapEle.scrollTop && movey <= 0) {
             e.preventDefault();
           }
           document.querySelector(".msg-list").WebKitOverflowScrolling = 'auto';
@@ -799,7 +800,7 @@
       laodPcMsg: function () {
         var that = this;
         this.$refs.scrollWraper.addEventListener('scroll', function () {
-          if (this.scrollTop == 0) {
+          if (this.scrollTop === 0) {
             that.loadPcShow = true;
             that.isPullDown = true;
             that.toData = {
@@ -842,18 +843,18 @@
         });
       },
       setPrice: function (data) {
-        if (data.periodList != undefined) {
-          if (data.roomPrice == 0 && data.periodList.length <= 0) {
+        if (data.periodList !== undefined) {
+          if (data.roomPrice === 0 && data.periodList.length <= 0) {
             return '免费';
-          } else if (data.roomPrice != 0 && data.periodList.length >= 0) {
+          } else if (data.roomPrice !== 0 && data.periodList.length >= 0) {
             return data.roomPrice + '精彩币 ' + this.returnPackage(data.periodList);
-          } else if (data.roomPrice != 0 && data.periodList.length <= 0) {
+          } else if (data.roomPrice !== 0 && data.periodList.length <= 0) {
             return data.roomPrice + '精彩币';
           } else {
             return this.returnPackage(data.periodList);
           }
         } else {
-          return data.roomPrice == 0 ? '免费' : data.roomPrice + '精彩币';
+          return data.roomPrice === 0 ? '免费' : data.roomPrice + '精彩币';
         }
       },
       goPayAward() {
@@ -861,11 +862,11 @@
           return;
         }
         if (this.userMoney < this.awardNum) {
-          this.showMeaage('您的精彩币余额不足，请充值！')
+          this.showMeaage('您的精彩币余额不足，请充值！');
           return;
         }
-        this.awardShow = false
-        this.awardNum = ''
+        this.awardShow = false;
+        this.awardNum = '';
         var that = this;
         var awardListData = {
           msg: '您将打赏老师' + that.awardNum + '精彩币！',
@@ -886,7 +887,7 @@
               GoldCoin: that.awardNum,
               sign: new Date().getTime()
             }, function (res) {
-              if (res.data.Code == '0000') {
+              if (res.data.Code === '0000') {
                 that.userMoney = that.userMoney - that.awardNum;
               } else {
                 layerDilog('打赏不成功，请重试！');
@@ -909,7 +910,7 @@
         }
       },
       awardHide() {
-        this.awardShow = false
+        this.awardShow = false;
         this.awardNum = ''
       },
       visitorFn() {
@@ -954,7 +955,7 @@
             }
           }
         ).then(function (res) {
-          if (res.data.Code == '0000') {
+          if (res.data.Code === '0000') {
             var resultStr = res.data.DLBPara;
             this.config = {
               value: resultStr,
@@ -964,9 +965,9 @@
               imagePath: require('../../common/img/jcslog.png')
             }
             this.wxDialog = true;
-          } else if (res.data.Code == 3008) {
+          } else if (res.data.Code === '3008') {
             alert("您已经购买过了");
-          } else if (res.data.Code == '2006' || res.data.Code == '2005') {
+          } else if (res.data.Code === '2006' || res.data.Code === '2005') {
             layer.open({
               content: '<p style="text-align:center;">您已在其他设备登录，确定要重新登录吗？</p >',
               btn: ['确定', '取消'],
@@ -1009,7 +1010,7 @@
       },
       $route: {
         handler: function (old, news) {
-          if (this.$route.name == 'roomlist') {
+          if (this.$route.name === 'roomlist') {
             this.IO.emit('leaveroomevent');
           }
 
