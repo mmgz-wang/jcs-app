@@ -163,6 +163,7 @@
         },
         newMsg: false,
         msgData: [],
+        messageId: '',
         IO: null,
         roomUsers: 0,
         isLogin: this.shareFn.isLogin(),
@@ -304,7 +305,7 @@
           name: 'roomindex',
           ele: this.roomName,
           r_ele: '订阅推荐消息'
-        }
+        };
         this.toData = {
           limit: 30,
           userId: this.userId,
@@ -332,6 +333,7 @@
           that.chatClosedStatus = data.close
           that.chatClosed()
           that.ackData = data;
+          that.messageId = data.messageId;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
           that.roomIntegral = data.room_integral;
@@ -343,7 +345,7 @@
           if (data.code == 999) {
             if (that.shareFn.isLogin() || that.inXCX) {
               that.$refs.payDialog.show()
-              var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
+              let tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
               if (data.roomPrice == 0 && data.room_integral > 0) {
                 tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${data.room_integral}</span>积分</p>`;
               }
@@ -427,20 +429,29 @@
               that.messageTimeHandle = null;
             }
 
+            // console.log("messageAck that.messageId:"+that.messageId);
+            for (let jId=0,len=that.msgData.length;jId<len;jId++) {
+              // console.log("messageAck messageId:"+that.msgData[jId].messageId);
+              if (that.msgData[jId].messageId==that.messageId) {
+                console.log("messageAck 消息已经有了:messageId:"+that.messageId);
+                return;
+              }
+            }
+
             //聊天室消息发送成功
-            var arr = {
+            let arr = {
               content: that.$refs.msgInput.value,
               createTime: that.shareFn.setTime('send'),
               isLecturer: false,
               isRecommended: false,
-              messageId: '',
+              messageId: that.messageId,
               payId: 0,
               payable: false,
               userName: that.userName,
               userPic: that.roomPic
             };
 
-            console.log("zzzzzzzzzzzz");
+            console.log("messageAck zzzzzzzzzzzz");
             that.msgData.push(arr);
             that.$refs.msgInput.value = '';
             that.scrollTo();
@@ -456,6 +467,7 @@
           that.chatClosedStatus = data.close
           that.chatClosed()
           that.ackData = data;
+          that.messageId = data.messageId;
           that.roomUsers = data.roomUsers;
           that.roomPrice = data.roomPrice;
           that.roomIntegral = data.room_integral;
@@ -467,7 +479,7 @@
           if (data.code == 999) {
             if (that.shareFn.isLogin() || that.inXCX) {
               that.$refs.payDialog.show()
-              var tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
+              let tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${that.roomPrice}</span>精彩币</p>`;
               if (data.roomPrice == 0 && data.room_integral > 0) {
                 tit = `<p>解锁${that.lecturerName}的聊天室</p><p>需支付<span>${data.room_integral}</span>积分</p>`;
               }
@@ -551,20 +563,26 @@
               that.messageTimeHandle = null;
             }
 
+            for (let jId=0,len=that.msgData.length;jId<len;jId++) {
+              if (that.msgData[jId].messageId==that.messageId) {
+                console.log("ack 消息已经有了:messageId:"+that.messageId);
+                return;
+              }
+            }
+
             //聊天室消息发送成功
-            var arr = {
+            let arr = {
               content: that.$refs.msgInput.value,
               createTime: that.shareFn.setTime('send'),
               isLecturer: false,
               isRecommended: false,
-              messageId: '',
+              messageId: that.messageId,
               payId: 0,
               payable: false,
               userName: that.userName,
               userPic: that.roomPic
             };
 
-            console.log("zzzzzzzzzzzz");
             that.msgData.push(arr);
             that.$refs.msgInput.value = '';
             that.scrollTo();
@@ -586,7 +604,20 @@
             if (that.newsId == data.messageId) {
               return;
             }
-            that.msgData.push(data);
+
+            let isExist = 0;
+            for (let jId = 0, len = that.msgData.length; jId < len; jId++) {
+              if (that.msgData[jId].messageId == data.messageId) {
+                console.log("chatevent 消息已经有了:messageId:" + that.messageId);
+                isExist = 1;
+                break;
+              }
+            }
+
+            if (isExist < 1) {
+              that.msgData.push(data);
+            }
+
             that.newsId = data.messageId;
             var mainH = that.$refs.scrollWraper.offsetHeight;
             var innerH = that.$refs.roomMain.offsetHeight;
