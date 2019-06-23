@@ -688,9 +688,12 @@
         // };
         // this.msgData.push(arr);
         //推送给其他人
-        var jsonObject = {
+        let ms = new Date().getTime();
+        console.log("sendmsg ms:" + ms);
+        let jsonObject = {
           roomId: that.$router.currentRoute.query.roomId,
           userId: that.userId,
+          uniqueId: ms,
           content: that.$refs.msgInput.value
         };
         this.IO.emit('chatevent', jsonObject);
