@@ -434,6 +434,8 @@
               // console.log("messageAck messageId:"+that.msgData[jId].messageId);
               if (that.msgData[jId].messageId==that.messageId) {
                 console.log("messageAck 消息已经有了:messageId:"+that.messageId);
+                that.$refs.msgInput.value = '';
+                that.scrollTo();
                 return;
               }
             }
@@ -563,9 +565,12 @@
               that.messageTimeHandle = null;
             }
 
+            console.log("ack zzzzzzzzzzzz");
             for (let jId=0,len=that.msgData.length;jId<len;jId++) {
               if (that.msgData[jId].messageId==that.messageId) {
                 console.log("ack 消息已经有了:messageId:"+that.messageId);
+                that.$refs.msgInput.value = '';
+                that.scrollTo();
                 return;
               }
             }
@@ -619,9 +624,9 @@
             }
 
             that.newsId = data.messageId;
-            var mainH = that.$refs.scrollWraper.offsetHeight;
-            var innerH = that.$refs.roomMain.offsetHeight;
-            var scrollH = innerH - mainH;
+            let mainH = that.$refs.scrollWraper.offsetHeight;
+            let innerH = that.$refs.roomMain.offsetHeight;
+            let scrollH = innerH - mainH;
             if (that.$refs.scrollWraper.scrollTop <= scrollH - 15) {
               that.newMsg = true;
             } else {
@@ -633,9 +638,11 @@
             that.GetRoomMsg();
           }
         });
+
         this.IO.on('rescindevent', function (data) {
           that.GetRoomMsg();
         });
+
         this.IO.on('roomstatusevent', function (data) {
           if (data.roomStatus === 'opened') {
             that.roomConnect();
