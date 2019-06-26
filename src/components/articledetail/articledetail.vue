@@ -7,7 +7,7 @@
     	</header>
     	<div class="art-wrap-outer">
 			<div class="hd">
-				<dl>
+				<dl @click="goauthor(articleData.author_id)">
 					<dt><img :src="articleData.authorPic" alt="" id="authod_pic"></dt>
 					<dd>
 						<span class="name" id="authod_name">{{articleData.authorName}}</span><br>
@@ -204,6 +204,7 @@ export default {
           .then(function(res) {
             if (res.data.Code == "0000") {
               this.articleData = res.data.Articles;
+              console.log(this.articleData);
               this.recommendData = res.data.recommendList;
               this.authorFollowed = this.articleData.authorFollowed;
               this.authorId = this.articleData.author_id;
@@ -668,7 +669,12 @@ export default {
         path: `/articledetail/?id=${item.id}`
       });
       //location.reload();
-    }
+    },
+    goauthor(id) {
+      this.$router.push({
+        path: `/author/?id=${id}`
+      })
+    },
   },
   watch: {
     $route() {
