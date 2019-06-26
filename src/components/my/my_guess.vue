@@ -78,15 +78,16 @@
         this.token = this.shareFn.wxGetUserT(this.userId, this.$router.currentRoute.query.token)
         document.getElementsByTagName("title")[0].innerText = '我的竞猜'
       }
-    },
-    deactivated() {
-
-    },
-    mounted: function () {
+      console.log('activated.....')
       //初始化 scroll 组件以及监听事件
       this.initAndListenScroll();
       //获取接口数据
       this.getData();
+    },
+    deactivated() {
+    },
+    mounted: function () {
+      console.log('mounted......');
     },
     methods: {
       initAndListenScroll() {
