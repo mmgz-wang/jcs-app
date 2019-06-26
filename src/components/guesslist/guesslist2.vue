@@ -123,6 +123,7 @@
   export default {
     data() {
       return {
+        firstReq: true,    //首次请求接口数据
         topListShow: true, //top显示竞猜列表还是联赛
         listShow: true,    //显示列表数据或者联赛数据
         footballTab: true,  //当前选择的是足球还是篮球
@@ -147,7 +148,9 @@
     activated() {
       this.getDataList();
     },
+    //路由离开数据全部初始化为默认值
     deactivated() {
+      this.firstReq = true;
       this.topListShow = true;
       this.listShow = true;
       this.footballTab = true;
@@ -162,6 +165,15 @@
     },
     mounted() {
 
+    },
+    watch: {
+      leagueMatchData: {
+        handler: function (newVal, oldVal) {
+          // console.log('联赛数据发生变化..');
+          this.statLeagueSelected();
+        },
+        deep: true
+      }
     },
     methods: {
       //竞猜成功弹层
@@ -183,22 +195,28 @@
         } else {
           league.selected = true;
         }
-        this.statLeagueSelected();
       },
       //联赛全选点击
       allClick() {
         if (this.allClickCls) {
-          // console.log('取消全选....');
-          for (let k = 0; k < this.leagueMatchData.length; k++) {
-            this.leagueMatchData[k].selected = false;
-          }
+          this.allSelectedCancel();
         } else {
-          // console.log('全选....');
-          for (let k = 0; k < this.leagueMatchData.length; k++) {
-            this.leagueMatchData[k].selected = true;
-          }
+          this.allSelected();
         }
-        this.statLeagueSelected();
+      },
+      //联赛全选操作
+      allSelected() {
+        console.log('全选....');
+        for (let k = 0; k < this.leagueMatchData.length; k++) {
+          this.leagueMatchData[k].selected = true;
+        }
+      },
+      //联赛取消全选操作
+      allSelectedCancel() {
+        console.log('取消全选....');
+        for (let k = 0; k < this.leagueMatchData.length; k++) {
+          this.leagueMatchData[k].selected = false;
+        }
       },
       //统计选了多少赛事
       statLeagueSelected() {
@@ -223,7 +241,7 @@
               this.$router.push({name: 'enter'});
               return;
             }
-            this.$router.push({name: 'my_guess'})
+            this.$router.push({name: 'my_guess'});
             break;
           case 'leagueMatch':
             this.topListShow = false;
@@ -238,11 +256,10 @@
       },
       //足球篮球tab点击
       tabClick(tab) {
+        this.firstReq = true;
         this.guessMatchData = [];
         this.leagueMatchData = [];
         this.leagueSelectedStr = '';
-        this.allClickCls = false;
-        this.leagueMatchSize = 0;
         switch (tab) {
           case 'football':
             console.log('足球...');
@@ -274,7 +291,6 @@
             console.log(res.data);
             this.moneyArr = res.data['bet.prices.list'];
             this.noDataShow = false;
-            // console.log(JSON.stringify(res.data.list))
             this.packGuessData(res);
             console.log('最终数据组装......');
             console.log(this.guessMatchData);
@@ -286,28 +302,31 @@
       },
       //数据组装
       packGuessData(res) {
-        //足球联赛
-        if (this.footballTab && typeof (res.data.data_0) != "undefined") {
-          console.log('足球联赛数据组装');
-          for (let p in res.data.data_0) {
-            let leagueItem = {};
-            leagueItem.name = p;
-            leagueItem.size = res.data.data_0[p];
-            leagueItem.selected = false;
-            this.leagueMatchData.push(leagueItem);
+        //足球篮球联赛
+        if (this.leagueMatchData.length == 0) {
+          if (this.footballTab && typeof (res.data.data_0) != "undefined") {
+            console.log('足球联赛数据组装');
+            for (let p in res.data.data_0) {
+              let leagueItem = {};
+              leagueItem.name = p;
+              leagueItem.size = res.data.data_0[p];
+              leagueItem.selected = false;
+              this.leagueMatchData.push(leagueItem);
+            }
+          }
+          //篮球联赛
+          if (!this.footballTab && typeof (res.data.data_1) != "undefined") {
+            console.log('蓝球联赛数据组装');
+            for (let p in res.data.data_1) {
+              let leagueItem = {};
+              leagueItem.name = p;
+              leagueItem.size = res.data.data_1[p];
+              leagueItem.selected = false;
+              this.leagueMatchData.push(leagueItem);
+            }
           }
         }
-        //篮球联赛
-        if (!this.footballTab && typeof (res.data.data_1) != "undefined") {
-          console.log('蓝球联赛数据组装');
-          for (let p in res.data.data_1) {
-            let leagueItem = {};
-            leagueItem.name = p;
-            leagueItem.size = res.data.data_1[p];
-            leagueItem.selected = false;
-            this.leagueMatchData.push(leagueItem);
-          }
-        }
+        console.log(this.leagueMatchData);
         //列表
         if (typeof (res.data.list) != "undefined") {
           let stIds = [];
@@ -317,7 +336,7 @@
               stIds.push(item.match_st_id);
             }
           }
-          console.log(stIds);
+          //  console.log(stIds);
           for (let j = 0; j < stIds.length; j++) {
             let guessItem = {};
             let odds = [];
@@ -339,6 +358,10 @@
             this.guessMatchData.push(guessItem);
           }
         }
+        //首次进入默认联赛全选
+        if (this.firstReq) {
+          this.allSelected()
+        }
       },
       //联赛选择确认按钮
       subLeague() {
@@ -354,13 +377,14 @@
           this.layerOpen('请选择至少一个联赛');
           return
         }
+        this.firstReq = false;
         this.leagueSelectedStr = str;
-        console.log(this.leagueSelectedStr);
+        console.log('用户选择的联赛: ' + this.leagueSelectedStr);
         this.backHide();
         this.guessMatchData = [];
-        this.leagueMatchData = [];
-        this.allClickCls = false;
-        this.leagueMatchSize = 0;
+        // this.leagueMatchData = [];
+        // this.allClickCls = false;
+        // this.leagueMatchSize = 0;
         this.getDataList();
       },
       //玩法赔率点击
