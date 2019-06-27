@@ -165,7 +165,8 @@
         userId: this.shareFn.getUserId(),
         token: this.shareFn.getSecurityCode(),
         wxLogin: false,
-        inXCX: false
+        inXCX: false,
+        tabReqComplete: false
       };
     },
     created() {
@@ -252,7 +253,11 @@
         }
       },
       tabClick(s) {
-        console.log('tab 点击: ' + s);
+        if (!this.tabReqComplete) {
+          this.bunceIn("亲，您点击太快了,稍后再试哦");
+          return;
+        }
+        console.log('tab 点击: ' + s + ";;tabReqComplete:" + this.tabReqComplete);
         if (s == "art") {
           this.url = Common.baseURI().host + "/Author/GetAuhorInfo";
           this.isart = 1;
@@ -300,6 +305,7 @@
       },
       getData(url, data) {
         let that = this;
+        this.tabReqComplete = false;
         this.$nextTick(function () {
           this.$http
             .jsonp(url, {
@@ -308,6 +314,7 @@
             .then(function (res) {
               console.log('收到响应数据:');
               console.log(res.data);
+              this.tabReqComplete = true;
               if (typeof (res.data) == "undefined") {
                 if (this.url.indexOf("GetRoomList") > 0) {
                   this.autRoomList = [];
@@ -344,6 +351,7 @@
                 this.scrollData = this.FeedbackList;
               }
               layer.close(this.loding);
+
             });
         });
       },
