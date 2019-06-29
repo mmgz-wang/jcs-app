@@ -457,7 +457,13 @@
             that.msgData.push(arr);
             that.$refs.msgInput.value = '';
             that.scrollTo();
-          } else {
+          } else if(data.code == 103){
+            if (that.messageTimeHandle!=null){
+              clearTimeout(that.messageTimeHandle);
+              that.messageTimeHandle = null;
+            }
+            that.$refs.msgInput.value = '';
+          }else {
             //登录成功，有权限
             that.userPic = data.userPic;
             that.GetRoomMsg();
