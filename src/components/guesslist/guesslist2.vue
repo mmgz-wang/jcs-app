@@ -776,16 +776,19 @@
 
   .choose {
     width: 100%;
-    overflow: hidden;
     margin: auto;
+    overflow-y: scroll;
+    height: fill-available;
+    height: -webkit-fill-available;
+    height: fill-available;
   }
 
   .choose ul li {
     float: left;
-    width: 1.05rem;
+    width: 0.9rem;
     height: 0.31rem;
     line-height: 0.31rem;
-    margin: 0.2rem 0 0 0.15rem;
+    margin: 0.1rem 0 0 0.15rem;
     border: 1px #b8b8b8 solid;
     border-radius: 0.03rem;
     font-size: 0.13rem;
