@@ -610,16 +610,18 @@
           that.chatClosedStatus = data.close;
           if (data.userId != that.userId) {
             console.log("22222");
-            console.log(that.newsId);
-            console.log(that.messageId);
-            if (that.newsId == data.messageId) {
-              return;
-            }
+            // console.log(that.newsId);
+            // console.log(that.messageId);
+            // if (that.newsId == data.messageId) {
+            //   return;
+            // }
 
             let isExist = 0;
             for (let jId = 0, len = that.msgData.length; jId < len; jId++) {
               if (that.msgData[jId].messageId == data.messageId) {
-                console.log("chatevent 消息已经有了:messageId:" + that.messageId);
+                that.msgData.splice(jId, 1, data);
+                console.log("chatevent 消息已经有了:messageId:" + data.messageId);
+                // console.log(that.msgData[jId]);
                 isExist = 1;
                 break;
               }
@@ -628,7 +630,7 @@
             if (isExist < 1) {
               that.msgData.push(data);
             }
-
+            // console.log(that.msgData);
             that.newsId = data.messageId;
             let mainH = that.$refs.scrollWraper.offsetHeight;
             let innerH = that.$refs.roomMain.offsetHeight;
