@@ -119,6 +119,7 @@
   import shareFn from '../../common/js/sharefn';
   import Scroll from 'base/scroll/scroll';
   import guessDialog from 'base/guessdialog/guessdialog';
+  import wxApi from 'common/js/wxapi'
 
   export default {
     data() {
@@ -147,6 +148,7 @@
     },
     activated() {
       this.getDataList();
+      this.wxInit();
     },
     //路由离开数据全部初始化为默认值
     deactivated() {
@@ -176,6 +178,40 @@
       }
     },
     methods: {
+      //微信初始化
+      wxInit() {
+        wxApi.wxRegister();
+        let that = this;
+        wx.ready(function () {
+          that.wxShareAppMessage();
+          that.wxShareTimeline();
+        });
+      },
+
+      //分享到朋友圈
+      wxShareTimeline() {
+        let option = {
+          title: '足蓝竞猜，高奖回报等你拿！！！',
+          link: location.href,
+          imgUrl: 'http://www.jingcaishuo.com/favicon.ico',
+          success: () => {
+          }
+        };
+        wxApi.ShareTimeline(option);
+      },
+      //分享给朋友
+      wxShareAppMessage() {
+        let option = {
+          title: '精彩说',
+          desc: '足蓝竞猜，高奖回报等你拿！！！',
+          link: location.href,
+          imgUrl: 'http://www.jingcaishuo.com/favicon.ico',
+          success: () => {
+          }
+        };
+        wxApi.ShareAppMessage(option);
+      },
+
       //竞猜成功弹层
       jxSucClose() {
         this.jxSuc = false;
