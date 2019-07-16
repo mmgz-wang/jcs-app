@@ -35,7 +35,7 @@
 				<div class="article-main" v-if="articleData.chargeable && !articleData.articlePurchased">
 					<div class="match-items">
 						<span class="lock-pic"></span>
-						<div class="item" v-if="articleData.matches.length<=0">
+						<div class="item" v-if="articleData.matches &&  articleData.matches.length<=0">
 							<p class="nonematch">购买后可查看全文</p>
 						</div>
 						<div class="item" v-for="item in articleData.matches">
@@ -202,9 +202,9 @@ export default {
             }
           )
           .then(function(res) {
+            console.log(res.data);
             if (res.data.Code == "0000") {
               this.articleData = res.data.Articles;
-              console.log(this.articleData);
               this.recommendData = res.data.recommendList;
               this.authorFollowed = this.articleData.authorFollowed;
               this.authorId = this.articleData.author_id;
@@ -227,6 +227,8 @@ export default {
               ) {
                 this.canMessage = true
               }
+              console.log(this.articleData.matches);
+
             } else if (res.data.code == "0003") {
               layer.open({
                 content: "登录过期，请重新登录！",
