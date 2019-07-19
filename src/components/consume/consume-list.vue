@@ -23,11 +23,11 @@
             <div class="item-l">
               <template v-if="item.typeFlag == 1">{{item.data.Author}}</template>
               <template v-else-if="item.typeFlag == 2">{{item.data.TypeName}}</template>
-              <p>{{item.data.Date.substr(6,11)}}</p>
+              <p>{{item.data.Date.substr(5,11)}}</p>
             </div>
             <div class="item-r">
-              <span v-if="item.typeFlag == 1" style="color: #1da479;">-{{item.data.Money}}</span>
-              <span v-else style="color: #e9311d;">+{{item.data.Money}}</span>
+              <span v-if="item.typeFlag == 1" style="color: #1da479;">-{{item.data.GoldCoin?item.data.GoldCoin:item.data.Money}}</span>
+              <span v-else style="color: #e9311d;">+{{item.data.GoldCoin?item.data.GoldCoin:item.data.Money}}</span>
               <br>
               <template v-if="item.typeFlag == 1">{{item.data.Author}}的{{item.data.PurchaseName}}</template>
               <template v-else-if="item.typeFlag == 2">{{item.data.MainTypeName}}</template>
