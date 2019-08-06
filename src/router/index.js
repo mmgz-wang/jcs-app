@@ -104,7 +104,7 @@ export default new Router({
             { path: 'mypresent', name: 'mypresent', component: resolve => require(['../components/my/my_present'],resolve) },
             { path: 'myCollect', name: 'myCollect', component: resolve => require(['../components/my/my_collect'],resolve) },
             { path: 'myBuy', name: 'my_buy', component: resolve => require(['../components/my/my_buy'],resolve) },
-          { path: 'myGuess', name: 'my_guess', component: resolve => require(['../components/my/my_guess'],resolve) },
+          { path: 'myGuess', name: 'my_guess', component: resolve => require(['../components/my/my_guess2'],resolve) },
             { 
                 path: 'myWallet', name: 'my_wallet', component: resolve => require(['../components/my/my_wallet'],resolve),
                 children: [
@@ -161,7 +161,7 @@ export default new Router({
     { path: '/forget', name: 'forget', component: resolve => require(['../components/register/Forget'],resolve) },
     { path: '/download', name: 'download', component: resolve => require(['../components/download/download'],resolve) },
     // potral
-    { path: '/guesslist', name: 'guesslist', component: resolve => require(['../components/guesslist/guesslist2'],resolve),
+    { path: '/guesslist', name: 'guesslist', component: resolve => require(['../components/guesslist/guesslist3'],resolve),
       meta: {
         iskeep: false,
         isback: false

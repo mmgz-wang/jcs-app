@@ -135,7 +135,7 @@
 <script type="text/javascript">
   import roomNav from './room-nav'
   import guessMixin from 'base/mixins/guess_mixin'
-  import guessDialog from 'base/guessdialog/guessdialog'
+  import guessDialog from 'base/guessdialog/guessdialog2'
   import mainHeader from 'base/header/mainheader'
   import Common from 'common/js/common'
   import DialogZ from 'common/js/jcs_dialoga.js'
