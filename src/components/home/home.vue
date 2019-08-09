@@ -99,9 +99,9 @@
       roomList
     },
     created() {
-
     },
     mounted: function () {
+
       this.top = 0;
       this.getData();
       this.$routerPath = this.$router.path;
@@ -312,6 +312,7 @@
     watch: {
       $route: {
         handler: function (news, old) {
+          this.$refs.Scroll.refresh();
           console.log(news)
           console.log(old)
         }

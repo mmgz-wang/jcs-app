@@ -18,7 +18,7 @@ module.exports = {
   },
   baseURI: function () {
     //打包===生产环境,!==测试环境   //开发 ===代表测试环境,!==代表生产环境
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV !== "development") {
       return {
         // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
         // host: "http://182.18.76.156:9095/",

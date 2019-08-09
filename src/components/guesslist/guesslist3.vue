@@ -335,7 +335,7 @@
             params: {
               userId: this.shareFn.getUserId(),
               token: this.shareFn.getSecurityCode(),
-              limit: 200,
+              limit: 600,
               sportType: this.footballTab ? 0 : 1,
               matchLeague: this.leagueSelectedStr
             }
