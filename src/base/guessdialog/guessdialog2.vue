@@ -9,9 +9,10 @@
             <p class="guess-hint">
               <label style="font-weight: bold">{{mychoose}}</label>
               (<label>{{handicap_name}}<label class="sharpen">{{handicap_plan}}</label></label>)
-              (高水 {{mychoosePlanHigh}})
-              (低水 {{mychoosePlanLow}})
-              <img style="width: 20px;vertical-align:text-bottom" src="../../common/img/wenhao.png" alt="">
+              (高 {{mychoosePlanHigh}})
+              (低 {{mychoosePlanLow}})
+              <img @click="guessPlain()" style="width: 20px;vertical-align:text-bottom"
+                   src="../../common/img/wenhao.png" alt="">
             </p>
             <span class="guess-hide" @click="hide()"></span>
           </div>
@@ -20,8 +21,9 @@
             <label for="awesome">
             </label>
             <label class="auto_match_des">
-              高返奖匹配不成功，自动下注低返奖
-              <img style="width: 20px;height: 20px;vertical-align:text-bottom" src="../../common/img/wenhao.png"/>
+              高返奖匹配不成功，自动低返奖
+              <img @click="guessPlain()" style="width: 20px;height: 20px;vertical-align:text-bottom"
+                   src="../../common/img/wenhao.png"/>
             </label>
           </div>
           <div class="guess-num">
@@ -93,11 +95,14 @@
     methods: {
       pressnum(event) {
         this.curIntegralVal = this.curIntegralVal.replace(/[^\d]/g, '');
-        this.checkBetMoneyLimit();
+        // this.checkBetMoneyLimit();
+      },
+      guessPlain() {
+        this.$router.push({name: 'guessExplain'});
       },
       numCli(opt) {
         this.curIntegralVal = opt;
-        this.checkBetMoneyLimit();
+        // this.checkBetMoneyLimit();
       },
       checkBetMoneyLimit() {
         // console.log('判断投注额度');
@@ -132,7 +137,11 @@
           this.layerOpen('最小额度为10');
           return false;
         }
-        if (this.checkBetMoneyLimit()) {
+        // if (this.checkBetMoneyLimit()) {
+        //   return false;
+        // }
+        if (this.curIntegralVal > this.money) {
+          this.layerOpen('您的精彩币不足');
           return false;
         }
         this.finalDataSub();

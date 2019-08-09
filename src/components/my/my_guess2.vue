@@ -15,13 +15,13 @@
               <div class="firstView">
                 <span class="cdate">{{item.guessOrder.create_time.substr(5, 11)}}
                   <label class="leagueCls">[{{item.guessingPlan.match_league}}]</label>
-                  <label v-if="item.guessOrder.transaction_type ==1" class="leagueCls">允许低水成交</label>
-                  <label v-if="item.guessOrder.transaction_type ==0" class="leagueCls">不允许低水成交</label>
+                  <label v-if="item.guessOrder.transaction_type ==1" class="leagueCls">允许低返奖竞猜</label>
+                  <label v-if="item.guessOrder.transaction_type ==0" class="leagueCls">不允许低返奖竞猜</label>
                 </span>
                 <span class="teams">{{item.guessingPlan.match_teams}}</span>
                 <span class="rqinfo">
                   <label style="font-size: 0.14rem">{{item.guessOrder.invest_target}}</label>
-                  <label class="oddsCls">({{item.guessingPlan.handicap_name}}{{item.guessingPlan.handicap_plan}}) (高水: {{item.choosePlanHigh}}) (低水: {{item.choosePlanLow}})</label>
+                  <label class="oddsCls">({{item.guessingPlan.handicap_name}}{{item.guessingPlan.handicap_plan}}) (高: {{item.choosePlanHigh}}) (低: {{item.choosePlanLow}})</label>
                 </span>
               </div>
               <!--历史-->
@@ -43,12 +43,9 @@
               <div class="twoViewIng" v-show="!history">
                 <div class="leftIng">
                   <span>竞猜金额:<label style="font-weight: bold;padding-right: 0.1rem">{{item.guessOrder.cost}}</label>
-                    <img v-if="item.guessOrder.status==0" style="width: 0.8rem;vertical-align:middle"
-                         src="../../common/img/ddcj.png">
-                    <img v-if="item.guessOrder.status==1" style="width: 0.8rem;vertical-align:middle"
-                         src="../../common/img/bfcj.png">
-                    <img v-if="item.guessOrder.status==2" style="width: 0.8rem;vertical-align:middle"
-                         src="../../common/img/qbcj.png">
+                    <button v-if="item.guessOrder.status==0" class="ingImgCls">等待</button>
+                    <button v-if="item.guessOrder.status==1" class="ingImgCls">部分</button>
+                    <button v-if="item.guessOrder.status==2" class="ingImgCls">全部</button>
                   </span>
                   <span style="padding-top: 0.04rem" v-if="item.guessOrder.status!=0">
                      <label style="font-size: 0.12rem;color: #A2A2A2">已交易 </label>
@@ -636,7 +633,7 @@
     }
 
     .leagueCls {
-      margin-left: 0.3rem;
+      margin-left: 0.2rem;
       color: #A2A2A2;
     }
 
@@ -710,6 +707,17 @@
       font-size: 0.17rem;
       color: #333;
       padding-bottom: 0.2rem;
+    }
+
+    .ingImgCls {
+      width: 0.6rem;
+      /*margin-left: 0.3rem;*/
+      background: #219D44;
+      font-size: 0.16rem;
+      border-style: none; //无边框
+      outline: none; //获得焦点也无边框
+      border-radius: 0.8rem;
+      color: white;
     }
 
   }

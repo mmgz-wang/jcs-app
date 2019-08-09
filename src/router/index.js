@@ -115,6 +115,7 @@ export default new Router({
             { path: 'mymsg', name: 'mymsg', component: resolve => require(['../components/my/my_msg'],resolve) },
             { path: 'canmsg', name: 'canmsg', component: resolve => require(['../components/my/can_message'],resolve) },
             { path: 'help', name:'help', component: resolve => require(['../components/my/help'],resolve) },
+            { path: 'guessExplain', name:'guessExplain', component: resolve => require(['../components/my/guessExplain'],resolve) },
             { path: 'nickname', name:'nickName', component: resolve => require(['../components/setting/nickname'],resolve)},
             { path: 'setting', name:'setting', component: resolve => require(['../components/setting/setting'],resolve),
                 children: [

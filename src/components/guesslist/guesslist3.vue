@@ -54,7 +54,7 @@
           <div class="name">{{guess.match_league}}
             <span>{{guess.end_time_md}}</span>
             <span class="time">{{guess.end_time_hm}}</span>
-            <span class="new_play">了解竞猜新玩法</span>
+            <span class="new_play" @click="pageClick('guessExplain')">了解竞猜新玩法</span>
           </div>
           <div class="vsname">
             <label style="font-weight: bold;margin-top: 0.8rem">{{guess.match_teams}}</label>
@@ -301,6 +301,9 @@
               this.topMatchMsg = "篮球赛事筛选";
             }
             break;
+          case 'guessExplain':
+            this.$router.push({name: 'guessExplain'});
+            break;
         }
       },
       //足球篮球tab点击
@@ -403,7 +406,7 @@
                 } else {
                   odd.rightSide = false;
                 }
-                console.log("盘口 ", odd.handicap_name + "，，" + odd.rightSide);
+                //console.log("盘口 ", odd.handicap_name + "，，" + odd.rightSide);
                 odds.push(odd);
               }
             }
