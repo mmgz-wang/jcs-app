@@ -58,8 +58,8 @@
           </div>
           <div class="vsname">
             <label style="font-weight: bold;margin-top: 0.8rem">{{guess.match_teams}}</label>
-            <span class="conduct" v-if="guess.status < 3">进行中</span>
-            <span class="conduct" v-if="guess.status >= 3">已结束</span>
+            <!--<span class="conduct" v-if="guess.status < 3">进行中</span>-->
+            <!--<span class="conduct" v-if="guess.status >= 3">已结束</span>-->
           </div>
           <div class="contrast">
             <div class="contc" :class="odd.rightSide ? 'contr' : '' " v-for="(odd,oddIndex) in guess.odds">
