@@ -21,7 +21,7 @@
             <label for="awesome">
             </label>
             <label class="auto_match_des">
-              高返奖匹配不成功，自动低返奖
+              高返奖撮合失败,自动参与不超过1000币的低返奖
               <img @click="guessPlain()" style="width: 20px;height: 20px;vertical-align:text-bottom"
                    src="../../common/img/wenhao.png"/>
             </label>
