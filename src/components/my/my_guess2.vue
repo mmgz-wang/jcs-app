@@ -20,7 +20,7 @@
                 </span>
                 <span class="teams">{{item.guessingPlan.match_teams}}</span>
                 <span class="rqinfo">
-                  <label style="font-size: 0.14rem">{{item.guessOrder.invest_target}}</label>
+                  <label style="font-size: 0.14rem">{{item.guessOrder.invest_target.length>1 ? item.guessOrder.invest_target.slice(0,1) : item.guessOrder.invest_target}}</label>
                   <label class="oddsCls">({{item.guessingPlan.handicap_name}}{{item.guessingPlan.handicap_plan}}) (高: {{item.choosePlanHigh}}) (低: {{item.choosePlanLow}})</label>
                 </span>
               </div>
@@ -76,7 +76,9 @@
                 <span class="rqinfo">{{oldItem.handicap_name}}：
                   <label class="infov">{{oldItem.handicap_plan}}</label>
                 </span>
-                <p class="betp">竞猜额：<label class="infov">{{oldItem.cost}}</label> ({{oldItem.invest_target}})</p>
+                <p class="betp">竞猜额：<label class="infov">{{oldItem.cost}}</label>
+                  ({{oldItem.invest_target.length>1 ? oldItem.invest_target.slice(0,1): oldItem.invest_target}})
+                </p>
               </div>
               <div id="two">
                 <span v-if="!history" class="guessing">进行中...</span>

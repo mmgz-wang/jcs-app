@@ -7,7 +7,7 @@
             <!--<img src="../../common/img/e_cup.png" alt="">-->
             <p class="guess-tit"><label style="color: #666666">[{{item.match_league}}]</label>{{item.match_teams}}</p>
             <p class="guess-hint">
-              <label style="font-weight: bold">{{mychoose}}</label>
+              <label style="font-weight: bold">{{mychoose.length>1 ? mychoose.slice(0,1): mychoose}}</label>
               (<label>{{handicap_name}}<label class="sharpen">{{handicap_plan}}</label></label>)
               (高 {{mychoosePlanHigh}})
               (低 {{mychoosePlanLow}})

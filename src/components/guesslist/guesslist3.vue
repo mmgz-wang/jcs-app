@@ -67,13 +67,13 @@
               <div class="cnt_txt">
                 <ul>
                   <li @click="teamClick(odd, odd.value1_name,odd.value1_plan,'up')">
-                    <span class="up_name">{{odd.value1_name}}</span><br/>
+                    <span class="up_name">{{odd.value1_name.length>1 ? odd.value1_name.slice(0,1): odd.value1_name }}</span><br/>
                     <span>{{odd.value1_plan}}
                       <label class="low_odd">({{odd.value1_refe}})</label>
                     </span>
                   </li>
                   <li @click="teamClick(odd, odd.value2_name,odd.value2_plan,'down')">
-                    <span class="up_name">{{odd.value2_name}}</span><br/>
+                    <span class="up_name">{{odd.value2_name.length>1 ? odd.value2_name.slice(0,1): odd.value2_name}}</span><br/>
                     <span>{{odd.value2_plan}}
                       <label class="low_odd">({{odd.value2_refe}})</label>
                     </span>
