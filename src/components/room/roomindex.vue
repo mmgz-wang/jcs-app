@@ -322,7 +322,8 @@
           var jsonObject = {
             roomId: that.roomId,
             userId: that.userId,
-            token: that.token
+            token: that.token,
+            os: 'web'
           };
           console.log(jsonObject)
           that.IO.emit('login', jsonObject);
@@ -417,23 +418,23 @@
             that.showMeaage('直播已结束')
           } else if (data.code == 777) {
             that.showMeaage('请求过于频繁，访问受限！');
-          }  else if (data.code == 500) {
+          } else if (data.code == 500) {
             that.showMeaage('价格非法的非法请求，请联系管理员!！');
           } else if (data.code == 100) {
             that.showMeaage('非法访问，请重新登录！');
           } else if (data.code == 101) {
             that.showMeaage('服务器异常请退出聊天室重试！');
           } else if (data.code == 102) {
-            if (that.messageTimeHandle!=null){
+            if (that.messageTimeHandle != null) {
               clearTimeout(that.messageTimeHandle);
               that.messageTimeHandle = null;
             }
 
             // console.log("messageAck that.messageId:"+that.messageId);
-            for (let jId=0,len=that.msgData.length;jId<len;jId++) {
+            for (let jId = 0, len = that.msgData.length; jId < len; jId++) {
               // console.log("messageAck messageId:"+that.msgData[jId].messageId);
-              if (that.msgData[jId].messageId==that.messageId) {
-                console.log("messageAck 消息已经有了:messageId:"+that.messageId);
+              if (that.msgData[jId].messageId == that.messageId) {
+                console.log("messageAck 消息已经有了:messageId:" + that.messageId);
                 that.$refs.msgInput.value = '';
                 that.scrollTo();
                 return;
@@ -457,13 +458,13 @@
             that.msgData.push(arr);
             that.$refs.msgInput.value = '';
             that.scrollTo();
-          } else if(data.code == 103){
-            if (that.messageTimeHandle!=null){
+          } else if (data.code == 103) {
+            if (that.messageTimeHandle != null) {
               clearTimeout(that.messageTimeHandle);
               that.messageTimeHandle = null;
             }
             that.$refs.msgInput.value = '';
-          }else {
+          } else {
             //登录成功，有权限
             that.userPic = data.userPic;
             that.GetRoomMsg();
@@ -559,22 +560,22 @@
             that.showMeaage('直播已结束')
           } else if (data.code == 777) {
             that.showMeaage('请求过于频繁，访问受限！');
-          }  else if (data.code == 500) {
+          } else if (data.code == 500) {
             that.showMeaage('价格非法的非法请求，请联系管理员!！');
           } else if (data.code == 100) {
             that.showMeaage('非法访问，请重新登录！');
           } else if (data.code == 101) {
             that.showMeaage('服务器异常请退出聊天室重试！');
           } else if (data.code == 102) {
-            if (that.messageTimeHandle!=null){
+            if (that.messageTimeHandle != null) {
               clearTimeout(that.messageTimeHandle);
               that.messageTimeHandle = null;
             }
 
             console.log("ack zzzzzzzzzzzz");
-            for (let jId=0,len=that.msgData.length;jId<len;jId++) {
-              if (that.msgData[jId].messageId==that.messageId) {
-                console.log("ack 消息已经有了:messageId:"+that.messageId);
+            for (let jId = 0, len = that.msgData.length; jId < len; jId++) {
+              if (that.msgData[jId].messageId == that.messageId) {
+                console.log("ack 消息已经有了:messageId:" + that.messageId);
                 that.$refs.msgInput.value = '';
                 that.scrollTo();
                 return;
@@ -669,12 +670,13 @@
         var jsonObject = {
           userId: this.userId,
           roomId: that.roomId,
-          token: this.token
+          token: this.token,
+          os: 'web'
         };
         this.IO.emit('login', jsonObject);
       },
       sendMsg() {
-        if (this.messageTimeHandle!=null){
+        if (this.messageTimeHandle != null) {
           return;
         }
 
@@ -707,7 +709,7 @@
         this.IO.emit('chatevent', jsonObject);
         // that.$refs.msgInput.value = '';
         // that.scrollTo();
-        this.messageTimeHandle = setTimeout(function(){
+        this.messageTimeHandle = setTimeout(function () {
           that.showMeaage('请点击发送按钮重新发送！');
           that.messageTimeHandle = null;
         }, 1000);

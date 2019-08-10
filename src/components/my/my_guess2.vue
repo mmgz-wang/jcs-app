@@ -22,6 +22,7 @@
                 <span class="rqinfo">
                   <label style="font-size: 0.14rem">{{item.guessOrder.invest_target.length>1 ? item.guessOrder.invest_target.slice(0,1) : item.guessOrder.invest_target}}</label>
                   <label class="oddsCls">({{item.guessingPlan.handicap_name}}{{item.guessingPlan.handicap_plan}}) (高: {{item.choosePlanHigh}}) (低: {{item.choosePlanLow}})</label>
+                  <label v-if="history" class="retend">返还: {{item.resultCost}}</label>
                 </span>
               </div>
               <!--历史-->
@@ -129,7 +130,7 @@
         hintText: '您当前没有竞猜，快去试试运气吧！',
         loading: true,
         inXCX: false,
-        limit: 5,  //接口请求条数
+        limit: 15,  //接口请求条数
         currentList: [],
         historyList: [],
         maxId: '',
@@ -345,6 +346,7 @@
                   //交易明细默认隐藏
                   tempItem.detailShow = false;
                   let detailCost = 0;
+                  let resultCost = 0;
                   //交易明细数据解析以及封装
                   if (tempItem.guessingPlanSaleAndOdds) {
                     for (let m = 0; m < tempItem.guessingPlanSaleAndOdds.length; m++) {
@@ -354,10 +356,14 @@
                       } else if (tempMx.value2_name == tempItem.guessOrder.invest_target) {
                         tempMx.planMX = tempMx.value2_plan;
                       }
-                      detailCost += parseInt(tempMx.cost)
+                      detailCost += parseInt(tempMx.cost);
+                      resultCost += parseInt(tempMx.result);
                       //console.log('明细::', tempMx);
                     }
                     //console.log('明细中所有的成交总额::', detailCost);
+                    tempItem.resultCost = resultCost;
+                  } else {
+                    tempItem.resultCost = tempItem.guessOrder.cost;
                   }
                   //已经成交的数量
                   tempItem.alreadyCost = parseInt(detailCost);
@@ -610,6 +616,7 @@
         .guessing, .retend {
           color: #1ba479 !important;
           font-size: 0.14rem !important;
+          padding-left: 0.1rem;
         }
 
         .cdate {

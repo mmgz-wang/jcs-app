@@ -32,6 +32,11 @@ export default new Router({
         iskeep:false
       }
     },
+    { path: '/sunRecord', name: 'sunRecord', component: resolve => require(['../components/portal/sunRecord'],resolve),
+      meta: {
+        iskeep:false
+      }
+    },
     { path: '/PublicPage', name: 'PublicPage', component: resolve => require(['../components/portal/publicpage'],resolve),
       meta: {
         iskeep:false
