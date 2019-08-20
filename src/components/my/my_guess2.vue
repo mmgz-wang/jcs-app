@@ -130,7 +130,7 @@
         hintText: '您当前没有竞猜，快去试试运气吧！',
         loading: true,
         inXCX: false,
-        limit: 15,  //接口请求条数
+        limit: 5,  //接口请求条数
         currentList: [],
         historyList: [],
         maxId: '',

@@ -293,6 +293,7 @@
       },
       hide() {
         console.log('我要隐藏了......');
+        this.$emit('guessHide');
         this.curIntegralVal = this.moneyArr[0];
         this.active = false;
         this.betMoneyLimitTipMsg = '';

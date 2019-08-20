@@ -29,6 +29,7 @@
 		</div>
 		<div class="match-detail-wrap" :class="{roomActive:!isart,roomLeave:isart,'wxmatch-detail-wrap': inXCX}">
 			<scroll class="matchdetail-list" :data="articleList">
+        <div>
         <template v-for="item in articleList">
           <article-list
             :topMargin='false'
@@ -37,9 +38,10 @@
             :item="item">
 				  </article-list>
         </template>
+        </div>
 			</scroll>
 			<div class="odds_wrap" v-if="oddsData != null">
-				<div style="700px;">
+				<div>
 					<ul class="Asia" v-if="AsianOdds != null">
 						<li>
 							<span>亚赔</span>

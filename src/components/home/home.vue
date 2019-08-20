@@ -28,18 +28,27 @@
         <div>
           <banner v-if="banners.length>0" :bannerData="banners" @bannerClick="bannerClick"></banner>
           <portal @portalClick="portalClick" :portals="portals"></portal>
-          <template v-for="item in articleDataList">
+          <template v-for="(item,index) in articleDataList">
             <article-list
               v-if="item.otype == 1 || item.otype == undefined"
               @goarticle="goarticle"
               :topMargin='true'
               :item="item">
             </article-list>
-            <guess-item
-              v-else-if="item.otype == 4"
-              @guessTeamClick="guessTeamClick"
-              :item="item">
-            </guess-item>
+            <!--<guess-item-->
+            <!--v-else-if="item.otype == 4"-->
+            <!--@guessTeamClick="guessTeamClick"-->
+            <!--:item="item">-->
+            <!--</guess-item>-->
+            <template v-else-if="item.otype == 4 && index==articleDataList.guessIndex"
+                      v-for="guessItem in articleDataList.guessItems">
+              <guess-item
+                :guess="guessItem"
+                :moneyArr="moneyArr"
+                @showDiag="showDiag"
+                @hideDiag="hideDiag">
+              </guess-item>
+            </template>
             <room-list
               :item="item"
               v-if="item.otype == 3"></room-list>
@@ -62,7 +71,7 @@
   import portal from './portal'
   import Common from 'common/js/common'
   import articleList from 'base/articlelist/articlelist'
-  import guessItem from 'base/guessitem/guessitem'
+  import guessItem from 'base/guessitem/guessitem2'
   import guessMixin from 'base/mixins/guess_mixin'
   import guessDialog from 'base/guessdialog/guessdialog'
   import roomList from 'base/roomlist-item/roomlist-item'
@@ -85,7 +94,9 @@
         pullUpText: '上拉加载更多！',
         reloads: false,
         $routerPath: [],
-        curGuessItem: null
+        curGuessItem: null,
+        moneyArr: [],
+        isDiag: false
       }
     },
     components: {
@@ -104,6 +115,7 @@
 
       this.top = 0;
       this.getData();
+      this.initMoneyArr();
       this.$routerPath = this.$router.path;
       this.wxInit();
     },
@@ -140,16 +152,41 @@
         };
         wxApi.ShareAppMessage(option);
       },
+      initMoneyArr() {
+        //获取投注额度列表
+        this.$http.jsonp(
+          Common.baseURI().host + '/assets/getGuessMoneyConfig?time=' + Math.random(),
+          {
+            params: {}
+          }
+        ).then(function (res) {
+          this.moneyArr = res.data;
+          console.log('投注额列表', this.moneyArr);
+        });
+      },
       pullingDownFn(scroll) {
         this.types = 0;
         this.lastArticleId = 0;
         this.pullDownText = '努力加载中 ...';
         this.getData();
+        console.log('------------------');
       },
       pullingUpFn(scroll) {
+        if (this.isDiag) {
+          return false;
+        }
         this.types = 1;
         this.pullUpText = '努力加载中 ...';
         this.getData();
+        console.log('+++++++++++++++++++');
+      },
+      showDiag() {
+        console.log('diag 展开了，不能下拉取数据');
+        this.isDiag = true;
+      },
+      hideDiag() {
+        console.log('diag 隐藏了，可以下拉取数据');
+        this.isDiag = false;
       },
       getData() {
         if (this.reloads) {
@@ -167,13 +204,14 @@
               }
             }
           ).then(function (res) {
+            console.log('返回数据:', res.data);
+            console.log('首页返回JSON数据:',JSON.stringify(res.data));
             if (res.data.result.data.Banner != undefined) {
               this.banners = res.data.result.data.Banner;
             }
             if (res.data.result.data.Portal != undefined) {
               this.portals = res.data.result.data.Portal;
             }
-
             if (this.types) {
               this.articleDataList = this.articleDataList.concat(res.data.result.artileList.Articles);
               this.pullUpText = '上拉加载更多！';
@@ -181,9 +219,72 @@
               this.articleDataList = res.data.result.artileList;
               this.pullDownText = '下拉刷新！';
             }
+            this.packData(this.articleDataList);
             this.lastArticleId = this.articleDataList[this.articleDataList.length - 1].id;
           })
         })
+      },
+      packData(resData) {
+        let guessItems = [];
+        let guessIndex = 0;
+        for (let i = 0; i < resData.length; i++) {
+          let article = resData[i];
+          if (article.otype == 4) {
+            if (guessIndex == 0) {
+              guessIndex = i;
+            }
+            console.log('竞猜消息', article);
+            guessItems.push(article);
+          }
+        }
+        //console.log('竞猜消息集合', guessItems);
+        let newGuessItems = this.packGuessItems(guessItems);
+        console.log('竞猜数据数据组合', newGuessItems);
+        console.log('首次出现竞猜', guessIndex);
+        resData.guessIndex = guessIndex;
+        resData.guessItems = newGuessItems;
+      },
+      //组合竞猜消息(2个或者多个竞猜根据球探ID合并为一个竞猜多个盘口)
+      packGuessItems(oldItems) {
+        let newGuessItems = [];
+        let stIds = [];
+        for (let i = 0; i < oldItems.length; i++) {
+          let item = oldItems[i];
+          if (stIds.indexOf(item.match_st_id) == -1) {
+            stIds.push(item.match_st_id);
+          }
+        }
+        console.log("球探ID集合", stIds);
+        for (let j = 0; j < stIds.length; j++) {
+          let guessItem = {};
+          let odds = [];
+          for (let m = 0; m < oldItems.length; m++) {
+            let dataItem = oldItems[m];
+            if (stIds[j] == dataItem.match_st_id) {
+              let odd = dataItem;
+              //让球左边,进球右边
+              if (odd.handicap_name.indexOf("让球") != -1 || odd.handicap_name.indexOf("让分") != -1) {
+                odd.rightSide = false;
+              } else if (odd.handicap_name.indexOf("进球") != -1 || odd.handicap_name.indexOf("总分") != -1) {
+                odd.rightSide = true;
+              } else {
+                odd.rightSide = false;
+              }
+              //console.log("盘口 ", odd.handicap_name + "，，" + odd.rightSide);
+              odds.push(odd);
+            }
+          }
+          guessItem.match_st_id = stIds[j];
+          guessItem.match_league = odds[0].match_league;
+          guessItem.match_teams = odds[0].match_teams;
+          guessItem.status = odds[0].status;
+          guessItem.end_time = odds[0].end_time.substr(5, 11);
+          guessItem.end_time_md = guessItem.end_time.trim().split(/\s+/)[0];
+          guessItem.end_time_hm = guessItem.end_time.trim().split(/\s+/)[1];
+          guessItem.odds = odds;
+          newGuessItems.push(guessItem);
+        }
+        return newGuessItems;
       },
       portalClick(item) {
         if (item.name == "筛价格") {
@@ -249,7 +350,7 @@
           this.$router.push({
             path: `guesslist`
           })
-        } else if(item.name == "椰子分"){
+        } else if (item.name == "椰子分") {
           this.$router.push({
             path: `/articledetail/?id=889804`,
             props: {id: 889804}
