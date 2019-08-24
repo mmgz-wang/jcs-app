@@ -632,11 +632,12 @@
 
 </style>
 <style scoped>
-  /*.guessdialog >>> .guess-mask{*/
-    /*height: 6rem !important;*/
-  /*}*/
+  .guessdialog >>> .guess-mask{
+    /*height: -webkit-fill-available !important;*/
+    top:30%;
+  }
   .guessdialog >>> .guess-dialog{
-    /*margin-bottom: 0.8rem ;*/
-    bottom:auto !important;
+    top:30%;
+    bottom: auto !important;
   }
 </style>
