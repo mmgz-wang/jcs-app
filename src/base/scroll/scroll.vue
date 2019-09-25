@@ -30,8 +30,8 @@
         default: null
       },
       pullDownRefresh:{
-        type: null,
-        default: false
+        threshold: 50,
+        stop: 20
       },
       pullUpLoad: {
         type: null,
@@ -48,17 +48,35 @@
       needRefresh: {
         type: Boolean,
         default: false
+      },
+      mouseWheel : {
+        type: Boolean,
+        default:false
+      },
+      autoBlur:{
+        type: Boolean,
+        default:true
+      },
+      istrue :{
+        type: Boolean,
+        default:true
+      },
+      isback: {
+        type: Boolean,
+        default:true
       }
     },
     data(){
       return {
         isPullingDown: false,
         isPullUpLoad: false,
-        scroll: null
+        scroll: null,
+        eheight:0
       }
     },
     mounted() {
       this.initScroll();
+      // this.refresh();
     },
     methods: {
       initScroll() {
@@ -75,7 +93,7 @@
           click: this.click,
           pullDownRefresh: this.pullDownRefresh,
           pullUpLoad: this.pullUpLoad,
-          mouseWheel: true,
+          mouseWheel: false,
           scrollbar:  {
             fade: false,
             interactive: false
@@ -107,6 +125,7 @@
       },
       scrollTo() {
         this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+        // console.log(this.scroll)
       },
       scrollToElement() {
         this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
@@ -131,7 +150,7 @@
     watch: {
       data: {
         handler: function () {
-          var that = this;
+          let that = this;
           if (this.pullDownRefresh && this.isPullingDown) {
             this.isPullingDown = false
             this.scroll.finishPullDown()
@@ -149,9 +168,31 @@
         },
         deep: true
       },
+      istrue: {
+        handler : function(){
+          if(this.istrue == false){
+            this.eheight = this.scroll.y
+            // console.log(this.scroll.y)
+            this.scroll.scrollTo(0,0,10)
+            this.istrue = true
+            this.refresh()
+          }
+        }
+      },
+      isback: {
+        handler: function(){
+          if(this.isback == false){
+            this.scroll.scrollTo(0,this.eheight,10)
+            this.eheight = 0;
+            this.isback = true
+            console.log(this.scroll.y)    
+            this.refresh()        
+          }
+        }
+      },
       $route: {
         handler: function () {
-          //this.refresh();
+          // this.refresh();
           // console.log(this.$route)
         }
       }
@@ -159,7 +200,6 @@
   }
 
 </script>
-
 <style rel="stylesheet/style">
   .bscroll-indicator{
     background: #eeeeee !important;

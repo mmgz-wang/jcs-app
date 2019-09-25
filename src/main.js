@@ -11,10 +11,13 @@ import 'common/js/jcs_dialoga.css'
 import 'common/js/layer'
 import 'common/less/layer.css'
 import { get } from 'common/js/api'
+import Vconsole from 'vconsole'
 
 Vue.prototype.shareFn = shareFn;
 Vue.config.productionTip = false
 Vue.prototype.$get = get
+
+
 
 /* eslint-disable no-new */
 new Vue({
@@ -29,4 +32,5 @@ Vue.use(VueLazyLoad,{
 
 Vue.use(vueResource);
 Vue.use(vueSwiper);
+new Vconsole();
 

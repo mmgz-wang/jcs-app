@@ -1,6 +1,6 @@
 <template>
   <div class="guessdialog" v-show="active">
-    <div class="guess-dialog-wrap">
+    <div class="guess-dialog-wrap" >
       <div class="guess-mask">
         <div class="guess-dialog">
           <div class="guess-hd">
@@ -87,10 +87,10 @@
       }
     },
     created() {
-      this.getData()
+      // this.getData()  
     },
     mounted() {
-
+      
     },
     methods: {
       pressnum(event) {
@@ -137,52 +137,52 @@
           this.layerOpen('最小额度为10');
           return false;
         }
-        // if (this.checkBetMoneyLimit()) {
-        //   return false;
-        // }
+        if (this.checkBetMoneyLimit()) {
+          return false;
+        }
         if (this.curIntegralVal > this.money) {
           this.layerOpen('您的精彩币不足');
           return false;
         }
         this.finalDataSub();
-        // //最后校验盘口水位是否有变化
-        // this.$get('/assets/getGuessDataByGuessId', {
-        //   userId: this.shareFn.getUserId(),
-        //   token: this.shareFn.getSecurityCode(),
-        //   guess_id: this.item.id
-        // }).then(res => {
-        //   let nowOdds = res;
-        //   // console.log('提交确认时的：' + JSON.stringify(nowOdds));
-        //   if (this.mychooseUpDown == 'up') {
-        //     if (this.mychoosePlan != nowOdds.value1_plan || this.item.handicap_plan != nowOdds.handicap_plan) {
-        //       //不一致，确认框提示
-        //       if (confirm('数据发生变化,确认继续吗?') == true) {
-        //         this.finalDataSub();
-        //         return true;
-        //       } else {
-        //         return false;
-        //       }
-        //     } else {
-        //       this.finalDataSub();
-        //     }
-        //   } else if (this.mychooseUpDown == 'down') {
-        //     if (this.mychoosePlan != nowOdds.value2_plan || this.item.handicap_plan != nowOdds.handicap_plan) {
-        //       //不一致,确认框提示
-        //       if (confirm('数据发生变化,确认继续吗?') == true) {
-        //         this.finalDataSub();
-        //         return true;
-        //       } else {
-        //         return false;
-        //       }
-        //     } else {
-        //       this.finalDataSub();
-        //     }
-        //   }
-        // });
+        //最后校验盘口水位是否有变化
+        this.$get('/assets/getGuessDataByGuessId', {
+          userId: this.shareFn.getUserId(),
+          token: this.shareFn.getSecurityCode(),
+          guess_id: this.item.id
+        }).then(res => {
+          let nowOdds = res;
+          // console.log('提交确认时的：' + JSON.stringify(nowOdds));
+          if (this.mychooseUpDown == 'up') {
+            if (this.mychoosePlan != nowOdds.value1_plan || this.item.handicap_plan != nowOdds.handicap_plan) {
+              //不一致，确认框提示
+              if (confirm('数据发生变化,确认继续吗?') == true) {
+                this.finalDataSub();
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              this.finalDataSub();
+            }
+          } else if (this.mychooseUpDown == 'down') {
+            if (this.mychoosePlan != nowOdds.value2_plan || this.item.handicap_plan != nowOdds.handicap_plan) {
+              //不一致,确认框提示
+              if (confirm('数据发生变化,确认继续吗?') == true) {
+                this.finalDataSub();
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              this.finalDataSub();
+            }
+          }
+        });
 
       },
       finalDataSub() {
-        console.log('最终数据提交.....');
+        // console.log('最终数据提交.....');
         this.$get('/assets/purchaseGuessing', {
           userId: shareFn.getUserId(),
           Language: 'M',
@@ -193,7 +193,7 @@
           purchaseType: 3,
           transaction_type: this.autoMatching ? 1 : 0
         }).then(res => {
-          console.log("投注返回数据:");
+          // console.log("投注返回数据:");
           console.log(res);
           if (res.code == '0000') {
 
@@ -201,9 +201,9 @@
             shareFn.setCookie('money', this.money, 1);
             this.$emit('guessSuccess')
             if (this.targetSource == 'list') {
-              console.log('来源于竞猜列表!');
+              // console.log('来源于竞猜列表!');
             } else if (this.targetSource == 'list_myguess') {
-              console.log('来源于我的竞猜!');
+              // console.log('来源于我的竞猜!');
             } else {
               this.layerOpen(res.msg)
             }
@@ -270,8 +270,8 @@
       },
       show() {
         //     console.log("显示竞猜pop,传递参数:");
-        console.log(arguments);
-        console.log(this.moneyArr);
+        // console.log(arguments);
+        // console.log(this.moneyArr);
         if (arguments[1] != undefined && arguments[1] == 'list') {
           this.targetSource = 'list';
         }
@@ -279,7 +279,7 @@
         if (arguments[1] != undefined && arguments[1] == 'list_myguess') {
           this.targetSource = 'list_myguess';
         }
-        console.log('默认选中第一个::', this.moneyArr[0]);
+        // console.log('默认选中第一个::', this.moneyArr[0]);
         this.item = arguments[0][0];
         this.betOdds();
         this.getData();
@@ -292,7 +292,7 @@
 
       },
       hide() {
-        console.log('我要隐藏了......');
+        // console.log('我要隐藏了......');
         this.$emit('guessHide');
         this.curIntegralVal = this.moneyArr[0];
         this.active = false;
@@ -305,7 +305,7 @@
           skin: 'msg',
           anim: 'scale'
         })
-      }
+      } 
     }
   }
 </script>
@@ -313,14 +313,14 @@
 <style lang="less" scoped>
   .guessdialog {
     width: 100%;
-    height: 100%;
-
     .guess-dialog-wrap {
       width: 100%;
+      height:100%;
       position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 9999;
+      left:0;
+      top:0;
+      z-index:999;
+     
     }
 
     .guess-mask {
@@ -328,16 +328,27 @@
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
       position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 88;
+      top:0;
+      left:0;
+      z-index: 99;
     }
 
+    @-moz-document url-prefix(){
+      .guess-mask{
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top:0;
+        left:0;
+        z-index: 9999;
+      }
+    }
     .guess-dialog {
       width: 100%;
-      position: absolute;
+      position: fixed;
       left: 0;
-      bottom: 0;
+      bottom:0;
       background: #f4f4f4;
       text-align: center;
       border-radius: 15px 15px 0 0;

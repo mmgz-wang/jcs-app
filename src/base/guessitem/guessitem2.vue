@@ -12,7 +12,7 @@
     </div>
     <div class="vsname">
       <label style="font-weight: bold;margin-top: 0.8rem">{{guess.match_teams}}</label>
-      <!--<span class="conduct" v-if="guess.status < 3">进行中</span>-->
+      <!-- <span class="conduct" v-if="guess.status < 3">进行中</span> -->
       <!--<span class="conduct" v-if="guess.status >= 3">已结束</span>-->
     </div>
     <div v-if="guess.status < 3" class="contrast">
@@ -51,11 +51,14 @@
       </div>
     </div>
     <!--竞猜弹框-->
-    <guess-dialog
+    <div class="tool">
+      <guess-dialog
       :moneyArr="moneyArr"
       @guessSuccess="guessSuccess()"
       @guessHide="guessHide()"
       ref="guessDialog"></guess-dialog>
+    </div>
+    
   </div>
 </template>
 
@@ -630,14 +633,26 @@
     color: #666;
   }
 
+  .tool{
+        // width: calc(100vw);
+        // height: calc(100vh);
+        // position: fixed;
+        // top: 0;
+        // left: 0;
+        // background: greenyellow;
+        // opacity: 0.6;
+        // z-index: 999;
+    }
+
 </style>
 <style scoped>
   .guessdialog >>> .guess-mask{
-    /*height: -webkit-fill-available !important;*/
-    top:30%;
+    height: -webkit-fill-content !important;
+    /* top:30%; */
   }
   .guessdialog >>> .guess-dialog{
-    top:30%;
+    /* top: calc(42vh) ; */
+    top:0;
     bottom: auto !important;
   }
 </style>

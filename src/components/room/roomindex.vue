@@ -330,7 +330,7 @@
         });
 
         this.IO.on('messageAck', function (data) {
-          console.log(data)
+          console.log('收到messageAck：',data)
           that.chatClosedStatus = data.close
           that.chatClosed()
           that.ackData = data;
