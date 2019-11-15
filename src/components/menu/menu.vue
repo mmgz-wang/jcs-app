@@ -2,7 +2,8 @@
 	<div @click="setMenu()" class="menus" id="menus">
 		<div class="right">
 			<dl id="user" @click="goEnter()">
-				<dt><img id="menupic" :src="setPic()"></dt>
+				<dt v-if="isshow"><img id="menupic" :src="setPic()"></dt>
+				
 				<dd id="menutel">{{nickName}}</dd>
 			</dl>
 			<ul>
@@ -22,7 +23,7 @@ export default {
 	name: 'menus',
   data(){
 	  return {
-	    nickName: '请登录'
+		nickName: '请登录'
     }
   },
   created(){
@@ -44,7 +45,7 @@ export default {
 		    }
 		},
 		setPic(){
-			if(this.shareFn.getUserPic()==undefined || this.shareFn.getUserPic()==''){
+			if(this.shareFn.getUserPic() == undefined || this.shareFn.getUserPic() == ''){
 				return require('../../common/img/uyse.png')
 			}else{
 				return this.shareFn.getUserPic();

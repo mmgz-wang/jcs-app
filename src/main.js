@@ -10,7 +10,9 @@ import shareFn from 'common/js/sharefn.js'
 import 'common/js/jcs_dialoga.css'
 import 'common/js/layer'
 import 'common/less/layer.css'
-import { get } from 'common/js/api'
+import {
+  get
+} from 'common/js/api'
 import Vconsole from 'vconsole'
 
 Vue.prototype.shareFn = shareFn;
@@ -24,13 +26,14 @@ new Vue({
   el: '#app',
   router,
   template: '<App/>',
-  components: { App }
+  components: {
+    App
+  }
 })
-Vue.use(VueLazyLoad,{
-	loading: require('common/img/pic.jpg')
+Vue.use(VueLazyLoad, {
+  loading: require('common/img/pic.jpg')
 })
 
 Vue.use(vueResource);
 Vue.use(vueSwiper);
-new Vconsole();
-
+// new Vconsole();

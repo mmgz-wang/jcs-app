@@ -341,12 +341,13 @@
             }
           }).then(res => {
           this.loading = false;
+          console.log(this.shareFn.getSecurityCode())
           if (typeof (res.data.list) != "undefined") {
             console.log(res.data);
             this.moneyArr = res.data['bet.prices.list'];
             this.noDataShow = false;
             this.packGuessData(res);
-            console.log('最终数据组装......');
+            // console.log('最终数据组装......');
             console.log(this.guessMatchData);
           } else {
             console.log('无数据');
@@ -518,7 +519,7 @@
       color: @assistcolor;
       font-size: 0.12rem;
     }
-
+////////////////////////////////////////////////////////////////
     .outer-wrap {
       width: 100%;
       position: absolute;
@@ -845,7 +846,7 @@
   .txt_btn .jx {
     color: #cc0000
   }
-
+///////////////////////////////////////////////////////////////
   .choose {
     width: 100%;
     margin: auto;

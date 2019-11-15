@@ -19,21 +19,36 @@ module.exports = {
   baseURI: function () {
     //打包===生产环境,!==测试环境   //开发 ===代表测试环境,!==代表生产环境
     if (process.env.NODE_ENV !== "development") {
+      console.log('测试',process.env.NODE_ENV)
       return {
-        // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",
-        // host: "http://182.18.76.156:9095/",
+        // jcsurl: "http://www.jingcaishuo.com/mandarin_h5_html_test",   //不可用
+        // host: "http://182.18.76.156:9095/",   不可用
         // 测试host
         nativeHost: 'http://apm.jingcaishuo.net',
-        // ioUrl: 'http://182.18.76.155:8080/',
+        // ioUrl: 'http://182.18.76.155:8080/', //图片
         // roomMsgurls: 'http://182.18.76.155:8822',
         // matchListversion: '1.1.5',
         // 测试H5host
-        host: "http://jnv.jingcaishuo.net/",
-        // host: "http://10.8.0.10:9095",
-        ioUrl: 'https://tchat.jingcaishuo.com/',
+        host: "http://jnv.jingcaishuo.net/", //不可用
+        // host: "http://10.8.0.10:9095", //不可用
+        ioUrl: 'https:/tchat.jingcaishuo.com/',
         roomMsgurls: 'https://tchat.jingcaishuo.com/'
+
+
+        // host  返回请求失败弹窗
+
+
+        // h5_api 9095   jnv.jingcaishuo.net
+        // host  9093    apm.jingcaishuo.net
+        // push 9999
+        // schedule 9600 9997   qa-schedule.jingcaishuo.com
+        // ums 18080
+        // guess_oms 8098   qa-guess-manager.jingcaishuo.com
+        // tms 8779   qa-tms.jingcaishuo.net
+        // chat  9292 8080  tchat.jingcaishuo.com
       }
     } else {
+      console.log('线上',process.env.NODE_ENV)
       return {
         // 正式H5host
         host: "https://www.jingcaishuo.com",
@@ -92,5 +107,5 @@ module.exports = {
   }
 }
 
-
+// export default
 

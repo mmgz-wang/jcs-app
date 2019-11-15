@@ -6,7 +6,7 @@
         <dl @click="enterClick()">
           <dt>
             <img v-if="isLogin()" :src="userData.PicPath" alt="" id="usericon">
-            <img v-else-if="!isLogin()" src="../../common/img/uyse.png" alt="" id="usericon">
+            <img v-else-if="!isLogin() || userData.PicPath == ''" src="../../common/img/uyse.png" alt="" id="usericon">
           </dt>
           <dd>
             <p v-show="isLogin() && !showName" class="setName" @click="setName()">设置昵称</p>
@@ -180,7 +180,7 @@
     created() {
       this.$nextTick(function () {
         if (this.shareFn.isLogin()) {
-          //this.getData()
+          this.getData()
         }
       })
     },
@@ -203,6 +203,7 @@
           ).then(function (res) {
             if (res.data.code == '0000') {
               this.userData = res.data;
+              console.log(res.data )
               this.userId =  this.shareFn.getUserId();
               if(this.userData.NickName != '' && this.userData.NickName != null && this.userData.NickName != undefined && this.userData.NickName != this.userData.PhoneNumber){
                 this.showName = true;

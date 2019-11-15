@@ -25,7 +25,7 @@ import loading from 'base/loading/loading'
       loading
     },
     mounted(){
-    //this.$ajax.get('http:www.jingcaishuo.com/article/detail',{});
+    // this.$ajax.get('http:www.jingcaishuo.com/article/detail',{});
     //  console.log(this.$axios)
       this.isShow = false
     }

@@ -329,7 +329,8 @@
             this.noDataShow = false;
             this.packGuessData(res);
             console.log('最终数据组装......');
-            console.log(this.guessMatchData);
+            // console.log(this.guessMatchData);
+            console.log('??????????????????????')
           } else {
             console.log('无数据');
             this.noDataShow = true;
@@ -425,8 +426,9 @@
       },
       //玩法赔率点击
       teamClick() {
+        console.log('?????')
         if (this.shareFn.isLogin()) {
-          this.$refs.guessDialog.show(arguments, 'list')
+          // this.$refs.guessDialog.show(arguments, 'list')
         } else {
           layer.open({
             content: '您还没有登录请先登录！',

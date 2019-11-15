@@ -16,7 +16,7 @@
       <!--<span class="conduct" v-if="guess.status >= 3">已结束</span>-->
     </div>
     <div v-if="guess.status < 3" class="contrast">
-      <div class="contc" :class="odd.rightSide ? 'contr' : '' " v-for="(odd,oddIndex) in guess.odds">
+      <div class="contc" :class="odd.rightSide ? 'contr' : '' " v-for="(odd,oddIndex) in guess.odds" :key='oddIndex'>
         <div class="num">{{odd.handicap_name}}<span>{{odd.handicap_plan}}</span></div>
         <div class="cnt_txt">
           <ul>
@@ -119,6 +119,7 @@
       },
       //玩法赔率点击
       teamClick() {
+        
         if (this.shareFn.isLogin()) {
           this.$emit('showDiag');
           this.$refs.guessDialog.show(arguments, 'list')

@@ -48,23 +48,23 @@
                             v-for="guessItem in articleDataList.guessItems" >
                     <!-- 竞猜 -->
                     <!-- <div style="fontSize:12px">{{articleDataList.guessItems}}</div> -->
-                    <guess-item
+                    <!-- <guess-item
                       
                       :guess="guessItem"
                       :moneyArr="moneyArr"
                       @showDiag="showDiag(index)"
                       @hideDiag="hideDiag(guessItem)">
-                    </guess-item>
+                    </guess-item> -->
                   </template>
                 <room-list
                   :item="item"
                   v-if="item.otype == 3"></room-list>
               </template>
               <div style='height:50px'></div>
-          </div>
         </div>
+      </div>
         <p pullup>{{pullUpText}}</p>
-      
+    
     </scroll>
     
     <!-- <router-view></router-view> -->
@@ -75,19 +75,19 @@
 </template>
 
 <script type="text/ecmascript-6">
-  import Scroll from 'base/scroll/scroll'
-  import loading from 'base/loading/loading'
-  import banner from 'base/banner/banner'
-  import portal from './portal'
-  import Common from 'common/js/common'
-  import articleList from 'base/articlelist/articlelist'
-  import guessItem from 'base/guessitem/guessitem2'
-  import guessMixin from 'base/mixins/guess_mixin'
-  import guessDialog from 'base/guessdialog/guessdialog'
-  import roomList from 'base/roomlist-item/roomlist-item'
+  import Scroll from 'base/scroll/scroll'     //滚动插件
+  import loading from 'base/loading/loading'  //加载插件
+  import banner from 'base/banner/banner'     //swiper
+  import portal from './portal'               //筛选组件
+  import Common from 'common/js/common'       
+  import articleList from 'base/articlelist/articlelist'  //列表组件
+  import guessItem from 'base/guessitem/guessitem2'       //列表内容
+  import guessMixin from 'base/mixins/guess_mixin'        //登录校验
+  import guessDialog from 'base/guessdialog/guessdialog'  //模态框
+  import roomList from 'base/roomlist-item/roomlist-item' //直播间
   import query from 'querystring'
   import wxApi from 'common/js/wxapi'
-  import menu from  '../menu/menu'
+  import menu from  '../menu/menu'            //菜单组件
    
 
   export default {
@@ -112,6 +112,72 @@
         istrue: true,
         isback:true,
         clientHeight:document.documentElement.clientHeight,
+        big:{
+                "comment": "发布高水",
+                "end_time": "2019-08-17 23:59:00+08",
+                "handicap_name": "全场进球：",
+                "handicap_plan": "2/2.5",
+                "handicap_refe": "2/2.5",
+                "id": 444978,
+                "initiator_id": 0,
+                "invest_max": 0,
+                "match_league": "西乙",
+                "match_result": "",
+                "match_st_id": 1742687,
+                "match_teams": "卢高 VS 艾斯马度华",
+                "odd_id": 5351113,
+                "odd_type": 1,
+                "otype": "4",
+                "source": 2,
+                "sportType": 0,
+                "start_time": "2019-08-16 02:31:27+08",
+                "status": 1,
+                "type": 2,
+                "value1_name": "大球",
+                "value1_plan": "1.08",
+                "value1_purnum": 96,
+                "value1_purper": "46.0",
+                "value1_refe": "1.01",
+                "value2_name": "小球",
+                "value2_plan": "0.92",
+                "value2_purnum": 111,
+                "value2_purper": "54",
+                "value2_refe": "0.86",
+                "weight": 9
+              },
+        bottom:{
+                  "comment": "发布高水",
+                  "end_time": "2019-08-17 23:59:00+08",
+                  "handicap_name": "全场让球：",
+                  "handicap_plan": "0/0.5",
+                  "handicap_refe": "0/0.5",
+                  "id": 444977,
+                  "initiator_id": 0,
+                  "invest_max": 0,
+                  "match_league": "西乙",
+                  "match_result": "",
+                  "match_st_id": 1742687,
+                  "match_teams": "卢高 VS 艾斯马度华",
+                  "odd_id": 5359286,
+                  "odd_type": 1,
+                  "otype": "4",
+                  "source": 2,
+                  "sportType": 0,
+                  "start_time": "2019-08-16 02:31:27+08",
+                  "status": 1,
+                  "type": 2,
+                  "value1_name": "主队",
+                  "value1_plan": "1.01",
+                  "value1_purnum": 162,
+                  "value1_purper": "57.0",
+                  "value1_refe": "0.96",
+                  "value2_name": "客队",
+                  "value2_plan": "0.98",
+                  "value2_purnum": 122,
+                  "value2_purper": "43",
+                  "value2_refe": "0.94",
+                  "weight": 8
+                }
       }
     },
     components: {
@@ -135,6 +201,10 @@
       this.wxInit();
     },
     methods: {
+      randomArray(str1,str2,oldArr){
+        oldArr.splice(Math.random() * oldArr.length,0,str1,str2)
+        return arguments.call(this.randomArray(str1,str2,oldArr))
+      },
       //微信初始化
       wxInit() {
         wxApi.wxRegister();
@@ -176,7 +246,7 @@
           }
         ).then(function (res) {
           this.moneyArr = res.data;
-          // console.log('投注额列表', this.moneyArr);
+          console.log('投注额列表', this.moneyArr);
         });
       },
       pullingDownFn(scroll) {
@@ -213,6 +283,7 @@
           return;
         }
         this.$nextTick(function () {
+        
           this.$http.jsonp(
             `${Common.baseURI().host}/top-header/?time=${Math.random()}`,
             {
@@ -224,1164 +295,37 @@
               }
             }
           ).then(function (res) {
+            // console.log(this.big)
             // console.log(`${Common.baseURI().host}/top-header/?time=${Math.random()}`)
-            // console.log('返回数据:', res.data);
-            // console.log('首页返回JSON数据:',JSON.stringify(res.data));
-           res.data = {
-              "msg": "请求成功！", "result": {
-                "data": {
-                  "Banner": [{
-                    "h5Url": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180612_095018635000_143.jpg",
-                    "target_type": "article",
-                    "target_id": "1233",
-                    "id": 49
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/jc/wap/index.html?r=2&amp;header=1#/sportHome",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180612_100349438380_552.jpg",
-                    "target_type": "h5",
-                    "target_id": "1",
-                    "id": 51
-                  }, {
-                    "h5Url": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180612_101046079263_897.png",
-                    "target_type": "article",
-                    "target_id": "1234",
-                    "id": 52
-                  }, {
-                    "h5Url": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180612_115656765000_914.jpg",
-                    "target_type": "article",
-                    "target_id": "2222",
-                    "id": 53
-                  }, {
-                    "h5Url": "https://www.baidu.com/",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1d6a7bcb8a37e789/20180725_174812195000_57.jpg",
-                    "target_type": "article",
-                    "target_id": "137771",
-                    "id": 54
-                  }, {
-                    "h5Url": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20190228_233430356497_372.jpg",
-                    "target_type": "article",
-                    "target_id": "111",
-                    "id": 55
-                  }],
-                  "Portal": [{
-                    "h5Url": "https://www.jingcaishuo.com/mandarin_h5_html_test/portal-feedback",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180529_150751436740_707.png",
-                    "target_url": "https://www.jingcaishuo.com/mandarin_h5_html_test/portal-feedback",
-                    "name": "留言墙",
-                    "showChannelFlag": false,
-                    "id": 121,
-                    "showUserFlag": false
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/mandarin_h5_html_test/lecture_mandarin/index.html?id=801",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20190228_233403512281_476.jpg",
-                    "target_url": "http://www.jingcaishuo.com/mandarin_h5_html_test/lecture_mandarin/index.html?id=801",
-                    "name": "精选文章",
-                    "showChannelFlag": false,
-                    "id": 137,
-                    "showUserFlag": false
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/mandarin_h5_html/allart_list/",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20181031_141446009108_332.png",
-                    "target_url": "http://www.jingcaishuo.com/mandarin_h5_html/allart_list/",
-                    "name": "全部文章",
-                    "showChannelFlag": false,
-                    "id": 136,
-                    "showUserFlag": false
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/mandarin_h5_html_test/guessList/index.html",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20190402_115911390718_652.jpg",
-                    "target_url": "http://www.jingcaishuo.com/mandarin_h5_html_test/guessList/index.html",
-                    "name": "竞猜",
-                    "showChannelFlag": false,
-                    "id": 138,
-                    "showUserFlag": false
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/mandarin_h5_html_test/guessList/index.html",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20190810_183309303209_826.png",
-                    "target_url": "http://www.jingcaishuo.com/mandarin_h5_html_test/guessList/index.html",
-                    "name": "晒战绩",
-                    "showChannelFlag": false,
-                    "id": 139,
-                    "showUserFlag": false
-                  }, {
-                    "h5Url": "http://www.jingcaishuo.com/mandarin_h5_html_test/chartroom/list.html",
-                    "showChannelValue": "",
-                    "showUserValue": "",
-                    "img_url": "https://api.jingcaishuo.com//static/upfiles/analyst/1101f42a64606aed/20180907_183131686702_262.jpg",
-                    "target_url": "http://www.jingcaishuo.com/mandarin_h5_html_test/chartroom/list.html",
-                    "name": "聊天室",
-                    "showChannelFlag": false,
-                    "id": 135,
-                    "showUserFlag": false
-                  }],
-                  "Code": "0000"
-                },
-                "integral": "666",
-                "bet.prices.list": ["10", "20", "50", "100", "400", "800"],
-                "artileList": [{
-                  "articleCount": 1,
-                  "articleList": [],
-                  "awayTeam": "马兰",
-                  "cupName": "印尼冠",
-                  "homeTeam": "帕尔斯卡麦特罗",
-                  "isRollball": 0,
-                  "lotteryMatchId": 582452,
-                  "lottery_entry_id": 582286,
-                  "manualdata": "0,0:0",
-                  "matchId": "",
-                  "matchScore": {
-                    "guestTeamCoreNode1": "0",
-                    "guestTeamCoreNode2": "0",
-                    "guestTeamCoreNode3": "0",
-                    "guestTeamCoreNode4": "0",
-                    "guestTeamHalfScore": "0",
-                    "guestTeamOt1": "0",
-                    "guestTeamOt2": "0",
-                    "guestTeamOt3": "0",
-                    "guestTeamScore": "0",
-                    "homeTeamCoreNode1": "0",
-                    "homeTeamCoreNode2": "0",
-                    "homeTeamCoreNode3": "0",
-                    "homeTeamCoreNode4": "0",
-                    "homeTeamHalfScore": "0",
-                    "homeTeamOt1": "0",
-                    "homeTeamOt2": "0",
-                    "homeTeamOt3": "0",
-                    "homeTeamScore": "0",
-                    "matchStatus": "0"
-                  },
-                  "otype": "2",
-                  "scoutMatchId": 1642563,
-                  "sportType": "0",
-                  "startTime": "11-20 16:00",
-                  "startTime2": "2018-11-20 16:00:00+08",
-                  "week": 3,
-                  "weight": 10
-                },
-                  {
-                    "alreadyPay": false,
-                    "articleMatchList": [{
-                      "dishAnalysis": "",
-                      "fundamentalAnalysis": "",
-                      "matchId": 832860,
-                      "playList": [{
-                        "articleId": 138942,
-                        "id": 3927,
-                        "matchId": 832860,
-                        "playDetailList": [],
-                        "recommendReason": "",
-                        "type": 11
-                      }],
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "articlePraised": false,
-                    "authorFollowed": false,
-                    "authorLevels": [],
-                    "authorName": "CS老师",
-                    "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                    "authorScore": "3.9",
-                    "authorWin": {
-                      "tc_redblack_30": {
-                        "black": "0",
-                        "continuous_black_3": "0",
-                        "continuous_red_3": "0",
-                        "max_continuous_black": "0",
-                        "max_continuous_red": "0",
-                        "red": "0",
-                        "red_black_status": []
-                      }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                    },
-                    "author_id": "281",
-                    "certificationinfo": "",
-                    "chargeable": false,
-                    "date_added": "2019-05-10 14:53:11.962506+08",
-                    "digest": "222222222222222222222",
-                    "id": "138942",
-                    "includeBb": false,
-                    "includeFb": true,
-                    "isNewest": "1",
-                    "last_modified": "2019-05-10 14:53:11.962506+08",
-                    "matches": [{
-                      "away_team": "乌拉尔",
-                      "cup_name": "俄超",
-                      "dishAnalysis": "",
-                      "entry_id": "832694",
-                      "fundamentalAnalysis": "",
-                      "home_team": "奥伦堡加索维克",
-                      "id": 832860,
-                      "matchFlag": "",
-                      "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "playNum": 1,
-                    "portal_list": [],
-                    "price": "0",
-                    "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                    "singleUnlock": true,
-                    "sourceText": "",
-                    "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                    "text": "",
-                    "type": "20"
-                  },{
-                    "alreadyPay": false,
-                    "articleMatchList": [{
-                      "dishAnalysis": "",
-                      "fundamentalAnalysis": "",
-                      "matchId": 832860,
-                      "playList": [{
-                        "articleId": 138942,
-                        "id": 3927,
-                        "matchId": 832860,
-                        "playDetailList": [],
-                        "recommendReason": "",
-                        "type": 11
-                      }],
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "articlePraised": false,
-                    "authorFollowed": false,
-                    "authorLevels": [],
-                    "authorName": "CS老师",
-                    "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                    "authorScore": "3.9",
-                    "authorWin": {
-                      "tc_redblack_30": {
-                        "black": "0",
-                        "continuous_black_3": "0",
-                        "continuous_red_3": "0",
-                        "max_continuous_black": "0",
-                        "max_continuous_red": "0",
-                        "red": "0",
-                        "red_black_status": []
-                      }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                    },
-                    "author_id": "281",
-                    "certificationinfo": "",
-                    "chargeable": false,
-                    "date_added": "2019-05-10 14:53:11.962506+08",
-                    "digest": "222222222222222222222",
-                    "id": "138942",
-                    "includeBb": false,
-                    "includeFb": true,
-                    "isNewest": "1",
-                    "last_modified": "2019-05-10 14:53:11.962506+08",
-                    "matches": [{
-                      "away_team": "乌拉尔",
-                      "cup_name": "俄超",
-                      "dishAnalysis": "",
-                      "entry_id": "832694",
-                      "fundamentalAnalysis": "",
-                      "home_team": "奥伦堡加索维克",
-                      "id": 832860,
-                      "matchFlag": "",
-                      "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "playNum": 1,
-                    "portal_list": [],
-                    "price": "0",
-                    "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                    "singleUnlock": true,
-                    "sourceText": "",
-                    "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                    "text": "",
-                    "type": "20"
-                  },
-                  {
-                    "alreadyPay": false,
-                    "articleMatchList": [{
-                      "dishAnalysis": "",
-                      "fundamentalAnalysis": "",
-                      "matchId": 832860,
-                      "playList": [{
-                        "articleId": 138942,
-                        "id": 3927,
-                        "matchId": 832860,
-                        "playDetailList": [],
-                        "recommendReason": "",
-                        "type": 11
-                      }],
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "articlePraised": false,
-                    "authorFollowed": false,
-                    "authorLevels": [],
-                    "authorName": "CS老师",
-                    "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                    "authorScore": "3.9",
-                    "authorWin": {
-                      "tc_redblack_30": {
-                        "black": "0",
-                        "continuous_black_3": "0",
-                        "continuous_red_3": "0",
-                        "max_continuous_black": "0",
-                        "max_continuous_red": "0",
-                        "red": "0",
-                        "red_black_status": []
-                      }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                    },
-                    "author_id": "281",
-                    "certificationinfo": "",
-                    "chargeable": false,
-                    "date_added": "2019-05-10 14:53:11.962506+08",
-                    "digest": "222222222222222222222",
-                    "id": "138942",
-                    "includeBb": false,
-                    "includeFb": true,
-                    "isNewest": "1",
-                    "last_modified": "2019-05-10 14:53:11.962506+08",
-                    "matches": [{
-                      "away_team": "乌拉尔",
-                      "cup_name": "俄超",
-                      "dishAnalysis": "",
-                      "entry_id": "832694",
-                      "fundamentalAnalysis": "",
-                      "home_team": "奥伦堡加索维克",
-                      "id": 832860,
-                      "matchFlag": "",
-                      "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "playNum": 1,
-                    "portal_list": [],
-                    "price": "0",
-                    "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                    "singleUnlock": true,
-                    "sourceText": "",
-                    "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                    "text": "",
-                    "type": "20"
-                  },
-                  {
-                    "alreadyPay": false,
-                    "articleMatchList": [{
-                      "dishAnalysis": "",
-                      "fundamentalAnalysis": "",
-                      "matchId": 832860,
-                      "playList": [{
-                        "articleId": 138942,
-                        "id": 3927,
-                        "matchId": 832860,
-                        "playDetailList": [],
-                        "recommendReason": "",
-                        "type": 11
-                      }],
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "articlePraised": false,
-                    "authorFollowed": false,
-                    "authorLevels": [],
-                    "authorName": "CS老师",
-                    "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                    "authorScore": "3.9",
-                    "authorWin": {
-                      "tc_redblack_30": {
-                        "black": "0",
-                        "continuous_black_3": "0",
-                        "continuous_red_3": "0",
-                        "max_continuous_black": "0",
-                        "max_continuous_red": "0",
-                        "red": "0",
-                        "red_black_status": []
-                      }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                    },
-                    "author_id": "281",
-                    "certificationinfo": "",
-                    "chargeable": false,
-                    "date_added": "2019-05-10 14:53:11.962506+08",
-                    "digest": "222222222222222222222",
-                    "id": "138942",
-                    "includeBb": false,
-                    "includeFb": true,
-                    "isNewest": "1",
-                    "last_modified": "2019-05-10 14:53:11.962506+08",
-                    "matches": [{
-                      "away_team": "乌拉尔",
-                      "cup_name": "俄超",
-                      "dishAnalysis": "",
-                      "entry_id": "832694",
-                      "fundamentalAnalysis": "",
-                      "home_team": "奥伦堡加索维克",
-                      "id": 832860,
-                      "matchFlag": "",
-                      "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "playNum": 1,
-                    "portal_list": [],
-                    "price": "0",
-                    "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                    "singleUnlock": true,
-                    "sourceText": "",
-                    "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                    "text": "",
-                    "type": "20"
-                  },
-                  {
-                    "alreadyPay": false,
-                    "articleMatchList": [{
-                      "dishAnalysis": "",
-                      "fundamentalAnalysis": "",
-                      "matchId": 832860,
-                      "playList": [{
-                        "articleId": 138942,
-                        "id": 3927,
-                        "matchId": 832860,
-                        "playDetailList": [],
-                        "recommendReason": "",
-                        "type": 11
-                      }],
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "articlePraised": false,
-                    "authorFollowed": false,
-                    "authorLevels": [],
-                    "authorName": "CS老师",
-                    "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                    "authorScore": "3.9",
-                    "authorWin": {
-                      "tc_redblack_30": {
-                        "black": "0",
-                        "continuous_black_3": "0",
-                        "continuous_red_3": "0",
-                        "max_continuous_black": "0",
-                        "max_continuous_red": "0",
-                        "red": "0",
-                        "red_black_status": []
-                      }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                    },
-                    "author_id": "281",
-                    "certificationinfo": "",
-                    "chargeable": false,
-                    "date_added": "2019-05-10 14:53:11.962506+08",
-                    "digest": "222222222222222222222",
-                    "id": "138942",
-                    "includeBb": false,
-                    "includeFb": true,
-                    "isNewest": "1",
-                    "last_modified": "2019-05-10 14:53:11.962506+08",
-                    "matches": [{
-                      "away_team": "乌拉尔",
-                      "cup_name": "俄超",
-                      "dishAnalysis": "",
-                      "entry_id": "832694",
-                      "fundamentalAnalysis": "",
-                      "home_team": "奥伦堡加索维克",
-                      "id": 832860,
-                      "matchFlag": "",
-                      "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                      "sportType": "0",
-                      "start_time": "2019-05-10 16:30:00+08"
-                    }],
-                    "playNum": 1,
-                    "portal_list": [],
-                    "price": "0",
-                    "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                    "singleUnlock": true,
-                    "sourceText": "",
-                    "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                    "text": "",
-                    "type": "20"
-                  },{
-                  "comment": "发布高水",
-                  "end_time": "2019-08-17 23:59:00+08",
-                  "handicap_name": "全场进球：",
-                  "handicap_plan": "2/2.5",
-                  "handicap_refe": "2/2.5",
-                  "id": 444978,
-                  "initiator_id": 0,
-                  "invest_max": 0,
-                  "match_league": "西乙",
-                  "match_result": "",
-                  "match_st_id": 1742687,
-                  "match_teams": "卢高 VS 艾斯马度华",
-                  "odd_id": 5351113,
-                  "odd_type": 1,
-                  "otype": "4",
-                  "source": 2,
-                  "sportType": 0,
-                  "start_time": "2019-08-16 02:31:27+08",
-                  "status": 1,
-                  "type": 2,
-                  "value1_name": "大球",
-                  "value1_plan": "1.08",
-                  "value1_purnum": 96,
-                  "value1_purper": "46.0",
-                  "value1_refe": "1.01",
-                  "value2_name": "小球",
-                  "value2_plan": "0.92",
-                  "value2_purnum": 111,
-                  "value2_purper": "54",
-                  "value2_refe": "0.86",
-                  "weight": 9
-                },{
-                  "comment": "发布高水",
-                  "end_time": "2019-08-17 23:59:00+08",
-                  "handicap_name": "全场让球：",
-                  "handicap_plan": "0/0.5",
-                  "handicap_refe": "0/0.5",
-                  "id": 444977,
-                  "initiator_id": 0,
-                  "invest_max": 0,
-                  "match_league": "西乙",
-                  "match_result": "",
-                  "match_st_id": 1742687,
-                  "match_teams": "卢高 VS 艾斯马度华",
-                  "odd_id": 5359286,
-                  "odd_type": 1,
-                  "otype": "4",
-                  "source": 2,
-                  "sportType": 0,
-                  "start_time": "2019-08-16 02:31:27+08",
-                  "status": 1,
-                  "type": 2,
-                  "value1_name": "主队",
-                  "value1_plan": "1.01",
-                  "value1_purnum": 162,
-                  "value1_purper": "57.0",
-                  "value1_refe": "0.96",
-                  "value2_name": "客队",
-                  "value2_plan": "0.98",
-                  "value2_purnum": 122,
-                  "value2_purper": "43",
-                  "value2_refe": "0.94",
-                  "weight": 8
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 954460,
-                    "playList": [{
-                      "articleId": 139044,
-                      "id": 4008,
-                      "matchId": 954460,
-                      "playDetailList": [],
-                      "recommendReason": "",
-                      "type": 26
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-08-08 20:30:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [{"app_show": true, "id": 100728, "termmonths": 0}, {
-                    "app_show": true,
-                    "id": 100727,
-                    "termmonths": 0
-                  }, {"app_show": true, "id": 100726, "termmonths": 1}, {
-                    "app_show": true,
-                    "id": 100725,
-                    "termmonths": 3
-                  }, {"app_show": true, "id": 100724, "termmonths": 6}, {
-                    "app_show": true,
-                    "id": 100723,
-                    "termmonths": 12
-                  }],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-08-08 20:08:42.108131+08",
-                  "digest": "测试新的sdk",
-                  "id": "139044",
-                  "includeBb": false,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-08-08 20:08:42.108131+08",
-                  "matches": [{
-                    "away_team": "培坎U23",
-                    "cup_name": "伊U23",
-                    "dishAnalysis": "",
-                    "entry_id": "954294",
-                    "fundamentalAnalysis": "",
-                    "home_team": "莫格哈维特德黑兰U23",
-                    "id": 954460,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"伊U23\",\"color\":\"#9933FF\",\"createTime\":1565266080141,\"en\":\"IRN U23 \",\"gameStartTime\":null,\"gameTime\":\"2019/8/8 20:30:00\",\"gb\":\"伊U23\",\"guessEndTime\":-1,\"guestTeamBig\":\"培坎U23\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Paykan U23\",\"guestTeamGb\":\"培坎U23\",\"guestTeamHalfScore\":null,\"guestTeamId\":39859,\"guestTeamRank\":null,\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"莫格哈維特德黑蘭U23\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Moghavemat Tehran U23\",\"homeTeamGb\":\"莫格哈维特德黑兰U23\",\"homeTeamHalfScore\":null,\"homeTeamId\":39880,\"homeTeamRank\":null,\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":1221,\"level\":\"0\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1769078,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":null,\"subLeagueId\":null}",
-                    "sportType": "0",
-                    "start_time": "2019-08-08 20:30:00+08"
-                  }],
-                  "playNum": 1,
-                  "portal_list": [],
-                  "price": "18",
-                  "sign_key": "796697AABBE54D05AAC0027C9E8F249C",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>初始指数大小分</i>",
-                  "text": "",
-                  "type": "10"
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 860974,
-                    "playList": [{
-                      "articleId": 139035,
-                      "id": 3999,
-                      "matchId": 860974,
-                      "playDetailList": [],
-                      "recommendReason": "",
-                      "type": 21
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-05-21 17:00:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [{"app_show": true, "id": 100728, "termmonths": 0}, {
-                    "app_show": true,
-                    "id": 100727,
-                    "termmonths": 0
-                  }, {"app_show": true, "id": 100726, "termmonths": 1}, {
-                    "app_show": true,
-                    "id": 100725,
-                    "termmonths": 3
-                  }, {"app_show": true, "id": 100724, "termmonths": 6}, {
-                    "app_show": true,
-                    "id": 100723,
-                    "termmonths": 12
-                  }],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-05-21 16:27:57.473069+08",
-                  "digest": "水电费所发生的发",
-                  "id": "139035",
-                  "includeBb": false,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-05-21 16:27:57.473069+08",
-                  "matches": [{
-                    "away_team": "林同",
-                    "cup_name": "越南乙",
-                    "dishAnalysis": "",
-                    "entry_id": "860808",
-                    "fundamentalAnalysis": "",
-                    "home_team": "昆嵩",
-                    "id": 860974,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"越南乙\",\"color\":\"#255A4F\",\"createTime\":1558427220183,\"en\":\"VIE D3 \",\"gameStartTime\":null,\"gameTime\":\"2019/5/21 17:00:00\",\"gb\":\"越南乙\",\"guestTeamBig\":\"林同\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Lam Dong\",\"guestTeamGb\":\"林同\",\"guestTeamHalfScore\":null,\"guestTeamId\":20034,\"guestTeamRank\":null,\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"昆嵩\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Kon Tum\",\"homeTeamGb\":\"昆嵩\",\"homeTeamHalfScore\":null,\"homeTeamId\":31120,\"homeTeamRank\":null,\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":1394,\"level\":\"0\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1714383,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":null,\"subLeagueId\":null}",
-                    "sportType": "0",
-                    "start_time": "2019-05-21 17:00:00+08"
-                  }],
-                  "playNum": 1,
-                  "portal_list": [],
-                  "price": "40",
-                  "sign_key": "A5DE841B65064D189F7FB55E750960CC",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>初始指数欧洲指数</i>",
-                  "text": "",
-                  "type": "10"
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 860974,
-                    "playList": [{
-                      "articleId": 139033,
-                      "id": 3997,
-                      "matchId": 860974,
-                      "playDetailList": [],
-                      "recommendReason": "",
-                      "type": 21
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-05-21 17:00:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [{"app_show": true, "id": 100728, "termmonths": 0}, {
-                    "app_show": true,
-                    "id": 100727,
-                    "termmonths": 0
-                  }, {"app_show": true, "id": 100726, "termmonths": 1}, {
-                    "app_show": true,
-                    "id": 100725,
-                    "termmonths": 3
-                  }, {"app_show": true, "id": 100724, "termmonths": 6}, {
-                    "app_show": true,
-                    "id": 100723,
-                    "termmonths": 12
-                  }],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-05-21 16:26:47.69251+08",
-                  "digest": "法第三方士大夫",
-                  "id": "139033",
-                  "includeBb": false,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-05-21 16:26:47.69251+08",
-                  "matches": [{
-                    "away_team": "林同",
-                    "cup_name": "越南乙",
-                    "dishAnalysis": "",
-                    "entry_id": "860808",
-                    "fundamentalAnalysis": "",
-                    "home_team": "昆嵩",
-                    "id": 860974,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"越南乙\",\"color\":\"#255A4F\",\"createTime\":1558427040115,\"en\":\"VIE D3 \",\"gameStartTime\":null,\"gameTime\":\"2019/5/21 17:00:00\",\"gb\":\"越南乙\",\"guestTeamBig\":\"林同\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Lam Dong\",\"guestTeamGb\":\"林同\",\"guestTeamHalfScore\":null,\"guestTeamId\":20034,\"guestTeamRank\":null,\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"昆嵩\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Kon Tum\",\"homeTeamGb\":\"昆嵩\",\"homeTeamHalfScore\":null,\"homeTeamId\":31120,\"homeTeamRank\":null,\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":1394,\"level\":\"0\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1714383,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":null,\"subLeagueId\":null}",
-                    "sportType": "0",
-                    "start_time": "2019-05-21 17:00:00+08"
-                  }],
-                  "playNum": 1,
-                  "portal_list": [],
-                  "price": "20",
-                  "sign_key": "2BF3993B255B4891892A2E8CE2FBDCE6",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>初始指数欧洲指数</i>",
-                  "text": "",
-                  "type": "10"
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 832860,
-                    "playList": [{
-                      "articleId": 138942,
-                      "id": 3927,
-                      "matchId": 832860,
-                      "playDetailList": [],
-                      "recommendReason": "",
-                      "type": 11
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-05-10 16:30:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": false,
-                  "date_added": "2019-05-10 14:53:11.962506+08",
-                  "digest": "222222222222222222222",
-                  "id": "138942",
-                  "includeBb": false,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-05-10 14:53:11.962506+08",
-                  "matches": [{
-                    "away_team": "乌拉尔",
-                    "cup_name": "俄超",
-                    "dishAnalysis": "",
-                    "entry_id": "832694",
-                    "fundamentalAnalysis": "",
-                    "home_team": "奥伦堡加索维克",
-                    "id": 832860,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"俄超\",\"color\":\"#006699\",\"createTime\":1557471060250,\"en\":\"RUS PR \",\"gameStartTime\":null,\"gameTime\":\"2019/5/10 16:30:00\",\"gb\":\"俄超\",\"guestTeamBig\":\"烏拉爾\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Ural Sverdlovsk Oblast\",\"guestTeamGb\":\"乌拉尔\",\"guestTeamHalfScore\":null,\"guestTeamId\":2450,\"guestTeamRank\":\"11\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奧倫堡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Gazovik Orenburg\",\"homeTeamGb\":\"奥伦堡加索维克\",\"homeTeamHalfScore\":null,\"homeTeamId\":5755,\"homeTeamRank\":\"8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"1\",\"leagueId\":10,\"level\":\"1\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1559170,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":\"联赛\",\"subLeagueId\":\"591\"}",
-                    "sportType": "0",
-                    "start_time": "2019-05-10 16:30:00+08"
-                  }],
-                  "playNum": 1,
-                  "portal_list": [],
-                  "price": "0",
-                  "sign_key": "7489F7E97D8D40A1B56BB9310BA3DA32",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>竞彩方案胜平负/让球胜平负</i>",
-                  "text": "",
-                  "type": "20"
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 723243,
-                    "playList": [{
-                      "articleId": 138326,
-                      "id": 3312,
-                      "matchId": 723243,
-                      "playDetailList": [],
-                      "type": 26
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-02-26 14:00:00+08"
-                  }, {
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 720849,
-                    "playList": [{
-                      "articleId": 138326,
-                      "id": 3313,
-                      "matchId": 720849,
-                      "playDetailList": [],
-                      "type": 132
-                    }],
-                    "sportType": "1",
-                    "start_time": "2019-02-26 11:30:00+08"
-                  }, {
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 716142,
-                    "playList": [{
-                      "articleId": 138326,
-                      "id": 3311,
-                      "matchId": 716142,
-                      "playDetailList": [],
-                      "type": 21
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-02-26 11:00:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-02-26 10:34:10.573597+08",
-                  "digest": "新文章发布测试001",
-                  "id": "138326",
-                  "includeBb": true,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-02-26 10:34:10.573597+08",
-                  "matches": [{
-                    "away_team": "伊斯塔拉夫山足球俱乐部",
-                    "cup_name": "塔吉克杯",
-                    "dishAnalysis": "",
-                    "entry_id": "723077",
-                    "fundamentalAnalysis": "",
-                    "home_team": "伊提洛尔-83",
-                    "id": 723243,
-                    "matchFlag": "",
-                    "remark": "null",
-                    "sportType": "0",
-                    "start_time": "2019-02-26 14:00:00+08"
-                  }, {
-                    "away_team": "达拉斯独行侠",
-                    "cup_name": "NBA",
-                    "dishAnalysis": "",
-                    "entry_id": "720683",
-                    "fundamentalAnalysis": "",
-                    "home_team": "洛杉矶快船",
-                    "id": 720849,
-                    "matchFlag": "",
-                    "remark": "{\"color\":\"#FF0000\",\"createTime\":1551148380053,\"guestTeamBig\":\"達拉斯獨行俠\",\"guestTeamCoreNode1\":\"\",\"guestTeamCoreNode2\":\"\",\"guestTeamCoreNode3\":\"\",\"guestTeamCoreNode4\":\"\",\"guestTeamGb\":\"达拉斯独行侠\",\"guestTeamId\":17,\"guestTeamOt1\":\"\",\"guestTeamOt2\":\"\",\"guestTeamOt3\":\"\",\"guestTeamRank\":\"西13\",\"guestTeamScore\":\"\",\"homeTeamBig\":\"洛杉磯快艇\",\"homeTeamCoreNode1\":\"\",\"homeTeamCoreNode2\":\"\",\"homeTeamCoreNode3\":\"\",\"homeTeamCoreNode4\":\"\",\"homeTeamGb\":\"洛杉矶快船\",\"homeTeamId\":29,\"homeTeamOt1\":\"\",\"homeTeamOt2\":\"\",\"homeTeamOt3\":\"\",\"homeTeamRank\":\"西8\",\"homeTeamScore\":\"\",\"id\":326477,\"leagueCupId\":1,\"leagueCupNameBig\":\"NBA\",\"leagueCupNameGb\":\"NBA\",\"leagueCupType\":\"1\",\"liveTv\":\"广东体育\",\"liveTvRemark\":\"\",\"matchMode\":\"4\",\"matchStatus\":\"0\",\"nodeRemainTime\":\"\",\"overtimeCount\":\"0\",\"positionFlag\":\"0\",\"startTime\":\"2019/2/26 11:30:00\",\"technicalStatisticalFlag\":\"\"}",
-                    "sportType": "1",
-                    "start_time": "2019-02-26 11:30:00+08"
-                  }, {
-                    "away_team": "惠灵顿",
-                    "cup_name": "大冠杯",
-                    "dishAnalysis": "",
-                    "entry_id": "715976",
-                    "fundamentalAnalysis": "",
-                    "home_team": "奇維",
-                    "id": 716142,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"大冠盃\",\"color\":\"#43990a\",\"createTime\":1551148380086,\"en\":\"Oce CL \",\"gameStartTime\":null,\"gameTime\":\"2019/2/26 11:00:00\",\"gb\":\"大冠杯\",\"guestTeamBig\":\"惠靈頓\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"Team Wellington\",\"guestTeamGb\":\"惠灵顿\",\"guestTeamHalfScore\":null,\"guestTeamId\":3812,\"guestTeamRank\":\"新西兰联3\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"奇維\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"Kiwi FC\",\"homeTeamGb\":\"奇維\",\"homeTeamHalfScore\":null,\"homeTeamId\":22845,\"homeTeamRank\":null,\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"2\",\"leagueId\":543,\"level\":\"0\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1667887,\"matchStatus\":\"0\",\"positionFlag\":\"True\",\"subLeague\":null,\"subLeagueId\":null}",
-                    "sportType": "0",
-                    "start_time": "2019-02-26 11:00:00+08"
-                  }],
-                  "playNum": 3,
-                  "portal_list": [],
-                  "price": "0",
-                  "sign_key": "D788B902C7B644DFBCB11D1BD35564CD",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>篮球</i><i>初始指数组合包</i><label>3场比赛</label><label class='gg'>|</label><label>3种玩法</label>",
-                  "text": "",
-                  "type": "10"
-                },{
-                  "alreadyPay": false,
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-02-22 17:17:21.055959+08",
-                  "digest": "文章价格为0文章价格为0",
-                  "id": "138315",
-                  "includeBb": false,
-                  "includeFb": false,
-                  "last_modified": "2019-02-22 17:17:21.055959+08",
-                  "playNum": 0,
-                  "price": "0",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "text": ""
-                },{
-                  "alreadyPay": false,
-                  "articleMatchList": [{
-                    "dishAnalysis": "",
-                    "fundamentalAnalysis": "",
-                    "matchId": 656526,
-                    "playList": [{
-                      "articleId": 138188,
-                      "id": 3082,
-                      "matchId": 656526,
-                      "playDetailList": [],
-                      "recommendReason": "",
-                      "type": 28
-                    }],
-                    "sportType": "0",
-                    "start_time": "2019-01-21 18:00:00+08"
-                  }],
-                  "articlePraised": false,
-                  "authorFollowed": false,
-                  "authorLevels": [{"app_show": true, "id": 100004, "termmonths": 0}, {
-                    "app_show": true,
-                    "id": 100005,
-                    "termmonths": 0
-                  }, {"app_show": true, "id": 100003, "termmonths": 1}, {
-                    "app_show": true,
-                    "id": 100002,
-                    "termmonths": 3
-                  }, {"app_show": true, "id": 100001, "termmonths": 6}, {
-                    "app_show": true,
-                    "id": 100000,
-                    "termmonths": 12
-                  }],
-                  "authorName": "CS老师",
-                  "authorPic": "https://api.jingcaishuo.com/static/upfiles/analyst/6a63b20ce89968e1/20170525_143818232004_615_avatar.jpg",
-                  "authorScore": "3.9",
-                  "authorWin": {
-                    "tc_redblack_30": {
-                      "black": "0",
-                      "continuous_black_3": "0",
-                      "continuous_red_3": "0",
-                      "max_continuous_black": "0",
-                      "max_continuous_red": "0",
-                      "red": "0",
-                      "red_black_status": []
-                    }, "tc_winrate_15": "16", "tc_winrate_3": "100", "tc_winrate_7": "33"
-                  },
-                  "author_id": "281",
-                  "certificationinfo": "",
-                  "chargeable": true,
-                  "date_added": "2019-01-21 15:39:32.397225+08",
-                  "digest": "测试翻译超时文章英语版本印尼语版本",
-                  "id": "138188",
-                  "includeBb": false,
-                  "includeFb": true,
-                  "isNewest": "1",
-                  "last_modified": "2019-01-21 15:39:32.397225+08",
-                  "matches": [{
-                    "away_team": "普罗斯捷约夫",
-                    "cup_name": "球会友谊",
-                    "dishAnalysis": "",
-                    "entry_id": "656360",
-                    "fundamentalAnalysis": "",
-                    "home_team": "杜布尼卡",
-                    "id": 656526,
-                    "matchFlag": "",
-                    "remark": "{\"big\":\"球會友誼\",\"color\":\"#00A8A8\",\"createTime\":1548056340335,\"en\":\"INT CF \",\"gameStartTime\":null,\"gameTime\":\"2019/1/21 18:00:00\",\"gb\":\"球会友谊\",\"guestTeamBig\":\"普羅斯捷約夫\",\"guestTeamCorner\":\"0\",\"guestTeamEn\":\"SK Prostejov\",\"guestTeamGb\":\"普罗斯捷约夫\",\"guestTeamHalfScore\":null,\"guestTeamId\":20041,\"guestTeamRank\":\"捷乙12\",\"guestTeamRedCard\":\"0\",\"guestTeamScore\":\"0\",\"guestTeamYellowCard\":null,\"homeTeamBig\":\"杜比尼卡\",\"homeTeamCorner\":\"0\",\"homeTeamEn\":\"MFK Dubnica nad Vahom\",\"homeTeamGb\":\"杜布尼卡\",\"homeTeamHalfScore\":null,\"homeTeamId\":941,\"homeTeamRank\":\"斯伐甲8\",\"homeTeamRedCard\":\"0\",\"homeTeamScore\":\"0\",\"homeTeamYellowCard\":null,\"kind\":\"2\",\"leagueId\":41,\"level\":\"0\",\"lineup\":null,\"live\":\"\",\"matchExplain\":\"\",\"matchExplain2\":\"\",\"matchId\":1658638,\"matchStatus\":\"0\",\"positionFlag\":\"False\",\"subLeague\":null,\"subLeagueId\":null}",
-                    "sportType": "0",
-                    "start_time": "2019-01-21 18:00:00+08"
-                  }],
-                  "playNum": 1,
-                  "portal_list": [],
-                  "price": "12",
-                  "sign_key": "96D0C67EF54C4DA59B8B2EAB3B6C1BF4",
-                  "singleUnlock": true,
-                  "sourceText": "",
-                  "tabView": "<i>足球</i><i>初始指数亚洲让分指数</i>",
-                  "text": "",
-                  "type": "10"
-                },{
-                  "comment": "发布高水",
-                  "end_time": "2019-08-17 23:59:00+08",
-                  "handicap_name": "全场进球：",
-                  "handicap_plan": "2/2.5",
-                  "handicap_refe": "2/2.5",
-                  "id": 444978,
-                  "initiator_id": 0,
-                  "invest_max": 0,
-                  "match_league": "西乙",
-                  "match_result": "",
-                  "match_st_id": 1742698,
-                  "match_teams": "卢高 VS 艾斯马度华",
-                  "odd_id": 5351113,
-                  "odd_type": 1,
-                  "otype": "4",
-                  "source": 2,
-                  "sportType": 0,
-                  "start_time": "2019-08-16 02:31:27+08",
-                  "status": 1,
-                  "type": 2,
-                  "value1_name": "大球",
-                  "value1_plan": "1.08",
-                  "value1_purnum": 96,
-                  "value1_purper": "46.0",
-                  "value1_refe": "1.01",
-                  "value2_name": "小球",
-                  "value2_plan": "0.92",
-                  "value2_purnum": 111,
-                  "value2_purper": "54",
-                  "value2_refe": "0.86",
-                  "weight": 9
-                },{
-                  "comment": "发布高水",
-                  "end_time": "2019-08-17 23:59:00+08",
-                  "handicap_name": "全场让球：",
-                  "handicap_plan": "0/0.5",
-                  "handicap_refe": "0/0.5",
-                  "id": 444977,
-                  "initiator_id": 0,
-                  "invest_max": 0,
-                  "match_league": "西乙",
-                  "match_result": "",
-                  "match_st_id": 1742698,
-                  "match_teams": "卢高 VS 艾斯马度华",
-                  "odd_id": 5359286,
-                  "odd_type": 1,
-                  "otype": "4",
-                  "source": 2,
-                  "sportType": 0,
-                  "start_time": "2019-08-16 02:31:27+08",
-                  "status": 1,
-                  "type": 2,
-                  "value1_name": "主队",
-                  "value1_plan": "1.01",
-                  "value1_purnum": 162,
-                  "value1_purper": "57.0",
-                  "value1_refe": "0.96",
-                  "value2_name": "客队",
-                  "value2_plan": "0.98",
-                  "value2_purnum": 122,
-                  "value2_purper": "43",
-                  "value2_refe": "0.94",
-                  "weight": 8
-                }]
-              }, "code": "0000"
-            };
+            // res.data.result.artileList.unshift(this.big,this.bottom)
+            // this.randomArray(this.big,this.bottom,res.data.result.artileList)
+            // console.log('返回数据:', res.data.result.data);
+            // console.log('首页返回JSON数据:',JSON.stringify(res.data))
 
 
             if (res.data.result.data.Banner != undefined) {
               this.banners = res.data.result.data.Banner;
+              // console.log(this.banners,'bnners')
             }
             if (res.data.result.data.Portal != undefined) {
+              let h5Url = "https://www.jingcaishuo.com/mandarin_h5_html/allart_list/";
+              let img_url = "https://api.jingcaishuo.com//static/upfiles/analyst/7432bbdca259a387/20181205_105729573991_585.png";
               this.portals = res.data.result.data.Portal;
+              this.portals.forEach(item => {
+                  item.img_url = img_url;
+              });
+              // console.log(this.portals)
             }
             if (this.types) {
               this.articleDataList = this.articleDataList.concat(res.data.result.artileList.Articles);
               this.pullUpText = '上拉加载更多！';
             } else {
               this.articleDataList = res.data.result.artileList;
-              this.pullDownText = '下拉刷新！';
+              // this.pullDownText = '下拉刷新！';
             }
             this.packData(this.articleDataList);
             this.lastArticleId = this.articleDataList[this.articleDataList.length - 1].id;
-          
-          
-          
-          
+            // console.log(this.articleDataList[this.articleDataList.length - 1])
           })
         })
       },
@@ -1398,9 +342,9 @@
             guessItems.push(article);
           }
         }
-        //console.log('竞猜消息集合', guessItems);
+        // console.log('竞猜消息集合', guessItems);
         let newGuessItems = this.packGuessItems(guessItems);
-        // console.log('竞猜数据数据组合', newGuessItems);
+        console.log('竞猜数据数据组合', newGuessItems);
         // console.log('首次出现竞猜', guessIndex);
         resData.guessIndex = guessIndex;
         resData.guessItems = newGuessItems;

@@ -30,8 +30,11 @@
         default: null
       },
       pullDownRefresh:{
-        threshold: 50,
-        stop: 20
+        type: Object,
+        default : {
+          threshold: 50,
+          stop: 30
+        }
       },
       pullUpLoad: {
         type: null,
@@ -76,7 +79,7 @@
     },
     mounted() {
       this.initScroll();
-      // this.refresh();
+      
     },
     methods: {
       initScroll() {
@@ -94,6 +97,7 @@
           pullDownRefresh: this.pullDownRefresh,
           pullUpLoad: this.pullUpLoad,
           mouseWheel: false,
+          bindToWrapper:true,
           scrollbar:  {
             fade: false,
             interactive: false
@@ -134,6 +138,7 @@
         this.scroll.on('pullingDown',() => {
           this.isPullingDown = true;
           this.pullingDownFn(this);
+          this.refresh()
         })
       },
       pullingUp () {
@@ -175,9 +180,11 @@
             // console.log(this.scroll.y)
             this.scroll.scrollTo(0,0,10)
             this.istrue = true
-            this.refresh()
+            // this.refresh()
+            console.log(this.scroll.hasVerticalScroll,'判断scroll是否失效')
           }
-        }
+        },
+        deep:true
       },
       isback: {
         handler: function(){
@@ -186,9 +193,11 @@
             this.eheight = 0;
             this.isback = true
             console.log(this.scroll.y)    
-            this.refresh()        
+            // this.refresh()     
+            console.log(this.scroll.hasVerticalScroll,'判断scroll是否失效')   
           }
-        }
+        },
+        deep:true
       },
       $route: {
         handler: function () {

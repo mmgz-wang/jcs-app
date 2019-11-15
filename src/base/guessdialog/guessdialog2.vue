@@ -270,7 +270,7 @@
       },
       show() {
         //     console.log("显示竞猜pop,传递参数:");
-        // console.log(arguments);
+        // console.log(arguments[0][3]);
         // console.log(this.moneyArr);
         if (arguments[1] != undefined && arguments[1] == 'list') {
           this.targetSource = 'list';
@@ -285,7 +285,7 @@
         this.getData();
         this.getBetLimit();
         this.mychoose = arguments[0][1];
-        // this.mychoosePlan = arguments[0][2];
+        this.mychoosePlan = arguments[0][2];
         this.mychooseUpDown = arguments[0][3];
         this.curIntegralVal = this.moneyArr[0];
         this.active = true
