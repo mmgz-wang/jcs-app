@@ -13,7 +13,7 @@
     "test": "npm run unit && npm run e2e"
   },
   "dependencies": {
-    "axios": "^0.17.0",
+    "axios": "^0.21.1",
     "better-scroll": "^1.9.0",
     "fs": "0.0.1-security",
     "jsonp": "^0.2.1",
